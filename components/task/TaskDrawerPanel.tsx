@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { createTask } from "@/lib/db/tasks";
-import { buildDueDateIso } from "@/lib/utils/dueDate";
+import { createTask, getTask, updateTask } from "@/lib/db/tasks";
+import { buildDueDateIso, splitDueDateIso } from "@/lib/utils/dueDate";
 
 /**
  * DaisyUI's default input focus (a colored border plus a separate 2px
@@ -18,18 +18,23 @@ const FIELD_FOCUS =
   "focus:shadow-[0_0_0_4px_rgba(77,209,224,0.25)]!";
 
 type TaskDrawerPanelProps = {
-  /** null = create mode. #27 will use this to load + prefill the task. */
+  /** null = create mode. Otherwise the id of the task being edited. */
   taskId: string | null;
   onClose: () => void;
 };
+
+type LoadState = "loading" | "ready" | "not-found";
 
 /**
  * The actual form, split out from TaskDrawer so it only exists while the
  * drawer is open — mounted fresh by TaskDrawer each time, unmounted on
  * close. That gives every open a clean slate for free, with no effect
- * needed to reset fields between opens.
+ * needed to reset fields between opens (only to load an existing task in
+ * edit mode, which is a legitimate use of an effect).
  */
 export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProps) {
+  const isEditing = taskId !== null;
+
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
   const [dueDate, setDueDate] = useState("");
@@ -37,27 +42,64 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
   const [allDay, setAllDay] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loadState, setLoadState] = useState<LoadState>(isEditing ? "loading" : "ready");
 
-  const isEditing = taskId !== null;
-  // Editing an existing task isn't wired up until #27 — Save stays
-  // disabled in that case for now.
-  const canSave = !isEditing && title.trim().length > 0 && !saving;
+  // Load the existing task once, in edit mode only. Create mode has
+  // nothing to fetch, so it starts (and stays) "ready".
+  useEffect(() => {
+    if (!isEditing) return;
+
+    let cancelled = false;
+    getTask(taskId).then((task) => {
+      if (cancelled) return;
+      if (!task) {
+        setLoadState("not-found");
+        return;
+      }
+      setTitle(task.title);
+      setNotes(task.notes ?? "");
+      const { date, time } = splitDueDateIso(task.dueDate);
+      setDueDate(date);
+      setDueTime(time);
+      setAllDay(task.allDay);
+      setLoadState("ready");
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isEditing, taskId]);
+
+  const canSave = loadState === "ready" && title.trim().length > 0 && !saving;
 
   async function handleSave() {
     if (!canSave) return;
     setSaving(true);
     setError(null);
     try {
-      await createTask({
-        title: title.trim(),
-        ...(notes.trim() ? { notes: notes.trim() } : {}),
-        priority: "none",
-        dueDate: buildDueDateIso(dueDate, dueTime, allDay),
-        allDay,
-        labelIds: [],
-        subtasks: [],
-        seriesId: null,
-      });
+      if (isEditing) {
+        // Only the fields this drawer actually edits — priority, labels,
+        // subtasks, and status are deliberately left out of the patch so
+        // editing never clobbers them with drawer defaults. updateTask
+        // merges with the existing record, so they stay untouched.
+        await updateTask(taskId, {
+          title: title.trim(),
+          notes: notes.trim() || undefined,
+          dueDate: buildDueDateIso(dueDate, dueTime, allDay),
+          allDay,
+        });
+      } else {
+        await createTask({
+          title: title.trim(),
+          ...(notes.trim() ? { notes: notes.trim() } : {}),
+          priority: "none",
+          dueDate: buildDueDateIso(dueDate, dueTime, allDay),
+          allDay,
+          labelIds: [],
+          subtasks: [],
+          seriesId: null,
+        });
+      }
       onClose();
     } catch {
       setSaving(false);
@@ -86,78 +128,87 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
           </button>
         </div>
 
-        <div className="flex flex-1 flex-col gap-5 overflow-y-auto">
-          <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-base-content/60">Title</span>
-            <input
-              type="text"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              placeholder="What needs to be done?"
-              className={`input w-full ${FIELD_FOCUS}`}
-            />
-          </label>
+        {loadState === "loading" && (
+          <p className="flex-1 text-sm text-base-content/40">Loading task…</p>
+        )}
 
-          <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-base-content/60">Notes</span>
-            <textarea
-              value={notes}
-              onChange={(event) => setNotes(event.target.value)}
-              rows={4}
-              placeholder="Add notes (Markdown supported)…"
-              className={`textarea w-full ${FIELD_FOCUS}`}
-            />
-          </label>
+        {loadState === "not-found" && (
+          <p className="flex-1 text-sm text-base-content/40">
+            This task couldn&apos;t be found — it may have been deleted.
+          </p>
+        )}
 
-          <div className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-base-content/60">Due date</span>
-            <div className="flex flex-wrap items-center gap-3">
+        {loadState === "ready" && (
+          <div className="flex flex-1 flex-col gap-5 overflow-y-auto">
+            <label className="flex flex-col gap-1.5">
+              <span className="text-xs font-medium text-base-content/60">Title</span>
               <input
-                type="date"
-                value={dueDate}
-                onChange={(event) => setDueDate(event.target.value)}
-                className={`input ${FIELD_FOCUS}`}
+                type="text"
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                placeholder="What needs to be done?"
+                className={`input w-full ${FIELD_FOCUS}`}
               />
-              <input
-                type="time"
-                value={dueTime}
-                onChange={(event) => setDueTime(event.target.value)}
-                disabled={allDay}
-                className={`input disabled:opacity-40 ${FIELD_FOCUS}`}
+            </label>
+
+            <label className="flex flex-col gap-1.5">
+              <span className="text-xs font-medium text-base-content/60">Notes</span>
+              <textarea
+                value={notes}
+                onChange={(event) => setNotes(event.target.value)}
+                rows={4}
+                placeholder="Add notes (Markdown supported)…"
+                className={`textarea w-full ${FIELD_FOCUS}`}
               />
-              <label className="ml-auto flex items-center gap-2 text-sm text-base-content/70">
+            </label>
+
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs font-medium text-base-content/60">Due date</span>
+              <div className="flex flex-wrap items-center gap-3">
                 <input
-                  type="checkbox"
-                  checked={allDay}
-                  onChange={(event) => setAllDay(event.target.checked)}
-                  className="checkbox checkbox-sm checkbox-primary"
+                  type="date"
+                  value={dueDate}
+                  onChange={(event) => setDueDate(event.target.value)}
+                  className={`input ${FIELD_FOCUS}`}
                 />
-                All day
-              </label>
+                <input
+                  type="time"
+                  value={dueTime}
+                  onChange={(event) => setDueTime(event.target.value)}
+                  disabled={allDay}
+                  className={`input disabled:opacity-40 ${FIELD_FOCUS}`}
+                />
+                <label className="ml-auto flex items-center gap-2 text-sm text-base-content/70">
+                  <input
+                    type="checkbox"
+                    checked={allDay}
+                    onChange={(event) => setAllDay(event.target.checked)}
+                    className="checkbox checkbox-sm checkbox-primary"
+                  />
+                  All day
+                </label>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         <div className="flex flex-col gap-2 border-t border-white/5 pt-4">
           <div className="flex justify-end gap-2">
             <button type="button" onClick={onClose} className="btn btn-ghost btn-sm">
-              Cancel
+              {loadState === "not-found" ? "Close" : "Cancel"}
             </button>
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={!canSave}
-              className="btn btn-primary btn-sm"
-            >
-              {saving ? "Saving…" : "Save"}
-            </button>
+            {loadState !== "not-found" && (
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={!canSave}
+                className="btn btn-primary btn-sm"
+              >
+                {saving ? "Saving…" : "Save"}
+              </button>
+            )}
           </div>
           {error && <p className="text-right text-xs text-error">{error}</p>}
-          {isEditing && !error && (
-            <p className="text-right text-xs text-base-content/40">
-              Editing lands in the next issue.
-            </p>
-          )}
         </div>
       </aside>
     </>

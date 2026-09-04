@@ -18,3 +18,19 @@ export function buildDueDateIso(date: string, time: string, allDay: boolean): st
   const timePart = allDay || !time ? "00:00" : time;
   return new Date(`${date}T${timePart}`).toISOString();
 }
+
+/**
+ * The reverse of buildDueDateIso: splits a stored ISO datetime back into
+ * separate date/time strings for the drawer's inputs, using local time
+ * parts (not UTC) so it round-trips correctly with how the value was
+ * built. Returns empty strings for a null dueDate (no date entered).
+ */
+export function splitDueDateIso(iso: string | null): { date: string; time: string } {
+  if (!iso) return { date: "", time: "" };
+
+  const parsed = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const date = `${parsed.getFullYear()}-${pad(parsed.getMonth() + 1)}-${pad(parsed.getDate())}`;
+  const time = `${pad(parsed.getHours())}:${pad(parsed.getMinutes())}`;
+  return { date, time };
+}
