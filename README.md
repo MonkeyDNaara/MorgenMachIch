@@ -45,6 +45,7 @@ project evolves.
 ## Status
 
 Actively being built epic-by-epic (see the issue backlog in
-`PLANNING.md`). Foundations are done — project structure, theme, types,
-local DB, repository layer, app shell, routes, and the initial Render
-deploy. Currently working through the Task CRUD epic.
+`PLANNING.md`). Foundations and the Task CRUD epic are done — project
+structure, theme, types, local DB, repository layer, app shell, routes,
+the initial Render deploy, and full create/edit/delete/toggle task cards.
+Up next: the Labels epic.
