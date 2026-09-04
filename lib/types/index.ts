@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { LABEL_COLOR_HEXES } from "@/lib/constants/labelColors";
 
 /**
  * Shared domain schemas + types (Task, TaskSeries, Subtask, Label).
@@ -66,7 +67,7 @@ export type TaskSeries = z.infer<typeof TaskSeriesSchema>;
 export const LabelSchema = z.object({
   id: z.string(),
   name: z.string().min(1),
-  color: z.string(),
+  color: z.enum(LABEL_COLOR_HEXES), // one of the 12 fixed palette hexes (lib/constants/labelColors)
   createdAt: z.string(),
 });
 export type Label = z.infer<typeof LabelSchema>;
