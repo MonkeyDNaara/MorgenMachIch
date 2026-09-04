@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
+import { createTask } from "@/lib/db/tasks";
+import { buildDueDateIso } from "@/lib/utils/dueDate";
 
 type TaskDrawerPanelProps = {
   /** null = create mode. #27 will use this to load + prefill the task. */
@@ -21,8 +23,35 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
   const [dueDate, setDueDate] = useState("");
   const [dueTime, setDueTime] = useState("");
   const [allDay, setAllDay] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const isEditing = taskId !== null;
+  // Editing an existing task isn't wired up until #27 — Save stays
+  // disabled in that case for now.
+  const canSave = !isEditing && title.trim().length > 0 && !saving;
+
+  async function handleSave() {
+    if (!canSave) return;
+    setSaving(true);
+    setError(null);
+    try {
+      await createTask({
+        title: title.trim(),
+        ...(notes.trim() ? { notes: notes.trim() } : {}),
+        priority: "none",
+        dueDate: buildDueDateIso(dueDate, dueTime, allDay),
+        allDay,
+        labelIds: [],
+        subtasks: [],
+        seriesId: null,
+      });
+      onClose();
+    } catch {
+      setSaving(false);
+      setError("Couldn't save this task — check the fields and try again.");
+    }
+  }
 
   return (
     <>
@@ -102,13 +131,21 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
             <button type="button" onClick={onClose} className="btn btn-ghost btn-sm">
               Cancel
             </button>
-            <button type="button" disabled className="btn btn-primary btn-sm">
-              Save
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={!canSave}
+              className="btn btn-primary btn-sm"
+            >
+              {saving ? "Saving…" : "Save"}
             </button>
           </div>
-          <p className="text-right text-xs text-base-content/40">
-            Saving lands in the next issue.
-          </p>
+          {error && <p className="text-right text-xs text-error">{error}</p>}
+          {isEditing && !error && (
+            <p className="text-right text-xs text-base-content/40">
+              Editing lands in the next issue.
+            </p>
+          )}
         </div>
       </aside>
     </>
