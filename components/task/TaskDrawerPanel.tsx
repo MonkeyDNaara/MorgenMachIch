@@ -2,6 +2,20 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
+import { createTask } from "@/lib/db/tasks";
+import { buildDueDateIso } from "@/lib/utils/dueDate";
+
+/**
+ * DaisyUI's default input focus (a colored border plus a separate 2px
+ * outline offset from it) reads as two overlapping rings. This replaces
+ * that with a single soft cyan glow — the same treatment as the FAB's
+ * shadow — by driving daisyUI's own --input-color variable directly and
+ * swapping the outline for a diffused shadow.
+ */
+const FIELD_FOCUS =
+  "bg-base-200 outline-none! [--input-color:var(--color-base-300)] " +
+  "focus:[--input-color:var(--color-primary)]! " +
+  "focus:shadow-[0_0_0_4px_rgba(77,209,224,0.25)]!";
 
 type TaskDrawerPanelProps = {
   /** null = create mode. #27 will use this to load + prefill the task. */
@@ -21,8 +35,35 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
   const [dueDate, setDueDate] = useState("");
   const [dueTime, setDueTime] = useState("");
   const [allDay, setAllDay] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const isEditing = taskId !== null;
+  // Editing an existing task isn't wired up until #27 — Save stays
+  // disabled in that case for now.
+  const canSave = !isEditing && title.trim().length > 0 && !saving;
+
+  async function handleSave() {
+    if (!canSave) return;
+    setSaving(true);
+    setError(null);
+    try {
+      await createTask({
+        title: title.trim(),
+        ...(notes.trim() ? { notes: notes.trim() } : {}),
+        priority: "none",
+        dueDate: buildDueDateIso(dueDate, dueTime, allDay),
+        allDay,
+        labelIds: [],
+        subtasks: [],
+        seriesId: null,
+      });
+      onClose();
+    } catch {
+      setSaving(false);
+      setError("Couldn't save this task — check the fields and try again.");
+    }
+  }
 
   return (
     <>
@@ -53,7 +94,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               placeholder="What needs to be done?"
-              className="input w-full bg-base-200"
+              className={`input w-full ${FIELD_FOCUS}`}
             />
           </label>
 
@@ -64,7 +105,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
               onChange={(event) => setNotes(event.target.value)}
               rows={4}
               placeholder="Add notes (Markdown supported)…"
-              className="textarea w-full bg-base-200"
+              className={`textarea w-full ${FIELD_FOCUS}`}
             />
           </label>
 
@@ -75,21 +116,21 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
                 type="date"
                 value={dueDate}
                 onChange={(event) => setDueDate(event.target.value)}
-                className="input bg-base-200"
+                className={`input ${FIELD_FOCUS}`}
               />
               <input
                 type="time"
                 value={dueTime}
                 onChange={(event) => setDueTime(event.target.value)}
                 disabled={allDay}
-                className="input bg-base-200 disabled:opacity-40"
+                className={`input disabled:opacity-40 ${FIELD_FOCUS}`}
               />
               <label className="ml-auto flex items-center gap-2 text-sm text-base-content/70">
                 <input
                   type="checkbox"
                   checked={allDay}
                   onChange={(event) => setAllDay(event.target.checked)}
-                  className="checkbox checkbox-sm"
+                  className="checkbox checkbox-sm checkbox-primary"
                 />
                 All day
               </label>
@@ -102,13 +143,21 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
             <button type="button" onClick={onClose} className="btn btn-ghost btn-sm">
               Cancel
             </button>
-            <button type="button" disabled className="btn btn-primary btn-sm">
-              Save
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={!canSave}
+              className="btn btn-primary btn-sm"
+            >
+              {saving ? "Saving…" : "Save"}
             </button>
           </div>
-          <p className="text-right text-xs text-base-content/40">
-            Saving lands in the next issue.
-          </p>
+          {error && <p className="text-right text-xs text-error">{error}</p>}
+          {isEditing && !error && (
+            <p className="text-right text-xs text-base-content/40">
+              Editing lands in the next issue.
+            </p>
+          )}
         </div>
       </aside>
     </>
