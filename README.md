@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MorgenMachIch
 
-## Getting Started
+A local-first to-do app with a card-view task list, a calendar view, custom
+labels, and independently-completable recurring tasks. Built as a
+portfolio project to demonstrate an AI-assisted ("vibe coded") development
+workflow — planned epic-by-epic through GitHub issues, one branch and PR
+per issue — while doubling as a to-do app I actually use day to day.
 
-First, run the development server:
+**Live app:** https://morgen-mach-ich.onrender.com
+*(free-tier Render service — may take a few seconds to wake up if it's
+been idle)*
+
+## Tech stack
+
+- [Next.js](https://nextjs.org) (App Router) + React + TypeScript
+- [Tailwind CSS](https://tailwindcss.com) + [DaisyUI](https://daisyui.com)
+- [Dexie.js](https://dexie.org) (IndexedDB) for local-only persistence —
+  no backend yet; the repository layer in `lib/db` is the only place that
+  talks to storage, so swapping in a real API later stays contained there
+- [Zod](https://zod.dev) — schemas in `lib/types` are the source of truth
+  for both compile-time types and runtime validation at the storage
+  boundary
+- [lucide-react](https://lucide.dev) for icons
+- Deployed on [Render](https://render.com) via `render.yaml` (Blueprint)
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) — it redirects to `/today`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project structure & conventions
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+See [CONVENTIONS.md](./CONVENTIONS.md) for folder layout and naming rules.
 
-## Learn More
+## Planning
 
-To learn more about Next.js, take a look at the following resources:
+See [PLANNING.md](./PLANNING.md) for the full data model, route map, and
+GitHub issue backlog. Decisions and scope get updated there as the
+project evolves.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Status
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Actively being built epic-by-epic (see the issue backlog in
+`PLANNING.md`). Foundations are done — project structure, theme, types,
+local DB, repository layer, app shell, routes, and the initial Render
+deploy. Currently working through the Task CRUD epic.
