@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { createTask, getTask, updateTask } from "@/lib/db/tasks";
+import { createTask, deleteTask, getTask, updateTask } from "@/lib/db/tasks";
 import { buildDueDateIso, splitDueDateIso } from "@/lib/utils/dueDate";
 
 /**
@@ -41,8 +41,19 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
   const [dueTime, setDueTime] = useState("");
   const [allDay, setAllDay] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loadState, setLoadState] = useState<LoadState>(isEditing ? "loading" : "ready");
+
+  // Auto-revert the "really delete?" confirm state after a few seconds,
+  // so coming back to a task later never finds it primed to delete on
+  // the very next click.
+  useEffect(() => {
+    if (!confirmingDelete) return;
+    const timer = setTimeout(() => setConfirmingDelete(false), 3000);
+    return () => clearTimeout(timer);
+  }, [confirmingDelete]);
 
   // Load the existing task once, in edit mode only. Create mode has
   // nothing to fetch, so it starts (and stays) "ready".
@@ -70,7 +81,8 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
     };
   }, [isEditing, taskId]);
 
-  const canSave = loadState === "ready" && title.trim().length > 0 && !saving;
+  const busy = saving || deleting;
+  const canSave = loadState === "ready" && title.trim().length > 0 && !busy;
 
   async function handleSave() {
     if (!canSave) return;
@@ -107,6 +119,24 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
     }
   }
 
+  async function handleDeleteClick() {
+    if (!isEditing || busy) return;
+    if (!confirmingDelete) {
+      setConfirmingDelete(true);
+      return;
+    }
+    setDeleting(true);
+    setError(null);
+    try {
+      await deleteTask(taskId);
+      onClose();
+    } catch {
+      setDeleting(false);
+      setConfirmingDelete(false);
+      setError("Couldn't delete this task — try again.");
+    }
+  }
+
   return (
     <>
       <div className="fixed inset-0 z-40 bg-black/50" onClick={onClose} aria-hidden="true" />
@@ -121,8 +151,9 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
           <button
             type="button"
             onClick={onClose}
+            disabled={busy}
             aria-label="Close"
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-base-300 text-base-content/60 transition-colors hover:text-base-content"
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-base-300 text-base-content/60 transition-colors hover:text-base-content disabled:opacity-40"
           >
             <X size={16} />
           </button>
@@ -193,20 +224,41 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
         )}
 
         <div className="flex flex-col gap-2 border-t border-white/5 pt-4">
-          <div className="flex justify-end gap-2">
-            <button type="button" onClick={onClose} className="btn btn-ghost btn-sm">
-              {loadState === "not-found" ? "Close" : "Cancel"}
-            </button>
-            {loadState !== "not-found" && (
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              {isEditing && loadState === "ready" && (
+                <button
+                  type="button"
+                  onClick={handleDeleteClick}
+                  disabled={busy}
+                  className={`btn btn-sm ${
+                    confirmingDelete ? "btn-error" : "btn-ghost text-error"
+                  }`}
+                >
+                  {deleting ? "Deleting…" : confirmingDelete ? "Really delete?" : "Delete"}
+                </button>
+              )}
+            </div>
+            <div className="flex gap-2">
               <button
                 type="button"
-                onClick={handleSave}
-                disabled={!canSave}
-                className="btn btn-primary btn-sm"
+                onClick={onClose}
+                disabled={busy}
+                className="btn btn-ghost btn-sm"
               >
-                {saving ? "Saving…" : "Save"}
+                {loadState === "not-found" ? "Close" : "Cancel"}
               </button>
-            )}
+              {loadState !== "not-found" && (
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={!canSave}
+                  className="btn btn-primary btn-sm"
+                >
+                  {saving ? "Saving…" : "Save"}
+                </button>
+              )}
+            </div>
           </div>
           {error && <p className="text-right text-xs text-error">{error}</p>}
         </div>

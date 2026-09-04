@@ -25,7 +25,7 @@ export default function TaskCard({ task }: TaskCardProps) {
     <button
       type="button"
       onClick={() => openTaskDrawer(task.id)}
-      className={`flex w-full items-center gap-3 rounded-box border bg-base-200 p-3 text-left shadow-lg shadow-black/20 transition-colors hover:bg-base-300 ${
+      className={`flex w-full items-center gap-3 rounded-box border bg-base-200 p-3 text-left shadow-lg shadow-black/20 transition-colors outline-none! hover:bg-base-300 focus:shadow-[0_0_0_3px_rgba(77,209,224,0.35)]! ${
         overdue ? "border-error/50" : "border-transparent"
       }`}
     >
