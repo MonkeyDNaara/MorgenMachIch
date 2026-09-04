@@ -48,6 +48,7 @@ backend later in the course to a change inside `lib/db` only.
 
 ## Types
 
-`lib/types` holds the shared domain types (`Task`, `TaskSeries`, `Subtask`,
-`Label`) as a single source of truth, defined in issue #19. Everything else
-imports from there rather than redeclaring shapes locally.
+`lib/types` holds the shared domain schemas (Zod) and their inferred types
+(`Task`, `TaskSeries`, `Subtask`, `Label`) as a single source of truth,
+defined in issue #19. Everything else imports from there rather than
+redeclaring shapes locally.
