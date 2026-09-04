@@ -25,12 +25,18 @@ export default function TaskCard({ task }: TaskCardProps) {
     <button
       type="button"
       onClick={() => openTaskDrawer(task.id)}
-      className="flex w-full items-center gap-3 rounded-box bg-base-200 p-3 text-left shadow-lg shadow-black/20 transition-colors hover:bg-base-300"
+      className={`flex w-full items-center gap-3 rounded-box border bg-base-200 p-3 text-left shadow-lg shadow-black/20 transition-colors hover:bg-base-300 ${
+        overdue ? "border-error/50" : "border-transparent"
+      }`}
     >
       <span
         aria-hidden="true"
         className={`h-6 w-6 flex-shrink-0 rounded-full border-2 ${
-          done ? "border-primary bg-primary" : "border-base-content/30"
+          done
+            ? "border-primary bg-primary"
+            : overdue
+              ? "border-error/70"
+              : "border-base-content/30"
         }`}
       />
       <span className="min-w-0 flex-1">
