@@ -99,7 +99,7 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Set up route skeleton: /today, /tasks, /calendar, /labels, /settings
 - Initial deploy to Render (get a live URL early)
 
-### Epic: Task CRUD — in progress
+### Epic: Task CRUD — done
 - Build task drawer/modal component (shared create + edit form) — done, includes the FAB
 - Implement create task (validation, save to DB)
 - Implement edit task (prefill drawer, save changes)
