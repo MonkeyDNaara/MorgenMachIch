@@ -5,6 +5,18 @@ import { X } from "lucide-react";
 import { createTask } from "@/lib/db/tasks";
 import { buildDueDateIso } from "@/lib/utils/dueDate";
 
+/**
+ * DaisyUI's default input focus (a colored border plus a separate 2px
+ * outline offset from it) reads as two overlapping rings. This replaces
+ * that with a single soft cyan glow — the same treatment as the FAB's
+ * shadow — by driving daisyUI's own --input-color variable directly and
+ * swapping the outline for a diffused shadow.
+ */
+const FIELD_FOCUS =
+  "bg-base-200 outline-none! [--input-color:var(--color-base-300)] " +
+  "focus:[--input-color:var(--color-primary)]! " +
+  "focus:shadow-[0_0_0_4px_rgba(77,209,224,0.25)]!";
+
 type TaskDrawerPanelProps = {
   /** null = create mode. #27 will use this to load + prefill the task. */
   taskId: string | null;
@@ -82,7 +94,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               placeholder="What needs to be done?"
-              className="input input-primary w-full bg-base-200"
+              className={`input w-full ${FIELD_FOCUS}`}
             />
           </label>
 
@@ -93,7 +105,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
               onChange={(event) => setNotes(event.target.value)}
               rows={4}
               placeholder="Add notes (Markdown supported)…"
-              className="textarea textarea-primary w-full bg-base-200"
+              className={`textarea w-full ${FIELD_FOCUS}`}
             />
           </label>
 
@@ -104,14 +116,14 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
                 type="date"
                 value={dueDate}
                 onChange={(event) => setDueDate(event.target.value)}
-                className="input input-primary bg-base-200"
+                className={`input ${FIELD_FOCUS}`}
               />
               <input
                 type="time"
                 value={dueTime}
                 onChange={(event) => setDueTime(event.target.value)}
                 disabled={allDay}
-                className="input input-primary bg-base-200 disabled:opacity-40"
+                className={`input disabled:opacity-40 ${FIELD_FOCUS}`}
               />
               <label className="ml-auto flex items-center gap-2 text-sm text-base-content/70">
                 <input
