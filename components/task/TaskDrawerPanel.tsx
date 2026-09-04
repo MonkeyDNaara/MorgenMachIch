@@ -82,7 +82,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               placeholder="What needs to be done?"
-              className="input w-full bg-base-200"
+              className="input input-primary w-full bg-base-200"
             />
           </label>
 
@@ -93,7 +93,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
               onChange={(event) => setNotes(event.target.value)}
               rows={4}
               placeholder="Add notes (Markdown supported)…"
-              className="textarea w-full bg-base-200"
+              className="textarea textarea-primary w-full bg-base-200"
             />
           </label>
 
@@ -104,21 +104,21 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
                 type="date"
                 value={dueDate}
                 onChange={(event) => setDueDate(event.target.value)}
-                className="input bg-base-200"
+                className="input input-primary bg-base-200"
               />
               <input
                 type="time"
                 value={dueTime}
                 onChange={(event) => setDueTime(event.target.value)}
                 disabled={allDay}
-                className="input bg-base-200 disabled:opacity-40"
+                className="input input-primary bg-base-200 disabled:opacity-40"
               />
               <label className="ml-auto flex items-center gap-2 text-sm text-base-content/70">
                 <input
                   type="checkbox"
                   checked={allDay}
                   onChange={(event) => setAllDay(event.target.checked)}
-                  className="checkbox checkbox-sm"
+                  className="checkbox checkbox-sm checkbox-primary"
                 />
                 All day
               </label>
