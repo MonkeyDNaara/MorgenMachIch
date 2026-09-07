@@ -6,6 +6,7 @@ import { updateTask } from "@/lib/db/tasks";
 import { formatDueDate, isOverdue } from "@/lib/utils/formatDueDate";
 import { useTaskDrawer } from "@/components/task/TaskDrawerProvider";
 import LabelChip from "@/components/label/LabelChip";
+import SubtaskProgressBar from "@/components/task/SubtaskProgressBar";
 
 type TaskCardProps = {
   task: Task;
@@ -19,14 +20,17 @@ type TaskCardProps = {
 const MAX_VISIBLE_LABELS = 2;
 
 /**
- * A single task in card form. No priority indicator or subtask progress
- * bar yet — those render in once the Priority and Subtasks epics build
- * the pieces they need.
+ * A single task in card form. No priority indicator yet — that renders
+ * in once the Priority epic builds the piece it needs.
  *
  * Two independent click targets live here: the status circle toggles
  * complete/incomplete in place, and the title/date area opens the drawer
  * in edit mode. They're sibling <button>s inside a plain <div> (not a
  * button-in-a-button) since nested buttons are invalid HTML.
+ *
+ * The subtask progress bar (added for #134) lives inside the title/date
+ * button, below the date, so it's naturally a third stacked line rather
+ * than a separate row competing with the label chips for card height.
  *
  * Label chips (added for #118) sit as a third, flex-shrink-0 item in the
  * same row, pushed right — not a new row, so a task with no labels is
@@ -93,6 +97,7 @@ export default function TaskCard({ task, labels }: TaskCardProps) {
             {overdue ? " · overdue" : ""}
           </span>
         )}
+        <SubtaskProgressBar subtasks={task.subtasks} />
       </button>
       {taskLabels.length > 0 && (
         <div className="ml-auto flex flex-shrink-0 items-center gap-1.5">
