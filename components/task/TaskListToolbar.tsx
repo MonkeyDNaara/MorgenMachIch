@@ -4,11 +4,14 @@ import type { StatusFilter } from "@/lib/utils/filterTasksByStatus";
 import type { TaskSortBy } from "@/lib/utils/sortTasks";
 import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
 
+// "skipped" is a valid TaskStatus in the schema but nothing sets it yet
+// — there's no skip action until the Recurring Tasks epic ships one, so
+// it's left out here rather than showing a filter that's always empty.
 const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: "all", label: "All" },
   { value: "open", label: "Open" },
+  { value: "overdue", label: "Overdue" },
   { value: "done", label: "Done" },
-  { value: "skipped", label: "Skipped" },
 ];
 
 type TaskListToolbarProps = {
