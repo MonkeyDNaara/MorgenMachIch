@@ -45,7 +45,8 @@ project evolves.
 ## Status
 
 Actively being built epic-by-epic (see the issue backlog in
-`PLANNING.md`). Foundations and the Task CRUD epic are done — project
+`PLANNING.md`). Foundations, Task CRUD, and Labels are done — project
 structure, theme, types, local DB, repository layer, app shell, routes,
-the initial Render deploy, and full create/edit/delete/toggle task cards.
-Up next: the Labels epic.
+the initial Render deploy, full create/edit/delete/toggle task cards,
+and labels (create/edit/delete, assignment, display, filtering). Up
+next: the List View epic.
