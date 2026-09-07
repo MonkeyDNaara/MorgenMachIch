@@ -2,18 +2,24 @@ import type { Task } from "@/lib/types";
 import { isOverdue } from "@/lib/utils/formatDueDate";
 
 /**
- * True if the given ISO dueDate falls on today's local calendar date —
- * compares year/month/day via local Date getters (never UTC), matching
- * the rest of the app's date handling (see formatDueDate.ts).
+ * True if the given ISO datetime falls on the same local calendar date
+ * as `target` — compares year/month/day via local Date getters (never
+ * UTC), matching the rest of the app's date handling. Generalized out
+ * of isDueToday so the week-ahead strip's per-day bucketing (#130)
+ * reuses this instead of duplicating the comparison.
  */
-export function isDueToday(iso: string): boolean {
+export function isSameLocalDay(iso: string, target: Date): boolean {
   const date = new Date(iso);
-  const now = new Date();
   return (
-    date.getFullYear() === now.getFullYear() &&
-    date.getMonth() === now.getMonth() &&
-    date.getDate() === now.getDate()
+    date.getFullYear() === target.getFullYear() &&
+    date.getMonth() === target.getMonth() &&
+    date.getDate() === target.getDate()
   );
+}
+
+/** True if the given ISO dueDate falls on today's local calendar date. */
+export function isDueToday(iso: string): boolean {
+  return isSameLocalDay(iso, new Date());
 }
 
 /**
