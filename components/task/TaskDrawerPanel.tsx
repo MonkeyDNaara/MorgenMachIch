@@ -1,10 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useLiveQuery } from "dexie-react-hooks";
 import { X } from "lucide-react";
 import { createTask, deleteTask, getTask, updateTask } from "@/lib/db/tasks";
+import { getLabels } from "@/lib/db/labels";
 import { buildDueDateIso, splitDueDateIso } from "@/lib/utils/dueDate";
 import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
+import LabelChip from "@/components/label/LabelChip";
 
 type TaskDrawerPanelProps = {
   /** null = create mode. Otherwise the id of the task being edited. */
@@ -26,6 +30,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
 
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
+  const [labelIds, setLabelIds] = useState<string[]>([]);
   const [dueDate, setDueDate] = useState("");
   const [dueTime, setDueTime] = useState("");
   const [allDay, setAllDay] = useState(false);
@@ -58,6 +63,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
       }
       setTitle(task.title);
       setNotes(task.notes ?? "");
+      setLabelIds(task.labelIds);
       const { date, time } = splitDueDateIso(task.dueDate);
       setDueDate(date);
       setDueTime(time);
@@ -70,6 +76,12 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
     };
   }, [isEditing, taskId]);
 
+  const labels = useLiveQuery(() => getLabels(), []);
+
+  function toggleLabel(id: string) {
+    setLabelIds((prev) => (prev.includes(id) ? prev.filter((labelId) => labelId !== id) : [...prev, id]));
+  }
+
   const busy = saving || deleting;
   const canSave = loadState === "ready" && title.trim().length > 0 && !busy;
 
@@ -79,13 +91,14 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
     setError(null);
     try {
       if (isEditing) {
-        // Only the fields this drawer actually edits — priority, labels,
+        // Only the fields this drawer actually edits — priority,
         // subtasks, and status are deliberately left out of the patch so
         // editing never clobbers them with drawer defaults. updateTask
         // merges with the existing record, so they stay untouched.
         await updateTask(taskId, {
           title: title.trim(),
           notes: notes.trim() || undefined,
+          labelIds,
           dueDate: buildDueDateIso(dueDate, dueTime, allDay),
           allDay,
         });
@@ -96,7 +109,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
           priority: "none",
           dueDate: buildDueDateIso(dueDate, dueTime, allDay),
           allDay,
-          labelIds: [],
+          labelIds,
           subtasks: [],
           seriesId: null,
         });
@@ -181,6 +194,40 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
                 className={`textarea w-full ${FIELD_FOCUS}`}
               />
             </label>
+
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs font-medium text-base-content/60">Labels</span>
+              {labels === undefined ? (
+                <p className="text-sm text-base-content/40">Loading…</p>
+              ) : labels.length === 0 ? (
+                <p className="text-sm text-base-content/40">
+                  No labels yet —{" "}
+                  <Link href="/labels" className="text-primary hover:underline">
+                    create one
+                  </Link>
+                  .
+                </p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {labels.map((label) => {
+                    const selected = labelIds.includes(label.id);
+                    return (
+                      <button
+                        key={label.id}
+                        type="button"
+                        onClick={() => toggleLabel(label.id)}
+                        aria-pressed={selected}
+                        className={`cursor-pointer rounded-full outline-none! transition-opacity ${
+                          selected ? "opacity-100" : "opacity-40 hover:opacity-70"
+                        }`}
+                      >
+                        <LabelChip name={label.name} color={label.color} />
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
 
             <div className="flex flex-col gap-1.5">
               <span className="text-xs font-medium text-base-content/60">Due date</span>

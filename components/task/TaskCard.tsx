@@ -43,7 +43,7 @@ export default function TaskCard({ task }: TaskCardProps) {
         onClick={handleToggle}
         aria-label={done ? "Mark as incomplete" : "Mark as complete"}
         aria-pressed={done}
-        className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border-2 outline-none! transition-colors ${
+        className={`flex h-6 w-6 flex-shrink-0 cursor-pointer items-center justify-center rounded-full border-2 outline-none! transition-colors ${
           done
             ? "border-primary bg-primary"
             : overdue
@@ -56,7 +56,7 @@ export default function TaskCard({ task }: TaskCardProps) {
       <button
         type="button"
         onClick={() => openTaskDrawer(task.id)}
-        className="min-w-0 flex-1 text-left outline-none!"
+        className="min-w-0 flex-1 cursor-pointer text-left outline-none!"
       >
         <span
           className={`block truncate text-sm font-medium ${
