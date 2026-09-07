@@ -113,11 +113,11 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Implement complete/incomplete toggle
 - Build task card component (title, due date/time, priority indicator, label chips, subtask progress bar)
 
-### Epic: Labels — in progress
-- Build labels page: list/create/edit/delete, with the reusable label chip component and the 12-swatch color picker built as part of it — done (#113, which merged and superseded the original 3 separate bullets — "labels management page" (#31), "color picker" (#32), and "chip component" (#33) — since the page is just those two components assembled and neither was independently testable on its own; #31/#32/#33 closed as superseded)
-- Add label picker to task drawer (added after #25 — reuses the chip component from #113; the drawer shipped without label assignment)
-- Implement label-based filtering logic (shared utility)
-- Add label filter UI to list & today views
+### Epic: Labels — done
+- Build labels page: list/create/edit/delete, with the reusable label chip component and the 12-swatch color picker built as part of it — done (#113, superseded placeholders #31/#32/#33)
+- Add label picker to task drawer — done (#116)
+- Display label chips on task card — done (#118, added after #30 deferred it)
+- Label-based filtering: shared utility + filter bar on /tasks — done (#120, merged the original "filtering logic" and "filter UI" bullets; /today reuses these once the Today View epic builds that page)
 
 ### Epic: List View (/tasks)
 - Build full task list page (card view, all tasks)
