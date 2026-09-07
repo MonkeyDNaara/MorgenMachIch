@@ -8,7 +8,9 @@ import { createTask, deleteTask, getTask, updateTask } from "@/lib/db/tasks";
 import { getLabels } from "@/lib/db/labels";
 import { buildDueDateIso, splitDueDateIso } from "@/lib/utils/dueDate";
 import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
+import type { Subtask } from "@/lib/types";
 import LabelChip from "@/components/label/LabelChip";
+import SubtaskEditor from "@/components/task/SubtaskEditor";
 
 type TaskDrawerPanelProps = {
   /** null = create mode. Otherwise the id of the task being edited. */
@@ -31,6 +33,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
   const [labelIds, setLabelIds] = useState<string[]>([]);
+  const [subtasks, setSubtasks] = useState<Subtask[]>([]);
   const [dueDate, setDueDate] = useState("");
   const [dueTime, setDueTime] = useState("");
   const [allDay, setAllDay] = useState(false);
@@ -64,6 +67,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
       setTitle(task.title);
       setNotes(task.notes ?? "");
       setLabelIds(task.labelIds);
+      setSubtasks(task.subtasks);
       const { date, time } = splitDueDateIso(task.dueDate);
       setDueDate(date);
       setDueTime(time);
@@ -91,14 +95,15 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
     setError(null);
     try {
       if (isEditing) {
-        // Only the fields this drawer actually edits — priority,
-        // subtasks, and status are deliberately left out of the patch so
-        // editing never clobbers them with drawer defaults. updateTask
-        // merges with the existing record, so they stay untouched.
+        // Only the fields this drawer actually edits — priority and
+        // status are deliberately left out of the patch so editing
+        // never clobbers them with drawer defaults. updateTask merges
+        // with the existing record, so they stay untouched.
         await updateTask(taskId, {
           title: title.trim(),
           notes: notes.trim() || undefined,
           labelIds,
+          subtasks,
           dueDate: buildDueDateIso(dueDate, dueTime, allDay),
           allDay,
         });
@@ -110,7 +115,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
           dueDate: buildDueDateIso(dueDate, dueTime, allDay),
           allDay,
           labelIds,
-          subtasks: [],
+          subtasks,
           seriesId: null,
         });
       }
@@ -194,6 +199,11 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
                 className={`textarea w-full ${FIELD_FOCUS}`}
               />
             </label>
+
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs font-medium text-base-content/60">Subtasks</span>
+              <SubtaskEditor subtasks={subtasks} onChange={setSubtasks} />
+            </div>
 
             <div className="flex flex-col gap-1.5">
               <span className="text-xs font-medium text-base-content/60">Labels</span>
