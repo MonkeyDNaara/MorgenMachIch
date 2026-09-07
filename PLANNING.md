@@ -128,11 +128,9 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Today/overdue core view — done (#126; extended TaskList with baseFilter + emptyMessage props so /today reuses it directly, scoped to tasks due today (any status, done ones struck through) or overdue-and-not-done; same status/label filters and sorting as /tasks come along for free)
 - Week-ahead strip — done (#130; "Coming up" section below the list, one column per day from tomorrow through Sunday, hidden past Sunday and on days with no open tasks, capped at 3 tasks + overflow; clicking a day drills the list into that date with a "Back to Today" control; introduced a priority-dot component reusing the label-palette green/yellow-green + the existing overdue red — the theme's warning/error slots stay reserved for the Priority epic's own design pass, #7)
 
-### Epic: Subtasks
-- Add subtask list editor inside task drawer (add/remove/reorder)
-- Implement subtask done/undone toggle
-- Build subtask progress bar on task card
-- Hide progress bar when a task has no subtasks
+### Epic: Subtasks — done
+- Subtask editor in task drawer: add/edit/remove/reorder (plain up/down arrows, not drag-and-drop — that's the Drag & Drop epic) and a done/undone checkbox per row — done (#133)
+- Subtask progress bar on task card: thin fill bar + "done/total" fraction together, capped at 192px width; hidden entirely when a task has no subtasks — done (#134)
 
 ### Epic: Priority
 - Add priority selector to task drawer
