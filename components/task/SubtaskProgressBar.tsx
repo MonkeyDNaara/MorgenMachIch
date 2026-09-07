@@ -18,7 +18,7 @@ export default function SubtaskProgressBar({ subtasks }: SubtaskProgressBarProps
   const percent = Math.round((doneCount / subtasks.length) * 100);
 
   return (
-    <div className="mt-1.5 flex max-w-24 items-center gap-2">
+    <div className="mt-1.5 flex max-w-48 items-center gap-2">
       <div className="h-1 flex-1 overflow-hidden rounded-full bg-base-300">
         <div className="h-full rounded-full bg-primary transition-[width]" style={{ width: `${percent}%` }} />
       </div>
