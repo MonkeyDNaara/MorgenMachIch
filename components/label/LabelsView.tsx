@@ -167,7 +167,7 @@ export default function LabelsView() {
                   onClick={() => openEdit(label)}
                   disabled={form.kind !== "none" || deletingId !== null}
                   aria-label={`Edit ${label.name}`}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg text-base-content/60 transition-colors outline-none! hover:text-base-content disabled:opacity-40"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg text-base-content/60 transition-colors outline-none! hover:text-base-content cursor-pointer disabled:cursor-default disabled:opacity-40"
                 >
                   <Pencil size={14} />
                 </button>

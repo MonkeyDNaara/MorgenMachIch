@@ -15,6 +15,12 @@
 - Task drawer FAB: no separate backlog issue for the floating "+" button from the mockup — folded into #25 since the drawer needed a create-trigger anyway.
 - Task drawer labels: assigning labels to a task from the drawer was deferred out of #25 into its own future Labels-epic issue ("Add label picker to task drawer", added below), so the picker can reuse the reusable label chip component instead of duplicating chip-rendering logic early.
 - Due date/time storage (added for #26): combined into a single ISO datetime string via `new Date(...).toISOString()`, interpreted as local time (single-timezone personal app, no server). All-day tasks store local midnight. Downstream "is this due today" logic (Today/Calendar epics) must convert back to *local* date parts, not UTC, when bucketing by day.
+- Task card interaction (added for #29): the status circle and the title/date area are sibling `<button>`s inside a plain wrapper `<div>` (not a button nested inside a button, which is invalid HTML) — the circle toggles `status`/`completedAt` in place via `updateTask()`, the title/date area opens the edit drawer.
+- Labels epic scope merge (added for #113): "Build labels management page," "Build label color picker," and "Build reusable label chip component" were 3 separate backlog bullets but are really one deliverable — merged into a single new issue, #113 (the pre-existing placeholder issues #31/#32/#33 from the original backlog seeding got closed as superseded). **Process note:** confirm the actual issue number GitHub assigns right after `gh issue create` runs, rather than assuming the next sequential number — this backlog already had #31-#35 reserved for Labels, so the new issue landed at #113, not #31.
+- Label color palette (added for #113): fixed set of 12 curated swatches, generated in OKLCH (L=0.75, C=0.14) spread across the hue wheel for a cohesive family on the dark theme. No free color picker. Defined once in `lib/constants/labelColors.ts`, imported by both the Zod schema (`Label.color` is a `z.enum` over the palette, not `z.string()`) and the swatch-picker UI.
+- Label chip style (added for #113): soft-tint pills — background at ~16% opacity, text/border at full swatch color, `rounded-full`, no leading dot. Chosen over solid-filled chips after a side-by-side mockup — reads calmer against the dark theme.
+- Label delete UX (added for #113): the delete confirmation surfaces how many tasks the label will be removed from before confirming (`countTasksWithLabel()`), since `deleteLabel()`'s cascade cleanup (#21) shouldn't be a silent side effect.
+- FAB visibility (added for #113): the floating "+" (task-create) button only renders on task-related routes (`/today`, `/tasks`, `/calendar`) — it has no purpose on `/labels` or `/settings`.
 - Deployment target: Render (Node Web Service, not Vercel).
 - Milestones: no v1/v1.1 split — single flat backlog.
 
@@ -107,11 +113,9 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Implement complete/incomplete toggle
 - Build task card component (title, due date/time, priority indicator, label chips, subtask progress bar)
 
-### Epic: Labels
-- Build labels management page (list, create, edit, delete)
-- Build label color picker
-- Build reusable label chip component
-- Add label picker to task drawer (added after #25 — reuses the chip component above; the drawer shipped without label assignment)
+### Epic: Labels — in progress
+- Build labels page: list/create/edit/delete, with the reusable label chip component and the 12-swatch color picker built as part of it — done (#113, which merged and superseded the original 3 separate bullets — "labels management page" (#31), "color picker" (#32), and "chip component" (#33) — since the page is just those two components assembled and neither was independently testable on its own; #31/#32/#33 closed as superseded)
+- Add label picker to task drawer (added after #25 — reuses the chip component from #113; the drawer shipped without label assignment)
 - Implement label-based filtering logic (shared utility)
 - Add label filter UI to list & today views
 
