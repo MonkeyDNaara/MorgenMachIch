@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# stray local output folder from AI-assisted design mockups
+/Claude outputs/
