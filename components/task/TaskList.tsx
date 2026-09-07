@@ -2,6 +2,7 @@
 
 import { useLiveQuery } from "dexie-react-hooks";
 import { getTasks } from "@/lib/db/tasks";
+import { getLabels } from "@/lib/db/labels";
 import TaskCard from "@/components/task/TaskCard";
 
 /**
@@ -15,9 +16,13 @@ import TaskCard from "@/components/task/TaskCard";
  * useLiveQuery subscribes directly to the Dexie query, so this re-renders
  * automatically on every create/edit/delete/toggle, anywhere in the app,
  * with no manual refetch wiring.
+ *
+ * Labels are fetched once here (not per-card) and passed down, so N
+ * cards don't each open their own identical live query (added for #118).
  */
 export default function TaskList() {
   const tasks = useLiveQuery(() => getTasks(), []);
+  const labels = useLiveQuery(() => getLabels(), []);
 
   if (tasks === undefined) {
     return <p className="p-8 text-center text-base-content/40">Loading…</p>;
@@ -32,7 +37,7 @@ export default function TaskList() {
   return (
     <div className="flex flex-col gap-2 p-6">
       {tasks.map((task) => (
-        <TaskCard key={task.id} task={task} />
+        <TaskCard key={task.id} task={task} labels={labels ?? []} />
       ))}
     </div>
   );
