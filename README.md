@@ -49,4 +49,5 @@ Actively being built epic-by-epic (see the issue backlog in
 project structure, theme, types, local DB, repository layer, app shell,
 routes, the initial Render deploy, full create/edit/delete/toggle task
 cards, labels (create/edit/delete, assignment, display, filtering), and
-sorting/status filtering on /tasks. Up next: the Today View epic.
+sorting/status filtering on /tasks. The Today View epic is in progress:
+the today/overdue view is done, the week-ahead strip is up next.

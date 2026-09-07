@@ -125,10 +125,8 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Sorting + status filter — done (#123, merged; due date/created only — priority dropped until the Priority epic ships a selector; status filter is All/Open/Overdue/Done — "Skipped" swapped for the derived "Overdue" since nothing sets skipped yet)
 
 ### Epic: Today View (/today)
-- Implement "today or overdue" computed query
-- Show all statuses by default; strike through done tasks
-- Add layered filter controls (status, label, priority)
-- Wire week-strip UI to real dates
+- Today/overdue core view — done (#126; extended TaskList with baseFilter + emptyMessage props so /today reuses it directly, scoped to tasks due today (any status, done ones struck through) or overdue-and-not-done; same status/label filters and sorting as /tasks come along for free)
+- Week-ahead strip: bottom section on /today, day-columns (day name + date + compact task titles) wrapping responsively rather than horizontal-scrolling; shows only the remaining days until Sunday, resetting to 6 days every Monday
 
 ### Epic: Subtasks
 - Add subtask list editor inside task drawer (add/remove/reorder)
