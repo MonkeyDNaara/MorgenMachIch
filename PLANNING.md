@@ -119,11 +119,10 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Display label chips on task card — done (#118, added after #30 deferred it)
 - Label-based filtering: shared utility + filter bar on /tasks — done (#120, merged the original "filtering logic" and "filter UI" bullets; /today reuses these once the Today View epic builds that page)
 
-### Epic: List View (/tasks)
-- Build full task list page (card view, all tasks)
-- Implement sorting (due date / priority / created date)
-- Implement status filter (open/done/skipped)
-- Build empty state
+### Epic: List View (/tasks) — done
+- Build full task list page (card view, all tasks) — done early (interim TaskList/TaskCard built during Task CRUD, #25-#30) rather than as a separate step here
+- Build empty state — done early, same as above
+- Sorting + status filter — done (#123, merged; due date/created only — priority dropped until the Priority epic ships a selector; status filter is All/Open/Overdue/Done — "Skipped" swapped for the derived "Overdue" since nothing sets skipped yet)
 
 ### Epic: Today View (/today)
 - Implement "today or overdue" computed query
