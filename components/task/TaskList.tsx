@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
+import type { Task } from "@/lib/types";
 import { getTasks } from "@/lib/db/tasks";
 import { getLabels } from "@/lib/db/labels";
 import { filterTasksByLabels } from "@/lib/utils/filterTasksByLabels";
@@ -10,6 +11,18 @@ import { sortTasks, type TaskSortBy } from "@/lib/utils/sortTasks";
 import TaskCard from "@/components/task/TaskCard";
 import LabelFilterBar from "@/components/task/LabelFilterBar";
 import TaskListToolbar from "@/components/task/TaskListToolbar";
+
+type TaskListProps = {
+  /**
+   * Narrows which tasks this list ever shows, applied before the
+   * status/label toolbar filters below. Lets /today reuse this exact
+   * component (today/overdue scope) instead of duplicating it (#126).
+   */
+  baseFilter?: (tasks: Task[]) => Task[];
+  /** Shown instead of the generic "no matches" message when baseFilter
+   * (plus the toolbar filters) leaves nothing to show. */
+  emptyMessage?: string;
+};
 
 /**
  * Minimal task list, built ahead of the List View epic just so the drawer
@@ -30,7 +43,7 @@ import TaskListToolbar from "@/components/task/TaskListToolbar";
  * state — resets on reload/navigation, no persistence, matching the
  * rest of the app's UI state today.
  */
-export default function TaskList() {
+export default function TaskList({ baseFilter, emptyMessage }: TaskListProps = {}) {
   const tasks = useLiveQuery(() => getTasks(), []);
   const labels = useLiveQuery(() => getLabels(), []);
   const [activeLabelIds, setActiveLabelIds] = useState<string[]>([]);
@@ -53,8 +66,9 @@ export default function TaskList() {
     );
   }
 
+  const scopedTasks = baseFilter ? baseFilter(tasks) : tasks;
   const visibleTasks = sortTasks(
-    filterTasksByLabels(filterTasksByStatus(tasks, status), activeLabelIds),
+    filterTasksByLabels(filterTasksByStatus(scopedTasks, status), activeLabelIds),
     sortBy,
   );
 
@@ -73,7 +87,9 @@ export default function TaskList() {
         onClear={() => setActiveLabelIds([])}
       />
       {visibleTasks.length === 0 ? (
-        <p className="p-8 text-center text-base-content/40">No tasks match the selected filters.</p>
+        <p className="p-8 text-center text-base-content/40">
+          {emptyMessage ?? "No tasks match the selected filters."}
+        </p>
       ) : (
         <div className="flex flex-col gap-2 p-6">
           {visibleTasks.map((task) => (
