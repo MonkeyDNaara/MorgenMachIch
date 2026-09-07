@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
+import TodayView from "@/components/task/TodayView";
 
 export const metadata: Metadata = {
   title: "Today | MorgenMachIch",
 };
 
 export default function TodayPage() {
-  return (
-    <div className="flex h-full items-center justify-center p-8 text-center">
-      <div className="flex flex-col items-center gap-2">
-        <p className="font-mono text-sm text-base-content/60">Today</p>
-        <p className="text-base-content/40">Today/overdue view lands in the Today View epic.</p>
-      </div>
-    </div>
-  );
+  return <TodayView />;
 }
