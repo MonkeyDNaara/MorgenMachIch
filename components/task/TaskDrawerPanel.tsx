@@ -4,18 +4,7 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { createTask, deleteTask, getTask, updateTask } from "@/lib/db/tasks";
 import { buildDueDateIso, splitDueDateIso } from "@/lib/utils/dueDate";
-
-/**
- * DaisyUI's default input focus (a colored border plus a separate 2px
- * outline offset from it) reads as two overlapping rings. This replaces
- * that with a single soft cyan glow — the same treatment as the FAB's
- * shadow — by driving daisyUI's own --input-color variable directly and
- * swapping the outline for a diffused shadow.
- */
-const FIELD_FOCUS =
-  "bg-base-200 outline-none! [--input-color:var(--color-base-300)] " +
-  "focus:[--input-color:var(--color-primary)]! " +
-  "focus:shadow-[0_0_0_4px_rgba(77,209,224,0.25)]!";
+import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
 
 type TaskDrawerPanelProps = {
   /** null = create mode. Otherwise the id of the task being edited. */

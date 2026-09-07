@@ -43,6 +43,16 @@ export async function updateLabel(id: string, patch: LabelPatch): Promise<Label>
 }
 
 /**
+ * Counts tasks currently tagged with this label — shown in the delete
+ * confirmation so the cascade cleanup below isn't a silent side effect.
+ * Uses the *labelIds multi-entry index (lib/db/db.ts) instead of
+ * scanning the whole tasks table.
+ */
+export async function countTasksWithLabel(id: string): Promise<number> {
+  return db.tasks.where("labelIds").equals(id).count();
+}
+
+/**
  * Deletes a label and strips it from every task/series that references it
  * (cascade cleanup), so nothing else in the app has to know or care about
  * orphaned label references.
