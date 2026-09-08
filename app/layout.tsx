@@ -31,7 +31,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex bg-base-100 text-base-content">
         <TaskDrawerProvider>
           <NavRail />
-          <main className="flex-1 min-w-0">{children}</main>
+          <main className="flex-1 min-w-0">
+            <div className="mx-auto w-full max-w-3xl">{children}</div>
+          </main>
           <AddTaskFab />
           <TaskDrawer />
         </TaskDrawerProvider>
