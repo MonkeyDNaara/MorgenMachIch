@@ -105,7 +105,7 @@ export default function LabelsView() {
   const sortedLabels = [...(labels ?? [])].sort((a, b) => a.name.localeCompare(b.name));
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold">Labels</h1>
         {form.kind === "none" && (

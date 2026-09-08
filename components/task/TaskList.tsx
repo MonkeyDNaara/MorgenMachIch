@@ -86,17 +86,19 @@ export default function TaskList({ baseFilter, emptyMessage }: TaskListProps = {
         onToggle={toggleLabelFilter}
         onClear={() => setActiveLabelIds([])}
       />
-      {visibleTasks.length === 0 ? (
-        <p className="p-8 text-center text-base-content/40">
-          {emptyMessage ?? "No tasks match the selected filters."}
-        </p>
-      ) : (
-        <div className="flex flex-col gap-2 p-6">
-          {visibleTasks.map((task) => (
-            <TaskCard key={task.id} task={task} labels={labels ?? []} />
-          ))}
-        </div>
-      )}
+      <div className="mx-auto w-full max-w-3xl">
+        {visibleTasks.length === 0 ? (
+          <p className="p-8 text-center text-base-content/40">
+            {emptyMessage ?? "No tasks match the selected filters."}
+          </p>
+        ) : (
+          <div className="flex flex-col gap-2 p-6">
+            {visibleTasks.map((task) => (
+              <TaskCard key={task.id} task={task} labels={labels ?? []} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
