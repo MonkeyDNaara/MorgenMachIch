@@ -7,6 +7,7 @@ import { formatDueDate, isOverdue } from "@/lib/utils/formatDueDate";
 import { useTaskDrawer } from "@/components/task/TaskDrawerProvider";
 import LabelChip from "@/components/label/LabelChip";
 import SubtaskProgressBar from "@/components/task/SubtaskProgressBar";
+import PriorityDot from "@/components/task/PriorityDot";
 
 type TaskCardProps = {
   task: Task;
@@ -20,13 +21,17 @@ type TaskCardProps = {
 const MAX_VISIBLE_LABELS = 2;
 
 /**
- * A single task in card form. No priority indicator yet — that renders
- * in once the Priority epic builds the piece it needs.
+ * A single task in card form.
  *
  * Two independent click targets live here: the status circle toggles
  * complete/incomplete in place, and the title/date area opens the drawer
  * in edit mode. They're sibling <button>s inside a plain <div> (not a
  * button-in-a-button) since nested buttons are invalid HTML.
+ *
+ * The priority dot (added for #138) sits right before the title text,
+ * on the same line — a colored urgency marker, same idiom as Todoist
+ * etc. — distinct from labels, which are categorical tags and stay on
+ * the right. Renders nothing for "none" priority (see PriorityDot).
  *
  * The subtask progress bar (added for #134) lives inside the title/date
  * button, below the date, so it's naturally a third stacked line rather
@@ -81,11 +86,12 @@ export default function TaskCard({ task, labels }: TaskCardProps) {
         className="min-w-0 flex-1 cursor-pointer text-left outline-none!"
       >
         <span
-          className={`block truncate text-sm font-medium ${
+          className={`flex min-w-0 items-center gap-1.5 text-sm font-medium ${
             done ? "text-base-content/50 line-through" : ""
           }`}
         >
-          {task.title}
+          <PriorityDot priority={task.priority} className="flex-shrink-0" />
+          <span className="min-w-0 flex-1 truncate">{task.title}</span>
         </span>
         {task.dueDate && (
           <span
