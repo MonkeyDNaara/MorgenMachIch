@@ -7,6 +7,7 @@ import { getTasks } from "@/lib/db/tasks";
 import { getLabels } from "@/lib/db/labels";
 import { filterTasksByLabels } from "@/lib/utils/filterTasksByLabels";
 import { filterTasksByStatus, type StatusFilter } from "@/lib/utils/filterTasksByStatus";
+import { filterTasksByPriority, type PriorityFilter } from "@/lib/utils/filterTasksByPriority";
 import { sortTasks, type TaskSortBy } from "@/lib/utils/sortTasks";
 import TaskCard from "@/components/task/TaskCard";
 import LabelFilterBar from "@/components/task/LabelFilterBar";
@@ -48,6 +49,7 @@ export default function TaskList({ baseFilter, emptyMessage }: TaskListProps = {
   const labels = useLiveQuery(() => getLabels(), []);
   const [activeLabelIds, setActiveLabelIds] = useState<string[]>([]);
   const [status, setStatus] = useState<StatusFilter>("all");
+  const [priority, setPriority] = useState<PriorityFilter>("all");
   const [sortBy, setSortBy] = useState<TaskSortBy>("dueDate");
 
   function toggleLabelFilter(labelId: string) {
@@ -68,7 +70,10 @@ export default function TaskList({ baseFilter, emptyMessage }: TaskListProps = {
 
   const scopedTasks = baseFilter ? baseFilter(tasks) : tasks;
   const visibleTasks = sortTasks(
-    filterTasksByLabels(filterTasksByStatus(scopedTasks, status), activeLabelIds),
+    filterTasksByLabels(
+      filterTasksByPriority(filterTasksByStatus(scopedTasks, status), priority),
+      activeLabelIds,
+    ),
     sortBy,
   );
 
@@ -77,6 +82,8 @@ export default function TaskList({ baseFilter, emptyMessage }: TaskListProps = {
       <TaskListToolbar
         status={status}
         onStatusChange={setStatus}
+        priority={priority}
+        onPriorityChange={setPriority}
         sortBy={sortBy}
         onSortByChange={setSortBy}
       />

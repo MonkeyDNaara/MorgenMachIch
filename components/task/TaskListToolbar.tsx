@@ -1,6 +1,7 @@
 "use client";
 
 import type { StatusFilter } from "@/lib/utils/filterTasksByStatus";
+import type { PriorityFilter } from "@/lib/utils/filterTasksByPriority";
 import type { TaskSortBy } from "@/lib/utils/sortTasks";
 import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
 
@@ -14,22 +15,36 @@ const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: "done", label: "Done" },
 ];
 
+const PRIORITY_OPTIONS: { value: PriorityFilter; label: string }[] = [
+  { value: "all", label: "All priorities" },
+  { value: "high", label: "High" },
+  { value: "medium", label: "Medium" },
+  { value: "low", label: "Low" },
+  { value: "none", label: "None" },
+];
+
 type TaskListToolbarProps = {
   status: StatusFilter;
   onStatusChange: (status: StatusFilter) => void;
+  priority: PriorityFilter;
+  onPriorityChange: (priority: PriorityFilter) => void;
   sortBy: TaskSortBy;
   onSortByChange: (sortBy: TaskSortBy) => void;
 };
 
 /**
  * Status filter (single-select pill row — a task only has one status,
- * unlike labels) and sort control for /tasks. Sits above the label
- * filter bar. Plain component state owned by TaskList, resets on
- * reload, same as the label filter.
+ * unlike labels), plus priority and sort dropdowns, for /tasks. Priority
+ * is a dropdown rather than a second pill row (#140) — it's a secondary
+ * filter next to status, and a second full pill row would crowd this
+ * toolbar. Sits above the label filter bar. Plain component state owned
+ * by TaskList, resets on reload, same as the label filter.
  */
 export default function TaskListToolbar({
   status,
   onStatusChange,
+  priority,
+  onPriorityChange,
   sortBy,
   onSortByChange,
 }: TaskListToolbarProps) {
@@ -55,15 +70,29 @@ export default function TaskListToolbar({
           );
         })}
       </div>
-      <select
-        value={sortBy}
-        onChange={(event) => onSortByChange(event.target.value as TaskSortBy)}
-        aria-label="Sort tasks by"
-        className={`select select-sm ${FIELD_FOCUS}`}
-      >
-        <option value="dueDate">Due date (soonest first)</option>
-        <option value="createdAt">Created (newest first)</option>
-      </select>
+      <div className="flex items-center gap-2">
+        <select
+          value={priority}
+          onChange={(event) => onPriorityChange(event.target.value as PriorityFilter)}
+          aria-label="Filter by priority"
+          className={`select select-sm ${FIELD_FOCUS}`}
+        >
+          {PRIORITY_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <select
+          value={sortBy}
+          onChange={(event) => onSortByChange(event.target.value as TaskSortBy)}
+          aria-label="Sort tasks by"
+          className={`select select-sm ${FIELD_FOCUS}`}
+        >
+          <option value="dueDate">Due date (soonest first)</option>
+          <option value="createdAt">Created (newest first)</option>
+        </select>
+      </div>
     </div>
   );
 }
