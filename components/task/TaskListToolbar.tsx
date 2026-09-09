@@ -87,7 +87,7 @@ export default function TaskListToolbar({
           value={sortBy}
           onChange={(event) => onSortByChange(event.target.value as TaskSortBy)}
           aria-label="Sort tasks by"
-          className={`select select-sm ${FIELD_FOCUS}`}
+          className={`select select-sm w-52 ${FIELD_FOCUS}`}
         >
           <option value="dueDate">Due date (soonest first)</option>
           <option value="createdAt">Created (newest first)</option>
