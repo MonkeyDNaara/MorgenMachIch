@@ -8,9 +8,10 @@ import { createTask, deleteTask, getTask, updateTask } from "@/lib/db/tasks";
 import { getLabels } from "@/lib/db/labels";
 import { buildDueDateIso, splitDueDateIso } from "@/lib/utils/dueDate";
 import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
-import type { Subtask } from "@/lib/types";
+import type { Priority, Subtask } from "@/lib/types";
 import LabelChip from "@/components/label/LabelChip";
 import SubtaskEditor from "@/components/task/SubtaskEditor";
+import PrioritySelector from "@/components/task/PrioritySelector";
 
 type TaskDrawerPanelProps = {
   /** null = create mode. Otherwise the id of the task being edited. */
@@ -31,6 +32,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
   const isEditing = taskId !== null;
 
   const [title, setTitle] = useState("");
+  const [priority, setPriority] = useState<Priority>("none");
   const [notes, setNotes] = useState("");
   const [labelIds, setLabelIds] = useState<string[]>([]);
   const [subtasks, setSubtasks] = useState<Subtask[]>([]);
@@ -65,6 +67,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
         return;
       }
       setTitle(task.title);
+      setPriority(task.priority);
       setNotes(task.notes ?? "");
       setLabelIds(task.labelIds);
       setSubtasks(task.subtasks);
@@ -95,12 +98,12 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
     setError(null);
     try {
       if (isEditing) {
-        // Only the fields this drawer actually edits — priority and
-        // status are deliberately left out of the patch so editing
-        // never clobbers them with drawer defaults. updateTask merges
-        // with the existing record, so they stay untouched.
+        // Only status is deliberately left out of the patch so editing
+        // never clobbers it with a drawer default. updateTask merges
+        // with the existing record, so it stays untouched.
         await updateTask(taskId, {
           title: title.trim(),
+          priority,
           notes: notes.trim() || undefined,
           labelIds,
           subtasks,
@@ -111,7 +114,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
         await createTask({
           title: title.trim(),
           ...(notes.trim() ? { notes: notes.trim() } : {}),
-          priority: "none",
+          priority,
           dueDate: buildDueDateIso(dueDate, dueTime, allDay),
           allDay,
           labelIds,
@@ -188,6 +191,11 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
                 className={`input w-full ${FIELD_FOCUS}`}
               />
             </label>
+
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs font-medium text-base-content/60">Priority</span>
+              <PrioritySelector value={priority} onChange={setPriority} />
+            </div>
 
             <label className="flex flex-col gap-1.5">
               <span className="text-xs font-medium text-base-content/60">Notes</span>

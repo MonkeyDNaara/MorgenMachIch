@@ -1,3 +1,5 @@
+import { tintChipStyle } from "@/lib/ui/colorChip";
+
 type LabelChipProps = {
   name: string;
   color: string;
@@ -20,20 +22,15 @@ const SIZE_CLASSES: Record<NonNullable<LabelChipProps["size"]>, string> = {
  * with the cyan primary. Shared by the labels page, the task drawer's
  * label picker, and task cards.
  *
- * Colors are per-label runtime values from the fixed palette
- * (lib/constants/labelColors), so they're applied as inline styles
- * rather than Tailwind classes — hex + a 2-digit alpha suffix for the
- * tint/border opacity.
+ * The tint styling itself lives in lib/ui/colorChip.ts (tintChipStyle),
+ * shared with PriorityChip (#138) since both are runtime hex colors
+ * applied as inline styles rather than Tailwind classes.
  */
 export default function LabelChip({ name, color, size = "md", className = "" }: LabelChipProps) {
   return (
     <span
       className={`inline-flex items-center rounded-full font-medium whitespace-nowrap ${SIZE_CLASSES[size]} ${className}`}
-      style={{
-        backgroundColor: `${color}29`, // ~16% opacity
-        color,
-        border: `1px solid ${color}66`, // ~40% opacity
-      }}
+      style={tintChipStyle(color)}
     >
       {name}
     </span>
