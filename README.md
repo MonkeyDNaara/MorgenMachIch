@@ -45,10 +45,13 @@ project evolves.
 ## Status
 
 Actively being built epic-by-epic (see the issue backlog in
-`PLANNING.md`). Foundations, Task CRUD, Labels, List View, and Today
-View are done — project structure, theme, types, local DB, repository
-layer, app shell, routes, the initial Render deploy, full
-create/edit/delete/toggle task cards, labels (create/edit/delete,
-assignment, display, filtering), sorting/status filtering on /tasks,
-and the /today view (today/overdue scope plus a clickable week-ahead
-strip). Up next: the Subtasks epic.
+`PLANNING.md`). Foundations, Task CRUD, Labels, List View, Today View,
+Subtasks, and Priority are done — project structure, theme, types,
+local DB, repository layer, app shell, routes, the initial Render
+deploy, full create/edit/delete/toggle task cards, labels
+(create/edit/delete, assignment, display, filtering),
+sorting/status filtering on /tasks, the /today view (today/overdue
+scope plus a clickable week-ahead strip), subtasks (drawer editor,
+progress bar on the card), and priority levels (drawer selector,
+card indicator dot, filter dropdown). Up next: the Calendar View
+epic.

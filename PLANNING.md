@@ -21,6 +21,7 @@
 - Label chip style (added for #113): soft-tint pills — background at ~16% opacity, text/border at full swatch color, `rounded-full`, no leading dot. Chosen over solid-filled chips after a side-by-side mockup — reads calmer against the dark theme.
 - Label delete UX (added for #113): the delete confirmation surfaces how many tasks the label will be removed from before confirming (`countTasksWithLabel()`), since `deleteLabel()`'s cascade cleanup (#21) shouldn't be a silent side effect.
 - FAB visibility (added for #113): the floating "+" (task-create) button only renders on task-related routes (`/today`, `/tasks`, `/calendar`) — it has no purpose on `/labels` or `/settings`.
+- Content width (added for #137): the readable-width cap (`max-w-3xl`, centered) lives locally on each page's card/list column (`TaskList.tsx`, `LabelsView.tsx`), not globally on `app/layout.tsx`'s `<main>`. This lets toolbars, filter bars, and the week-ahead strip stretch full width while cards/rows stay narrow and centered underneath them.
 - Deployment target: Render (Node Web Service, not Vercel).
 - Milestones: no v1/v1.1 split — single flat backlog.
 
@@ -128,16 +129,13 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Today/overdue core view — done (#126; extended TaskList with baseFilter + emptyMessage props so /today reuses it directly, scoped to tasks due today (any status, done ones struck through) or overdue-and-not-done; same status/label filters and sorting as /tasks come along for free)
 - Week-ahead strip — done (#130; "Coming up" section below the list, one column per day from tomorrow through Sunday, hidden past Sunday and on days with no open tasks, capped at 3 tasks + overflow; clicking a day drills the list into that date with a "Back to Today" control; introduced a priority-dot component reusing the label-palette green/yellow-green + the existing overdue red — the theme's warning/error slots stay reserved for the Priority epic's own design pass, #7)
 
-### Epic: Subtasks
-- Add subtask list editor inside task drawer (add/remove/reorder)
-- Implement subtask done/undone toggle
-- Build subtask progress bar on task card
-- Hide progress bar when a task has no subtasks
+### Epic: Subtasks — done
+- Subtask editor in task drawer: add/edit/remove/reorder (plain up/down arrows, not drag-and-drop — that's the Drag & Drop epic) and a done/undone checkbox per row — done (#133)
+- Subtask progress bar on task card: thin fill bar + "done/total" fraction together, capped at 192px width; hidden entirely when a task has no subtasks — done (#134)
 
-### Epic: Priority
-- Add priority selector to task drawer
-- Add visual priority indicator to task card
-- Add priority filter option
+### Epic: Priority — done
+- Priority selector in task drawer (None/Low/Medium/High, single-select chip row reusing the label-chip toggle interaction) and a colored dot indicator on the task card (no dot for None; green/yellow-green/red for Low/Medium/High, matching the week-ahead-strip dot introduced in #130) — done (#138; also factored the label chip's soft-tint style into a shared `tintChipStyle()` helper so `LabelChip` and the new `PriorityChip` don't duplicate the styling logic)
+- Priority filter dropdown in the /tasks toolbar (All priorities/High/Medium/Low/None), same filter chain pattern as status and labels — done (#140)
 
 ### Epic: Calendar View (/calendar)
 - Build month-view calendar grid
