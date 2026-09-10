@@ -54,5 +54,8 @@ sorting/status filtering on /tasks, the /today view (today/overdue
 scope plus a clickable week-ahead strip), subtasks (drawer editor,
 progress bar on the card), priority levels (drawer selector, card
 indicator dot, filter dropdown), and a /calendar month view (task
-plotting per day, day drill-down). Up next: the Recurring Tasks
-epic.
+plotting per day, day drill-down). The Recurring Tasks epic is in
+progress: the recurrence rule builder and occurrence-generation
+engine are done (daily/weekly/monthly, independent occurrences on a
+rolling 60-day horizon); still open are per-occurrence skip,
+pause/resume, series editing, and series deletion.
