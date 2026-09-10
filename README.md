@@ -57,5 +57,6 @@ indicator dot, filter dropdown), and a /calendar month view (task
 plotting per day, day drill-down). The Recurring Tasks epic is in
 progress: the recurrence rule builder and occurrence-generation
 engine are done (daily/weekly/monthly, independent occurrences on a
-rolling 60-day horizon); still open are per-occurrence skip,
-pause/resume, series editing, and series deletion.
+rolling 60-day horizon), and occurrences can now be independently
+skipped (hidden by default, auditable via a status filter); still open
+are pause/resume, series editing, and series deletion.
