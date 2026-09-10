@@ -147,7 +147,7 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Build recurrence rule builder UI (frequency + interval; weekly: day-of-week multi-select; monthly: choice of a fixed day-of-month **or** an "Nth weekday of month" pattern like "first Monday"; end date) — done (#58)
 - Build occurrence-generation engine (lazily materialize upcoming Task rows, 60-day rolling horizon on app load), including monthly day-of-month/Nth-weekday math (e.g. months without a 31st) — done (#60)
 - Implement TaskSeries repository (create/edit/delete/pause) — base CRUD done in #21 (`lib/db/taskSeries.ts`); pause/resume and series-vs-occurrence edit semantics still open
-- Implement independent complete/skip per occurrence (#61)
+- Implement independent complete/skip per occurrence — done (#61): skip icon-button on occurrence cards (recurring + still open only); skipped tasks hidden by default from Today/Calendar/tasks, excluded from the Overdue filter, auditable via a new "Skipped" status filter on /tasks
 - Implement pause/resume series (#62)
 - Handle editing a series (this occurrence vs. all future ones) (#63) — template-only edit semantics (no split-off), decided ahead of build
 - Handle deleting a series (#148) — UI decision between removing just the template (`deleteTaskSeries()`) or template + all occurrences (`deleteTaskSeriesAndOccurrences()`), both from #21
