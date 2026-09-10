@@ -1,6 +1,6 @@
 "use client";
 
-import { Check } from "lucide-react";
+import { Check, Minus, SkipForward } from "lucide-react";
 import type { Label, Task } from "@/lib/types";
 import { updateTask } from "@/lib/db/tasks";
 import { formatDueDate, isOverdue } from "@/lib/utils/formatDueDate";
@@ -28,6 +28,13 @@ const MAX_VISIBLE_LABELS = 2;
  * in edit mode. They're sibling <button>s inside a plain <div> (not a
  * button-in-a-button) since nested buttons are invalid HTML.
  *
+ * A third action — skip (added for #61) — only appears for recurring
+ * occurrences (`seriesId` set) that are still open, sitting in the same
+ * flex-shrink-0 group as the label chips on the right. Skipping sets
+ * `status: "skipped"`; the card renders it like "done" (muted,
+ * line-through) but with a dash in the status circle instead of a
+ * checkmark, so it doesn't read as "still open."
+ *
  * The priority dot (added for #138) sits right before the title text,
  * on the same line — a colored urgency marker, same idiom as Todoist
  * etc. — distinct from labels, which are categorical tags and stay on
@@ -46,7 +53,9 @@ const MAX_VISIBLE_LABELS = 2;
 export default function TaskCard({ task, labels }: TaskCardProps) {
   const { openTaskDrawer } = useTaskDrawer();
   const done = task.status === "done";
-  const overdue = task.dueDate !== null && !done && isOverdue(task.dueDate);
+  const skipped = task.status === "skipped";
+  const overdue = task.status === "open" && task.dueDate !== null && isOverdue(task.dueDate);
+  const canSkip = task.seriesId !== null && task.status === "open";
 
   const taskLabels = labels.filter((label) => task.labelIds.includes(label.id));
   const visibleLabels = taskLabels.slice(0, MAX_VISIBLE_LABELS);
@@ -57,6 +66,10 @@ export default function TaskCard({ task, labels }: TaskCardProps) {
       status: done ? "open" : "done",
       completedAt: done ? null : new Date().toISOString(),
     });
+  }
+
+  async function handleSkip() {
+    await updateTask(task.id, { status: "skipped" });
   }
 
   return (
@@ -73,12 +86,15 @@ export default function TaskCard({ task, labels }: TaskCardProps) {
         className={`flex h-6 w-6 flex-shrink-0 cursor-pointer items-center justify-center rounded-full border-2 outline-none! transition-colors ${
           done
             ? "border-primary bg-primary"
-            : overdue
-              ? "border-error/70 hover:border-error"
-              : "border-base-content/30 hover:border-base-content/60"
+            : skipped
+              ? "border-base-content/20"
+              : overdue
+                ? "border-error/70 hover:border-error"
+                : "border-base-content/30 hover:border-base-content/60"
         }`}
       >
         {done && <Check size={14} className="text-primary-content" />}
+        {skipped && <Minus size={14} className="text-base-content/40" />}
       </button>
       <button
         type="button"
@@ -87,7 +103,7 @@ export default function TaskCard({ task, labels }: TaskCardProps) {
       >
         <span
           className={`flex min-w-0 items-center gap-1.5 text-sm font-medium ${
-            done ? "text-base-content/50 line-through" : ""
+            done || skipped ? "text-base-content/50 line-through" : ""
           }`}
         >
           <PriorityDot priority={task.priority} className="flex-shrink-0" />
@@ -101,11 +117,12 @@ export default function TaskCard({ task, labels }: TaskCardProps) {
           >
             {formatDueDate(task.dueDate, task.allDay)}
             {overdue ? " · overdue" : ""}
+            {skipped ? " · skipped" : ""}
           </span>
         )}
         <SubtaskProgressBar subtasks={task.subtasks} />
       </button>
-      {taskLabels.length > 0 && (
+      {(taskLabels.length > 0 || canSkip) && (
         <div className="ml-auto flex flex-shrink-0 items-center gap-1.5">
           {visibleLabels.map((label) => (
             <LabelChip key={label.id} name={label.name} color={label.color} size="sm" />
@@ -114,6 +131,17 @@ export default function TaskCard({ task, labels }: TaskCardProps) {
             <span className="inline-flex items-center rounded-full bg-base-300 px-2 py-0.5 text-[10px] font-medium text-base-content/60">
               +{overflowCount}
             </span>
+          )}
+          {canSkip && (
+            <button
+              type="button"
+              onClick={handleSkip}
+              aria-label="Skip this occurrence"
+              title="Skip this occurrence"
+              className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-base-content/40 outline-none! transition-colors hover:bg-base-300 hover:text-base-content/70"
+            >
+              <SkipForward size={14} />
+            </button>
           )}
         </div>
       )}

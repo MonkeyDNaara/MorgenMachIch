@@ -86,7 +86,10 @@ export default function CalendarView() {
   }
 
   const grid = getMonthGrid(viewYear, viewMonth, today);
-  const tasksByDate = groupTasksByDate(tasks);
+  // Skipped occurrences are hidden from the grid (added for #61) — this
+  // bucketing path doesn't go through TaskList's status filter, so it
+  // needs its own exclusion.
+  const tasksByDate = groupTasksByDate(tasks.filter((task) => task.status !== "skipped"));
   const monthLabel = new Date(viewYear, viewMonth, 1).toLocaleDateString(undefined, {
     month: "long",
     year: "numeric",
