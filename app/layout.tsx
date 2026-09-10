@@ -3,6 +3,7 @@ import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import NavRail from "@/components/layout/NavRail";
 import AddTaskFab from "@/components/layout/AddTaskFab";
 import TaskDrawer from "@/components/task/TaskDrawer";
+import OccurrenceSync from "@/components/task/OccurrenceSync";
 import { TaskDrawerProvider } from "@/components/task/TaskDrawerProvider";
 import "./globals.css";
 
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex bg-base-100 text-base-content">
+        <OccurrenceSync />
         <TaskDrawerProvider>
           <NavRail />
           <main className="flex-1 min-w-0">{children}</main>
