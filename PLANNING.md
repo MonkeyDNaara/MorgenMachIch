@@ -137,12 +137,12 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Priority selector in task drawer (None/Low/Medium/High, single-select chip row reusing the label-chip toggle interaction) and a colored dot indicator on the task card (no dot for None; green/yellow-green/red for Low/Medium/High, matching the week-ahead-strip dot introduced in #130) — done (#138; also factored the label chip's soft-tint style into a shared `tintChipStyle()` helper so `LabelChip` and the new `PriorityChip` don't duplicate the styling logic)
 - Priority filter dropdown in the /tasks toolbar (All priorities/High/Medium/Low/None), same filter chain pattern as status and labels — done (#140)
 
-### Epic: Calendar View (/calendar)
-- Build month-view calendar grid
-- Plot tasks on their due dates
-- Implement day click → view/edit that day's tasks
-- Render recurring occurrences correctly
-- (Stretch) week view toggle
+### Epic: Calendar View (/calendar) — core done (#145)
+- Month grid (Mon-Sun weeks, dynamic 4-6 rows) with prev/next navigation and a "Today" reset — done (#145)
+- Tasks plotted per day as a compact mini-list (PriorityDot + truncated title, capped at 3 + "+N" overflow), same idiom as the week-ahead strip's day columns — done (#145)
+- Day click drills into the shared TaskList scoped to that date (any status), reusing TodayView's selectedDay/baseFilter pattern, with a "Back to month" control — done (#145)
+- Render recurring occurrences correctly — deferred: no TaskSeries UI exists until the Recurring Tasks epic ships one
+- (Stretch, not yet scoped) week view toggle — separate issue once we've used the month view for a while
 
 ### Epic: Recurring Tasks
 - Build recurrence rule builder UI (frequency + interval; weekly: day-of-week multi-select; monthly: choice of a fixed day-of-month **or** an "Nth weekday of month" pattern like "first Monday"; end date)
