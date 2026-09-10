@@ -17,12 +17,46 @@ export type Priority = z.infer<typeof PrioritySchema>;
 export const TaskStatusSchema = z.enum(["open", "done", "skipped"]);
 export type TaskStatus = z.infer<typeof TaskStatusSchema>;
 
-export const RecurrenceRuleSchema = z.object({
-  frequency: z.enum(["daily", "weekly", "monthly"]),
-  interval: z.number().int().positive(),
-  daysOfWeek: z.array(z.number().int().min(0).max(6)).optional(),
-  endDate: z.string().nullable().optional(),
-});
+/**
+ * Monthly recurrence needs two modes because "the same day every month"
+ * (dayOfMonth) and "the same weekday pattern every month" (nthWeekday,
+ * e.g. "last Friday") behave differently across months of different
+ * lengths — see occurrencesBetween in lib/utils/recurrence.ts for how
+ * each is actually computed. n=-1 means "last", 1-4 mean first..fourth.
+ */
+export const RecurrenceRuleSchema = z
+  .object({
+    frequency: z.enum(["daily", "weekly", "monthly"]),
+    interval: z.number().int().positive(),
+    daysOfWeek: z.array(z.number().int().min(0).max(6)).optional(), // weekly only, 0=Sun..6=Sat
+    monthlyMode: z.enum(["dayOfMonth", "nthWeekday"]).optional(), // monthly only
+    dayOfMonth: z.number().int().min(1).max(31).optional(), // monthlyMode: "dayOfMonth"
+    nthWeekday: z
+      .object({
+        n: z.number().int().refine((n) => n === -1 || (n >= 1 && n <= 4), {
+          message: "n must be 1-4 or -1 (last)",
+        }),
+        weekday: z.number().int().min(0).max(6),
+      })
+      .optional(), // monthlyMode: "nthWeekday"
+    endDate: z.string().nullable().optional(),
+  })
+  .refine((rule) => rule.frequency !== "weekly" || (rule.daysOfWeek?.length ?? 0) > 0, {
+    message: "Weekly recurrence needs at least one day of the week selected",
+    path: ["daysOfWeek"],
+  })
+  .refine((rule) => rule.frequency !== "monthly" || rule.monthlyMode !== undefined, {
+    message: "Monthly recurrence needs a mode (day of month or nth weekday)",
+    path: ["monthlyMode"],
+  })
+  .refine(
+    (rule) => rule.frequency !== "monthly" || rule.monthlyMode !== "dayOfMonth" || rule.dayOfMonth !== undefined,
+    { message: 'Monthly "day of month" mode needs a day', path: ["dayOfMonth"] },
+  )
+  .refine(
+    (rule) => rule.frequency !== "monthly" || rule.monthlyMode !== "nthWeekday" || rule.nthWeekday !== undefined,
+    { message: 'Monthly "nth weekday" mode needs a weekday', path: ["nthWeekday"] },
+  );
 export type RecurrenceRule = z.infer<typeof RecurrenceRuleSchema>;
 
 export const SubtaskSchema = z.object({
@@ -57,7 +91,8 @@ export const TaskSeriesSchema = z.object({
   labelIds: z.array(z.string()),
   subtaskTemplate: z.array(z.object({ title: z.string().min(1) })),
   recurrence: RecurrenceRuleSchema,
-  startDate: z.string(),
+  startDate: z.string(), // ISO datetime of the first occurrence
+  allDay: z.boolean(), // every generated occurrence inherits this (added for #58)
   active: z.boolean(), // pause without deleting
   createdAt: z.string(),
   updatedAt: z.string(),

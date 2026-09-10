@@ -5,13 +5,17 @@ import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
 import { X } from "lucide-react";
 import { createTask, deleteTask, getTask, updateTask } from "@/lib/db/tasks";
+import { createTaskSeries } from "@/lib/db/taskSeries";
+import { generateOccurrences } from "@/lib/db/occurrences";
 import { getLabels } from "@/lib/db/labels";
 import { buildDueDateIso, splitDueDateIso } from "@/lib/utils/dueDate";
+import { computeMonthlyDefaults } from "@/lib/utils/recurrence";
 import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
-import type { Priority, Subtask } from "@/lib/types";
+import type { Priority, RecurrenceRule, Subtask } from "@/lib/types";
 import LabelChip from "@/components/label/LabelChip";
 import SubtaskEditor from "@/components/task/SubtaskEditor";
 import PrioritySelector from "@/components/task/PrioritySelector";
+import RecurrenceRuleBuilder from "@/components/task/RecurrenceRuleBuilder";
 
 type TaskDrawerPanelProps = {
   /** null = create mode. Otherwise the id of the task being edited. */
@@ -39,6 +43,12 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
   const [dueDate, setDueDate] = useState("");
   const [dueTime, setDueTime] = useState("");
   const [allDay, setAllDay] = useState(false);
+  const [repeatEnabled, setRepeatEnabled] = useState(false);
+  const [recurrence, setRecurrence] = useState<RecurrenceRule>({
+    frequency: "weekly",
+    interval: 1,
+    daysOfWeek: [],
+  });
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -89,8 +99,42 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
     setLabelIds((prev) => (prev.includes(id) ? prev.filter((labelId) => labelId !== id) : [...prev, id]));
   }
 
+  // Repeat only offered when creating (see TaskDrawerPanel scope note
+  // below) — toggling it on seeds a sensible default (this task's own
+  // weekday) rather than an empty, unsaveable weekly rule.
+  function handleRepeatToggle(checked: boolean) {
+    setRepeatEnabled(checked);
+    if (checked && dueDate && (recurrence.daysOfWeek?.length ?? 0) === 0) {
+      const weekday = new Date(`${dueDate}T00:00`).getDay();
+      setRecurrence((prev) => ({ ...prev, daysOfWeek: [weekday] }));
+    }
+  }
+
+  // Fills the monthly-mode fields with a sensible default (derived from
+  // the due date) the moment frequency switches to "monthly" and no
+  // mode has been picked yet, so the builder never shows an unset
+  // monthly rule.
+  function handleRecurrenceChange(rule: RecurrenceRule) {
+    if (rule.frequency === "monthly" && rule.monthlyMode === undefined && dueDate) {
+      const dueDateIso = buildDueDateIso(dueDate, dueTime, allDay) ?? new Date().toISOString();
+      setRecurrence({ ...rule, monthlyMode: "dayOfMonth", ...computeMonthlyDefaults(dueDateIso) });
+      return;
+    }
+    setRecurrence(rule);
+  }
+
   const busy = saving || deleting;
-  const canSave = loadState === "ready" && title.trim().length > 0 && !busy;
+  // Mirrors RecurrenceRuleSchema's own refine() checks so an invalid
+  // weekly rule (no day selected) disables Save instead of failing with
+  // the generic error message below.
+  const recurrenceValid =
+    !repeatEnabled || recurrence.frequency !== "weekly" || (recurrence.daysOfWeek?.length ?? 0) > 0;
+  const canSave =
+    loadState === "ready" &&
+    title.trim().length > 0 &&
+    !busy &&
+    (!repeatEnabled || dueDate.trim().length > 0) &&
+    recurrenceValid;
 
   async function handleSave() {
     if (!canSave) return;
@@ -110,6 +154,22 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
           dueDate: buildDueDateIso(dueDate, dueTime, allDay),
           allDay,
         });
+      } else if (repeatEnabled) {
+        // Recurring: create the TaskSeries template, then generate its
+        // occurrences immediately so they're visible right away rather
+        // than waiting for the next app load (OccurrenceSync, #60).
+        await createTaskSeries({
+          title: title.trim(),
+          ...(notes.trim() ? { notes: notes.trim() } : {}),
+          priority,
+          labelIds,
+          subtaskTemplate: subtasks.map((subtask) => ({ title: subtask.title })),
+          recurrence,
+          startDate: buildDueDateIso(dueDate, dueTime, allDay) ?? new Date().toISOString(),
+          allDay,
+          active: true,
+        });
+        await generateOccurrences();
       } else {
         await createTask({
           title: title.trim(),
@@ -274,6 +334,34 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
                 </label>
               </div>
             </div>
+
+            {/* Repeat is create-only for now — retrofitting an existing
+                task into a recurring series (or splitting an
+                already-generated occurrence back out of one) is a
+                separate concern for a later issue (#63/#148). */}
+            {!isEditing && (
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-base-content/60">Repeat</span>
+                  <label className="flex items-center gap-2 text-sm text-base-content/70">
+                    <input
+                      type="checkbox"
+                      checked={repeatEnabled}
+                      onChange={(event) => handleRepeatToggle(event.target.checked)}
+                      className="checkbox checkbox-sm checkbox-primary"
+                    />
+                  </label>
+                </div>
+                {repeatEnabled &&
+                  (dueDate ? (
+                    <RecurrenceRuleBuilder value={recurrence} onChange={handleRecurrenceChange} />
+                  ) : (
+                    <p className="text-xs text-base-content/40">
+                      Pick a due date above to set a repeat schedule.
+                    </p>
+                  ))}
+              </div>
+            )}
           </div>
         )}
 

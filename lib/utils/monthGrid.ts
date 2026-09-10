@@ -1,14 +1,10 @@
+import { isSameCalendarDate } from "@/lib/utils/isSameCalendarDate";
+
 export type CalendarDay = {
   date: Date;
   isCurrentMonth: boolean;
   isToday: boolean;
 };
-
-function isSameCalendarDate(a: Date, b: Date): boolean {
-  return (
-    a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
-  );
-}
 
 /**
  * Builds the /calendar month grid (#145): every day from the Monday
