@@ -22,6 +22,7 @@
 - Label delete UX (added for #113): the delete confirmation surfaces how many tasks the label will be removed from before confirming (`countTasksWithLabel()`), since `deleteLabel()`'s cascade cleanup (#21) shouldn't be a silent side effect.
 - FAB visibility (added for #113): the floating "+" (task-create) button only renders on task-related routes (`/today`, `/tasks`, `/calendar`) — it has no purpose on `/labels` or `/settings`.
 - Content width (added for #137): the readable-width cap (`max-w-3xl`, centered) lives locally on each page's card/list column (`TaskList.tsx`, `LabelsView.tsx`), not globally on `app/layout.tsx`'s `<main>`. This lets toolbars, filter bars, and the week-ahead strip stretch full width while cards/rows stay narrow and centered underneath them.
+- Recurring tasks — rule builder + occurrence engine (added for #58/#60): `RecurrenceRule` implemented as above (Zod `.refine()`s enforce daysOfWeek for weekly, monthlyMode + its matching field for monthly). Pure date-math lives in `lib/utils/recurrence.ts` (`matchesRule`, `occurrencesBetween`, Monday-based week counting). Occurrence generation (`lib/db/occurrences.ts`) tops up a rolling 60-day horizon, re-run idempotently on every app load via `<OccurrenceSync />` in `app/layout.tsx` — no persistent cursor, and deliberately does not backfill missed days from before "now". Repeat is create-only for now: the task drawer has no path yet to edit or retrofit a TaskSeries (that's #63).
 - Deployment target: Render (Node Web Service, not Vercel).
 - Milestones: no v1/v1.1 split — single flat backlog.
 
@@ -42,13 +43,11 @@ type TaskStatus = 'open' | 'done' | 'skipped';
 type RecurrenceRule = {
   frequency: 'daily' | 'weekly' | 'monthly';
   interval: number;
-  daysOfWeek?: number[]; // 0=Sun..6=Sat, for weekly
+  daysOfWeek?: number[];       // 0=Sun..6=Sat, required for weekly
+  monthlyMode?: 'dayOfMonth' | 'nthWeekday'; // required for monthly
+  dayOfMonth?: number;         // 1-31, for monthlyMode: 'dayOfMonth'
+  nthWeekday?: { n: number; weekday: number }; // n: 1-4 or -1 (last)
   endDate?: string | null;
-  // TODO (added after #21): monthly needs two modes — a fixed
-  // day-of-month (e.g. "the 15th") or an "Nth weekday of month" pattern
-  // (e.g. "first Monday"). Exact shape (monthlyMode + dayOfMonth +
-  // nthWeekday fields) TBD when the Recurring Tasks epic's rule-builder
-  // issue is designed; will extend this type + the Zod schema then.
 };
 
 type Subtask = { id: string; title: string; done: boolean };
@@ -144,14 +143,14 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Render recurring occurrences correctly — deferred: no TaskSeries UI exists until the Recurring Tasks epic ships one
 - (Stretch, not yet scoped) week view toggle — separate issue once we've used the month view for a while
 
-### Epic: Recurring Tasks
-- Build recurrence rule builder UI (frequency + interval; weekly: day-of-week multi-select; monthly: choice of a fixed day-of-month **or** an "Nth weekday of month" pattern like "first Monday"; end date)
+### Epic: Recurring Tasks — in progress
+- Build recurrence rule builder UI (frequency + interval; weekly: day-of-week multi-select; monthly: choice of a fixed day-of-month **or** an "Nth weekday of month" pattern like "first Monday"; end date) — done (#58)
+- Build occurrence-generation engine (lazily materialize upcoming Task rows, 60-day rolling horizon on app load), including monthly day-of-month/Nth-weekday math (e.g. months without a 31st) — done (#60)
 - Implement TaskSeries repository (create/edit/delete/pause) — base CRUD done in #21 (`lib/db/taskSeries.ts`); pause/resume and series-vs-occurrence edit semantics still open
-- Build occurrence-generation engine (lazily materialize upcoming Task rows), including monthly day-of-month/Nth-weekday math (e.g. months without a 31st)
-- Implement independent complete/skip per occurrence
-- Implement pause/resume series
-- Handle editing a series (this occurrence vs. all future ones)
-- Handle deleting a series (this occurrence only vs. whole series — UI decision, calls `deleteTask()` or `deleteTaskSeriesAndOccurrences()` from #21 accordingly)
+- Implement independent complete/skip per occurrence (#61)
+- Implement pause/resume series (#62)
+- Handle editing a series (this occurrence vs. all future ones) (#63) — template-only edit semantics (no split-off), decided ahead of build
+- Handle deleting a series (#148) — UI decision between removing just the template (`deleteTaskSeries()`) or template + all occurrences (`deleteTaskSeriesAndOccurrences()`), both from #21
 
 ### Epic: Command Palette
 - Build ⌘K palette UI (search + action list)
