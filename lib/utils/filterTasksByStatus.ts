@@ -17,10 +17,13 @@ export type StatusFilter = "all" | TaskStatus | "overdue";
  * way "show me Work or Home labels" is.
  */
 export function filterTasksByStatus(tasks: Task[], status: StatusFilter): Task[] {
-  if (status === "all") return tasks;
+  // "all" excludes skipped occurrences (added for #61) — skipped tasks
+  // are hidden by default everywhere and only surface via the explicit
+  // "Skipped" filter option below.
+  if (status === "all") return tasks.filter((task) => task.status !== "skipped");
   if (status === "overdue") {
     return tasks.filter(
-      (task) => task.status !== "done" && task.dueDate !== null && isOverdue(task.dueDate),
+      (task) => task.status === "open" && task.dueDate !== null && isOverdue(task.dueDate),
     );
   }
   return tasks.filter((task) => task.status === status);
