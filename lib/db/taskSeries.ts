@@ -1,5 +1,6 @@
 import { db } from "@/lib/db/db";
 import { TaskSeriesSchema, type TaskSeries, type NewTaskSeries } from "@/lib/types";
+import { generateOccurrences } from "@/lib/db/occurrences";
 
 export type TaskSeriesPatch = Partial<Omit<TaskSeries, "id" | "createdAt" | "updatedAt">>;
 
@@ -51,6 +52,47 @@ export async function updateTaskSeries(id: string, patch: TaskSeriesPatch): Prom
   const validated = TaskSeriesSchema.parse(updated);
   await db.taskSeries.put(validated);
   return validated;
+}
+
+/**
+ * Edits a series' template AND brings its already-generated future
+ * occurrences in line with it (#63). generateOccurrences() only ever
+ * adds missing dates — it never touches a Task row that already exists
+ * for a date — so a template edit alone would leave stale rows behind
+ * indefinitely. Instead: update the template, delete this series' rows
+ * that are still `open` and due today-or-later, then let
+ * generateOccurrences() refill them from the new template/rule.
+ *
+ * Completed and skipped occurrences are never deleted, so history and
+ * per-occurrence skip decisions (#61) survive an edit. Trade-off: an
+ * open occurrence due today-or-later is replaced wholesale, so any
+ * subtasks already checked off on it start unchecked again.
+ *
+ * A paused series (active: false) is skipped by generateOccurrences(),
+ * so its removed rows come back on resume rather than immediately.
+ */
+export async function updateTaskSeriesAndRegenerate(
+  id: string,
+  patch: TaskSeriesPatch,
+  now: Date = new Date(),
+): Promise<TaskSeries> {
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+  const updated = await db.transaction("rw", db.tasks, db.taskSeries, async () => {
+    const result = await updateTaskSeries(id, patch);
+    const occurrences = await db.tasks.where("seriesId").equals(id).toArray();
+    const staleIds = occurrences
+      .filter(
+        (task) =>
+          task.status === "open" && task.dueDate !== null && new Date(task.dueDate).getTime() >= startOfToday,
+      )
+      .map((task) => task.id);
+    await db.tasks.bulkDelete(staleIds);
+    return result;
+  });
+
+  await generateOccurrences(now);
+  return updated;
 }
 
 /** Deletes the series template only — generated Task rows are untouched.

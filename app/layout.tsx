@@ -3,8 +3,10 @@ import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import NavRail from "@/components/layout/NavRail";
 import AddTaskFab from "@/components/layout/AddTaskFab";
 import TaskDrawer from "@/components/task/TaskDrawer";
+import SeriesDrawer from "@/components/task/SeriesDrawer";
 import OccurrenceSync from "@/components/task/OccurrenceSync";
 import { TaskDrawerProvider } from "@/components/task/TaskDrawerProvider";
+import { SeriesDrawerProvider } from "@/components/task/SeriesDrawerProvider";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -32,10 +34,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex bg-base-100 text-base-content">
         <OccurrenceSync />
         <TaskDrawerProvider>
-          <NavRail />
-          <main className="flex-1 min-w-0">{children}</main>
-          <AddTaskFab />
-          <TaskDrawer />
+          <SeriesDrawerProvider>
+            <NavRail />
+            <main className="flex-1 min-w-0">{children}</main>
+            <AddTaskFab />
+            <TaskDrawer />
+            <SeriesDrawer />
+          </SeriesDrawerProvider>
         </TaskDrawerProvider>
       </body>
     </html>
