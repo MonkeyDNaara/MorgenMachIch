@@ -40,6 +40,8 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
   const [notes, setNotes] = useState("");
   const [labelIds, setLabelIds] = useState<string[]>([]);
   const [subtasks, setSubtasks] = useState<Subtask[]>([]);
+  // Set when the task being edited is a generated occurrence of a series (#148).
+  const [seriesId, setSeriesId] = useState<string | null>(null);
   const [dueDate, setDueDate] = useState("");
   const [dueTime, setDueTime] = useState("");
   const [allDay, setAllDay] = useState(false);
@@ -81,6 +83,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
       setNotes(task.notes ?? "");
       setLabelIds(task.labelIds);
       setSubtasks(task.subtasks);
+      setSeriesId(task.seriesId);
       const { date, time } = splitDueDateIso(task.dueDate);
       setDueDate(date);
       setDueTime(time);
@@ -368,7 +371,13 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
         <div className="flex flex-col gap-2 border-t border-white/5 pt-4">
           <div className="flex items-center justify-between gap-2">
             <div>
-              {isEditing && loadState === "ready" && (
+              {isEditing && loadState === "ready" && seriesId !== null && (
+                <p className="max-w-[16rem] text-xs text-base-content/40">
+                  Recurring occurrences can&apos;t be deleted one by one — use Skip to drop this one, or delete the
+                  whole series from /tasks.
+                </p>
+              )}
+              {isEditing && loadState === "ready" && seriesId === null && (
                 <button
                   type="button"
                   onClick={handleDeleteClick}

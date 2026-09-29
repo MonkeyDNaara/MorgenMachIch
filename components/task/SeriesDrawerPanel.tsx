@@ -4,7 +4,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
 import { X } from "lucide-react";
-import { getTaskSeries, updateTaskSeriesAndRegenerate } from "@/lib/db/taskSeries";
+import {
+  countSeriesOccurrences,
+  deleteTaskSeriesAndOccurrences,
+  deleteTaskSeriesAndUpcoming,
+  deleteTaskSeriesKeepingTasks,
+  getTaskSeries,
+  updateTaskSeriesAndRegenerate,
+} from "@/lib/db/taskSeries";
 import { getLabels } from "@/lib/db/labels";
 import { buildDueDateIso, splitDueDateIso } from "@/lib/utils/dueDate";
 import { computeMonthlyDefaults } from "@/lib/utils/recurrence";
@@ -47,6 +54,10 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
     daysOfWeek: [],
   });
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  // null = not choosing; otherwise the counts shown on the delete choice
+  // panel (#148), loaded when the panel opens.
+  const [deleteCounts, setDeleteCounts] = useState<{ upcoming: number; total: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loadState, setLoadState] = useState<LoadState>("loading");
 
@@ -100,7 +111,8 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
   }
 
   const recurrenceValid = recurrence.frequency !== "weekly" || (recurrence.daysOfWeek?.length ?? 0) > 0;
-  const canSave = loadState === "ready" && title.trim().length > 0 && !saving && recurrenceValid;
+  const busy = saving || deleting;
+  const canSave = loadState === "ready" && title.trim().length > 0 && !busy && recurrenceValid;
 
   async function handleSave() {
     if (!canSave) return;
@@ -123,6 +135,35 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
     } catch {
       setSaving(false);
       setError("Couldn't save this series — check the fields and try again.");
+    }
+  }
+
+  async function handleDeleteClick() {
+    if (busy) return;
+    setError(null);
+    try {
+      setDeleteCounts(await countSeriesOccurrences(seriesId));
+    } catch {
+      setError("Couldn't load this series' tasks — try again.");
+    }
+  }
+
+  async function handleDelete(mode: "upcoming" | "keep" | "all") {
+    if (busy) return;
+    setDeleting(true);
+    setError(null);
+    try {
+      if (mode === "upcoming") {
+        await deleteTaskSeriesAndUpcoming(seriesId);
+      } else if (mode === "keep") {
+        await deleteTaskSeriesKeepingTasks(seriesId);
+      } else {
+        await deleteTaskSeriesAndOccurrences(seriesId);
+      }
+      onClose();
+    } catch {
+      setDeleting(false);
+      setError("Couldn't delete this series — try again.");
     }
   }
 
@@ -149,7 +190,7 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
           <button
             type="button"
             onClick={onClose}
-            disabled={saving}
+            disabled={busy}
             aria-label="Close"
             className="flex h-8 w-8 items-center justify-center rounded-lg bg-base-300 text-base-content/60 transition-colors hover:text-base-content disabled:opacity-40"
           >
@@ -269,8 +310,63 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
         )}
 
         <div className="flex flex-col gap-2 border-t border-white/5 pt-4">
-          <div className="flex items-center justify-end gap-2">
-            <button type="button" onClick={onClose} disabled={saving} className="btn btn-ghost btn-sm">
+          {deleteCounts !== null && (
+            <div className="flex flex-col gap-2 rounded-lg bg-base-200 p-3">
+              <p className="text-xs text-base-content/60">Delete this series?</p>
+              <button
+                type="button"
+                onClick={() => handleDelete("upcoming")}
+                disabled={busy}
+                className="btn btn-error btn-sm h-auto justify-start whitespace-normal py-2 text-left"
+              >
+                {deleting
+                  ? "Deleting…"
+                  : `Delete series + ${deleteCounts.upcoming} upcoming open ${
+                      deleteCounts.upcoming === 1 ? "task" : "tasks"
+                    }`}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDelete("keep")}
+                disabled={busy}
+                className="btn btn-ghost btn-sm h-auto justify-start whitespace-normal py-2 text-left text-error"
+              >
+                Delete series only — keep all {deleteCounts.total} {deleteCounts.total === 1 ? "task" : "tasks"} as
+                standalone
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDelete("all")}
+                disabled={busy || deleteCounts.total === 0}
+                className="btn btn-outline btn-error btn-sm h-auto justify-start whitespace-normal py-2 text-left"
+              >
+                Delete series + all {deleteCounts.total} {deleteCounts.total === 1 ? "task" : "tasks"}, including
+                completed history
+              </button>
+              <p className="text-xs text-base-content/40">
+                Unless you delete everything, completed, skipped and overdue tasks are kept as standalone tasks.
+                Deleting everything can&apos;t be undone.
+              </p>
+              <button
+                type="button"
+                onClick={() => setDeleteCounts(null)}
+                disabled={busy}
+                className="btn btn-ghost btn-xs self-end"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              {loadState === "ready" && deleteCounts === null && (
+                <button type="button" onClick={handleDeleteClick} disabled={busy} className="btn btn-ghost btn-sm text-error">
+                  Delete series
+                </button>
+              )}
+            </div>
+            <div className="flex items-center justify-end gap-2">
+            <button type="button" onClick={onClose} disabled={busy} className="btn btn-ghost btn-sm">
               {loadState === "not-found" ? "Close" : "Cancel"}
             </button>
             {loadState !== "not-found" && (
@@ -278,6 +374,7 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
                 {saving ? "Saving…" : "Save"}
               </button>
             )}
+            </div>
           </div>
           {error && <p className="text-right text-xs text-error">{error}</p>}
         </div>
