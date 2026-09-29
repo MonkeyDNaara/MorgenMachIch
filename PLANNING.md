@@ -22,8 +22,10 @@
 - Label delete UX (added for #113): the delete confirmation surfaces how many tasks the label will be removed from before confirming (`countTasksWithLabel()`), since `deleteLabel()`'s cascade cleanup (#21) shouldn't be a silent side effect.
 - FAB visibility (added for #113): the floating "+" (task-create) button only renders on task-related routes (`/today`, `/tasks`, `/calendar`) — it has no purpose on `/labels` or `/settings`.
 - Content width (added for #137): the readable-width cap (`max-w-3xl`, centered) lives locally on each page's card/list column (`TaskList.tsx`, `LabelsView.tsx`), not globally on `app/layout.tsx`'s `<main>`. This lets toolbars, filter bars, and the week-ahead strip stretch full width while cards/rows stay narrow and centered underneath them.
-- Recurring tasks — rule builder + occurrence engine (added for #58/#60): `RecurrenceRule` implemented as above (Zod `.refine()`s enforce daysOfWeek for weekly, monthlyMode + its matching field for monthly). Pure date-math lives in `lib/utils/recurrence.ts` (`matchesRule`, `occurrencesBetween`, Monday-based week counting). Occurrence generation (`lib/db/occurrences.ts`) tops up a rolling 60-day horizon, re-run idempotently on every app load via `<OccurrenceSync />` in `app/layout.tsx` — no persistent cursor, and deliberately does not backfill missed days from before "now". Repeat is create-only for now: the task drawer has no path yet to edit or retrofit a TaskSeries (that's #63).
+- Recurring tasks — rule builder + occurrence engine (added for #58/#60): `RecurrenceRule` implemented as above (Zod `.refine()`s enforce daysOfWeek for weekly, monthlyMode + its matching field for monthly). Pure date-math lives in `lib/utils/recurrence.ts` (`matchesRule`, `occurrencesBetween`, Monday-based week counting). Occurrence generation (`lib/db/occurrences.ts`) tops up a rolling 60-day horizon, re-run idempotently on every app load via `<OccurrenceSync />` in `app/layout.tsx` — no persistent cursor, and deliberately does not backfill missed days from before "now". Repeat is create-only in the task drawer: retrofitting an existing task into a series isn't supported; editing an existing series is its own drawer (#63, below).
 - Recurring tasks — pause/resume + /tasks layout (added for #62): `updateTaskSeries(id, { active })` toggles pause/resume from a new `SeriesRow` component. To keep a single active series from flooding /tasks with dozens of daily/weekly occurrences, /tasks was split into two side-by-side columns sharing one filter toolbar: a Tasks column (single, non-series tasks) and a Recurring column (one row per TaskSeries, via a new `formatRecurrenceRule()` plain-English summary). Status/sort filters apply only to the Tasks column; priority/label filters apply to both (`filterSeriesByPriority`/`filterSeriesByLabels` mirror the existing task filters). `TaskCardList` was extracted as a pure list renderer so `TaskList` (Today/Calendar) and the new `TasksView` (/tasks) can share rendering without duplicating markup.
+- Recurring tasks — series editing (added for #63): editing is template-only (no "this occurrence vs. all future" split). A separate edit-only drawer (`SeriesDrawerProvider` / `SeriesDrawer` / `SeriesDrawerPanel`, mirroring the task drawer) opens from the `SeriesRow` title area; the pause/resume icon stays its own quick action. Editable: title, priority, notes, labels, subtask template, time of day / all-day, and the full recurrence rule via `RecurrenceRuleBuilder`. The anchor start date is locked (shown read-only) so the recurrence pattern never shifts; only `startDate`'s time-of-day component changes. Because `generateOccurrences()` only adds missing dates and never touches existing rows, `updateTaskSeriesAndRegenerate()` (`lib/db/taskSeries.ts`) updates the template, deletes the series' `open` occurrences due today-or-later, then refills them. Completed and skipped occurrences are never touched. Known trade-offs: subtasks already checked off on an open today-or-later occurrence reset on edit, and editing a paused series removes its upcoming open occurrences until it is resumed.
+- Testing (added 2026-09-14): Vitest, added at the end of development rather than test-driven alongside each epic — once the feature set is stable, write tests for the parts that most benefit from them (pure date-math/recurrence logic, the `lib/db` repository layer, filter/sort utilities), not a blanket coverage target. Exact scope gets nailed down when that epic is picked up.
 - Deployment target: Render (Node Web Service, not Vercel).
 - Milestones: no v1/v1.1 split — single flat backlog.
 
@@ -147,10 +149,10 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 ### Epic: Recurring Tasks — in progress
 - Build recurrence rule builder UI (frequency + interval; weekly: day-of-week multi-select; monthly: choice of a fixed day-of-month **or** an "Nth weekday of month" pattern like "first Monday"; end date) — done (#58)
 - Build occurrence-generation engine (lazily materialize upcoming Task rows, 60-day rolling horizon on app load), including monthly day-of-month/Nth-weekday math (e.g. months without a 31st) — done (#60)
-- Implement TaskSeries repository (create/edit/delete/pause) — base CRUD done in #21 (`lib/db/taskSeries.ts`); pause/resume done (#62); series-vs-occurrence edit semantics still open (#63)
+- Implement TaskSeries repository (create/edit/delete/pause) — base CRUD done in #21 (`lib/db/taskSeries.ts`); pause/resume done (#62); edit-with-regeneration done (#63); delete UI still open (#148)
 - Implement independent complete/skip per occurrence — done (#61): skip icon-button on occurrence cards (recurring + still open only); skipped tasks hidden by default from Today/Calendar/tasks, excluded from the Overdue filter, auditable via a new "Skipped" status filter on /tasks
 - Implement pause/resume series and split /tasks into a Tasks/Recurring two-column layout (one row per series) — done (#62)
-- Handle editing a series (this occurrence vs. all future ones) (#63) — template-only edit semantics (no split-off), decided ahead of build
+- Handle editing a series — done (#63): template-only edit semantics (no split-off); edit drawer opened from the series row, saving regenerates open today-or-later occurrences
 - Handle deleting a series (#148) — UI decision between removing just the template (`deleteTaskSeries()`) or template + all occurrences (`deleteTaskSeriesAndOccurrences()`), both from #21
 
 ### Epic: Command Palette
@@ -192,6 +194,12 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Implement data export (JSON download)
 - Implement data import (JSON upload + validation)
 - (Deferred) light theme toggle placeholder
+
+### Epic: Testing (Vitest) — deferred to end of development
+- Set up Vitest (+ fake-indexeddb for Dexie) in the project
+- Unit tests for pure utilities: recurrence date-math (`lib/utils/recurrence.ts`), filter/sort functions, date helpers (`isDueToday`, `formatDueDate`)
+- Tests for the `lib/db` repository layer (CRUD + validation behavior)
+- (Maybe) component tests for the trickiest UI logic (e.g. TaskDrawerPanel's conditional validation)
 
 ### Epic: Deployment & Ops
 - Set up Render Web Service for the Next.js app

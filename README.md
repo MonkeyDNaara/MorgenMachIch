@@ -59,6 +59,7 @@ progress: the recurrence rule builder and occurrence-generation
 engine are done (daily/weekly/monthly, independent occurrences on a
 rolling 60-day horizon), occurrences can be independently skipped
 (hidden by default, auditable via a status filter), and series can be
-paused/resumed; /tasks now splits into a Tasks column and a Recurring
-column (one row per series) so a single series doesn't flood the list.
-Still open are series editing and series deletion.
+paused/resumed and edited (a drawer opened from the series row; saving
+regenerates upcoming open occurrences); /tasks splits into a Tasks column
+and a Recurring column (one row per series) so a single series doesn't
+flood the list. Still open is series deletion.
