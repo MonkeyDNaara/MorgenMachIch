@@ -6,6 +6,7 @@ import { updateTaskSeries } from "@/lib/db/taskSeries";
 import { formatRecurrenceRule } from "@/lib/utils/formatRecurrenceRule";
 import LabelChip from "@/components/label/LabelChip";
 import PriorityDot from "@/components/task/PriorityDot";
+import { useSeriesDrawer } from "@/components/task/SeriesDrawerProvider";
 
 type SeriesRowProps = {
   series: TaskSeries;
@@ -18,10 +19,11 @@ const MAX_VISIBLE_LABELS = 2;
  * One row per recurring series in the /tasks "Recurring" section (#62)
  * — a template, not a generated occurrence, so there's no status circle
  * or skip action here, just the series' own info and a pause/resume
- * toggle. Deliberately not clickable yet: opening a series to edit its
- * template (title/recurrence/etc.) is #63, not this issue.
+ * toggle. Clicking the title/recurrence area opens the series-edit
+ * drawer (#63); the pause/resume button is a separate quick action.
  */
 export default function SeriesRow({ series, labels }: SeriesRowProps) {
+  const { openSeriesDrawer } = useSeriesDrawer();
   const paused = !series.active;
   const seriesLabels = labels.filter((label) => series.labelIds.includes(label.id));
   const visibleLabels = seriesLabels.slice(0, MAX_VISIBLE_LABELS);
@@ -38,7 +40,11 @@ export default function SeriesRow({ series, labels }: SeriesRowProps) {
       }`}
     >
       <Repeat size={16} className="flex-shrink-0 text-base-content/40" />
-      <div className="min-w-0 flex-1">
+      <button
+        type="button"
+        onClick={() => openSeriesDrawer(series.id)}
+        className="min-w-0 flex-1 cursor-pointer text-left outline-none!"
+      >
         <span className="flex min-w-0 items-center gap-1.5 text-sm font-medium">
           <PriorityDot priority={series.priority} className="flex-shrink-0" />
           <span className="min-w-0 flex-1 truncate">{series.title}</span>
@@ -47,7 +53,7 @@ export default function SeriesRow({ series, labels }: SeriesRowProps) {
           {formatRecurrenceRule(series.recurrence)}
           {paused ? " · paused" : ""}
         </span>
-      </div>
+      </button>
       <div className="ml-auto flex flex-shrink-0 items-center gap-1.5">
         {visibleLabels.map((label) => (
           <LabelChip key={label.id} name={label.name} color={label.color} size="sm" />
