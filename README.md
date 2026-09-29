@@ -54,12 +54,13 @@ sorting/status filtering on /tasks, the /today view (today/overdue
 scope plus a clickable week-ahead strip), subtasks (drawer editor,
 progress bar on the card), priority levels (drawer selector, card
 indicator dot, filter dropdown), and a /calendar month view (task
-plotting per day, day drill-down). The Recurring Tasks epic is in
-progress: the recurrence rule builder and occurrence-generation
+plotting per day, day drill-down). The Recurring Tasks epic is
+done: the recurrence rule builder and occurrence-generation
 engine are done (daily/weekly/monthly, independent occurrences on a
 rolling 60-day horizon), occurrences can be independently skipped
 (hidden by default, auditable via a status filter), and series can be
 paused/resumed and edited (a drawer opened from the series row; saving
 regenerates upcoming open occurrences); /tasks splits into a Tasks column
 and a Recurring column (one row per series) so a single series doesn't
-flood the list. Still open is series deletion.
+flood the list. A series can also be deleted, choosing whether to keep,
+remove, or wipe its existing tasks.
