@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import TaskList from "@/components/task/TaskList";
+import TasksView from "@/components/task/TasksView";
 
 export const metadata: Metadata = {
   title: "Tasks | MorgenMachIch",
 };
 
 export default function TasksPage() {
-  return <TaskList />;
+  return <TasksView />;
 }

@@ -9,7 +9,7 @@ import { filterTasksByLabels } from "@/lib/utils/filterTasksByLabels";
 import { filterTasksByStatus, type StatusFilter } from "@/lib/utils/filterTasksByStatus";
 import { filterTasksByPriority, type PriorityFilter } from "@/lib/utils/filterTasksByPriority";
 import { sortTasks, type TaskSortBy } from "@/lib/utils/sortTasks";
-import TaskCard from "@/components/task/TaskCard";
+import TaskCardList from "@/components/task/TaskCardList";
 import LabelFilterBar from "@/components/task/LabelFilterBar";
 import TaskListToolbar from "@/components/task/TaskListToolbar";
 
@@ -43,6 +43,11 @@ type TaskListProps = {
  * All filter/sort state (labels, status, sort) is plain component
  * state — resets on reload/navigation, no persistence, matching the
  * rest of the app's UI state today.
+ *
+ * Card rendering itself lives in TaskCardList (#62) — extracted out so
+ * TasksView can reuse the exact same card rendering while owning its
+ * own lifted filter state (needed so one shared toolbar can filter both
+ * the task list and the Recurring column side by side on /tasks).
  */
 export default function TaskList({ baseFilter, emptyMessage }: TaskListProps = {}) {
   const tasks = useLiveQuery(() => getTasks(), []);
@@ -93,18 +98,12 @@ export default function TaskList({ baseFilter, emptyMessage }: TaskListProps = {
         onToggle={toggleLabelFilter}
         onClear={() => setActiveLabelIds([])}
       />
-      <div className="mx-auto w-full max-w-3xl">
-        {visibleTasks.length === 0 ? (
-          <p className="p-8 text-center text-base-content/40">
-            {emptyMessage ?? "No tasks match the selected filters."}
-          </p>
-        ) : (
-          <div className="flex flex-col gap-2 p-6">
-            {visibleTasks.map((task) => (
-              <TaskCard key={task.id} task={task} labels={labels ?? []} />
-            ))}
-          </div>
-        )}
+      <div className="mx-auto w-full max-w-3xl p-6">
+        <TaskCardList
+          tasks={visibleTasks}
+          labels={labels ?? []}
+          emptyMessage={emptyMessage ?? "No tasks match the selected filters."}
+        />
       </div>
     </div>
   );
