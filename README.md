@@ -64,3 +64,8 @@ regenerates upcoming open occurrences); /tasks splits into a Tasks column
 and a Recurring column (one row per series) so a single series doesn't
 flood the list. A series can also be deleted, choosing whether to keep,
 remove, or wipe its existing tasks.
+The Settings epic is done too: /settings offers a JSON backup export (with
+a last-backup reminder), an import that validates the whole file first and
+then replaces all data after a preview and confirmation (auto-downloading a
+safety backup beforehand), a delete-all-data danger zone, and an About
+card. A light theme is intentionally deferred.

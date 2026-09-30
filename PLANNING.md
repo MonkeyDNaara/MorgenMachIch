@@ -26,6 +26,7 @@
 - Recurring tasks — pause/resume + /tasks layout (added for #62): `updateTaskSeries(id, { active })` toggles pause/resume from a new `SeriesRow` component. To keep a single active series from flooding /tasks with dozens of daily/weekly occurrences, /tasks was split into two side-by-side columns sharing one filter toolbar: a Tasks column (single, non-series tasks) and a Recurring column (one row per TaskSeries, via a new `formatRecurrenceRule()` plain-English summary). Status/sort filters apply only to the Tasks column; priority/label filters apply to both (`filterSeriesByPriority`/`filterSeriesByLabels` mirror the existing task filters). `TaskCardList` was extracted as a pure list renderer so `TaskList` (Today/Calendar) and the new `TasksView` (/tasks) can share rendering without duplicating markup.
 - Recurring tasks — series editing (added for #63): editing is template-only (no "this occurrence vs. all future" split). A separate edit-only drawer (`SeriesDrawerProvider` / `SeriesDrawer` / `SeriesDrawerPanel`, mirroring the task drawer) opens from the `SeriesRow` title area; the pause/resume icon stays its own quick action. Editable: title, priority, notes, labels, subtask template, time of day / all-day, and the full recurrence rule via `RecurrenceRuleBuilder`. The anchor start date is locked (shown read-only) so the recurrence pattern never shifts; only `startDate`'s time-of-day component changes. Because `generateOccurrences()` only adds missing dates and never touches existing rows, `updateTaskSeriesAndRegenerate()` (`lib/db/taskSeries.ts`) updates the template, deletes the series' `open` occurrences due today-or-later, then refills them. Completed and skipped occurrences are never touched. Known trade-offs: subtasks already checked off on an open today-or-later occurrence reset on edit, and editing a paused series removes its upcoming open occurrences until it is resumed.
 - Recurring tasks — series deletion (added for #148): a red "Delete series" button in the series edit drawer footer opens an inline choice panel with live counts (`countSeriesOccurrences()`): (1) delete the series + its upcoming open occurrences (`deleteTaskSeriesAndUpcoming()`, open and due today-or-later, the same boundary as #63's regeneration), (2) delete only the series and keep every occurrence as a standalone task (`deleteTaskSeriesKeepingTasks()`), or (3) delete the series + every occurrence including completed history (`deleteTaskSeriesAndOccurrences()`, irreversible — this also erases data the Stats epic would count, so it is an explicit third choice, never the default). Kept occurrences are detached (`seriesId = null`) so they show in /tasks' Tasks column as normal tasks instead of becoming hidden orphans (that column excludes every task that still carries a `seriesId`). Completed, skipped and overdue occurrences are kept by options 1 and 2. The original `deleteTaskSeries()` was replaced by these functions since nothing called it. Deleting a single occurrence from the task drawer doesn't stick — `generateOccurrences()` would recreate the missing date on the next load — so for tasks with a `seriesId` the drawer shows a hint (use Skip, or delete the series) instead of a Delete button. A per-occurrence "tombstone" (remember deleted dates on the series) was considered and deferred as its own future issue if ever wanted.
+- Settings — backup, restore & danger zone (added for #161/#162/#163): `/settings` is a server component (`SettingsView`) composing client sections: Data (`DataSection`), Import (`ImportSection`), Danger zone (`DangerZoneSection`) and About (`AboutCard`, reads the version from `package.json` on the server so the file never ships to the client). Export is a versioned JSON envelope `{ app: "morgenmachich", version: 1, exportedAt, data: { tasks, taskSeries, labels } }` (`lib/utils/backup.ts`, read in one Dexie read transaction by `exportAll()` in `lib/db/backup.ts`). Import is **replace-everything**, never a merge: `parseBackup()` is a pure, all-or-nothing validator (JSON → envelope/app/version check → Zod validation of every row with unique ids → referential checks: task→series/label, series→label; errors are capped at 20 plus "…and N more"), the UI shows a preview comparing the file's counts with the current data, and only after an explicit confirm does `importAll()` clear and refill all three tables in a single transaction (a failure rolls back untouched), then best-effort runs `generateOccurrences()`. Before replacing, a safety backup of the current data is auto-downloaded (skipped when the app is empty). "Delete all data" (`deleteAllData()`, single-transaction clear of all three tables) is an inline confirm panel with live counts and an export nudge, disabled when there is nothing to delete. Last-backup timestamp lives in localStorage (`morgenmachich:lastExportedAt`), read through `useSyncExternalStore` (`lib/ui/lastExported.ts`, custom change event + `storage` event) so it is hydration-safe; the nudge (`getBackupNudge()` in `lib/utils/backupNudge.ts`, pure) turns "stale" after 30 days. Theme switching stays deferred (#90): the app ships one dark `morgen` DaisyUI theme.
 - Testing (added 2026-09-14): Vitest, added at the end of development rather than test-driven alongside each epic — once the feature set is stable, write tests for the parts that most benefit from them (pure date-math/recurrence logic, the `lib/db` repository layer, filter/sort utilities), not a blanket coverage target. Exact scope gets nailed down when that epic is picked up.
 - Deployment target: Render (Node Web Service, not Vercel).
 - Milestones: no v1/v1.1 split — single flat backlog.
@@ -35,7 +36,7 @@
 - `/tasks` — full card-view list, all tasks
 - `/calendar` — month view with due dates
 - `/labels` — manage labels
-- `/settings` — preferences, data export/import
+- `/settings` — data export/import (JSON backup), delete-all-data danger zone, about/version
 - Task detail/edit — drawer/modal, not a route
 
 ## Data model (TypeScript)
@@ -190,15 +191,16 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Make it responsive
 - Add basic SEO meta tags
 
-### Epic: Settings
-- Build settings page skeleton
-- Implement data export (JSON download)
-- Implement data import (JSON upload + validation)
-- (Deferred) light theme toggle placeholder
+### Epic: Settings — done (light theme deferred, #90)
+- Build settings page skeleton — done (#161, with export)
+- Implement data export (JSON download) — done (#161): versioned envelope, last-backup timestamp + 30-day nudge
+- Implement data import (JSON upload + validation) — done (#162): all-or-nothing validation, preview + confirm, replace-everything in one transaction, safety backup before replacing
+- Delete all data (danger zone) + About card — done (#163)
+- (Deferred) light theme toggle placeholder (#90) — stays deferred: the design is dark-first with a single `morgen` theme; revisit only if a real light-theme design pass is wanted
 
 ### Epic: Testing (Vitest) — deferred to end of development
 - Set up Vitest (+ fake-indexeddb for Dexie) in the project
-- Unit tests for pure utilities: recurrence date-math (`lib/utils/recurrence.ts`), filter/sort functions, date helpers (`isDueToday`, `formatDueDate`)
+- Unit tests for pure utilities: recurrence date-math (`lib/utils/recurrence.ts`), filter/sort functions, date helpers (`isDueToday`, `formatDueDate`), and the backup validator (`parseBackup()` in `lib/utils/backup.ts`, `getBackupNudge()` — already exercised with ~20 ad-hoc cases during #162, a good seed)
 - Tests for the `lib/db` repository layer (CRUD + validation behavior)
 - (Maybe) component tests for the trickiest UI logic (e.g. TaskDrawerPanel's conditional validation)
 
