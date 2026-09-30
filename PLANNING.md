@@ -27,6 +27,10 @@
 - Recurring tasks — series editing (added for #63): editing is template-only (no "this occurrence vs. all future" split). A separate edit-only drawer (`SeriesDrawerProvider` / `SeriesDrawer` / `SeriesDrawerPanel`, mirroring the task drawer) opens from the `SeriesRow` title area; the pause/resume icon stays its own quick action. Editable: title, priority, notes, labels, subtask template, time of day / all-day, and the full recurrence rule via `RecurrenceRuleBuilder`. The anchor start date is locked (shown read-only) so the recurrence pattern never shifts; only `startDate`'s time-of-day component changes. Because `generateOccurrences()` only adds missing dates and never touches existing rows, `updateTaskSeriesAndRegenerate()` (`lib/db/taskSeries.ts`) updates the template, deletes the series' `open` occurrences due today-or-later, then refills them. Completed and skipped occurrences are never touched. Known trade-offs: subtasks already checked off on an open today-or-later occurrence reset on edit, and editing a paused series removes its upcoming open occurrences until it is resumed.
 - Recurring tasks — series deletion (added for #148): a red "Delete series" button in the series edit drawer footer opens an inline choice panel with live counts (`countSeriesOccurrences()`): (1) delete the series + its upcoming open occurrences (`deleteTaskSeriesAndUpcoming()`, open and due today-or-later, the same boundary as #63's regeneration), (2) delete only the series and keep every occurrence as a standalone task (`deleteTaskSeriesKeepingTasks()`), or (3) delete the series + every occurrence including completed history (`deleteTaskSeriesAndOccurrences()`, irreversible — this also erases data the Stats epic would count, so it is an explicit third choice, never the default). Kept occurrences are detached (`seriesId = null`) so they show in /tasks' Tasks column as normal tasks instead of becoming hidden orphans (that column excludes every task that still carries a `seriesId`). Completed, skipped and overdue occurrences are kept by options 1 and 2. The original `deleteTaskSeries()` was replaced by these functions since nothing called it. Deleting a single occurrence from the task drawer doesn't stick — `generateOccurrences()` would recreate the missing date on the next load — so for tasks with a `seriesId` the drawer shows a hint (use Skip, or delete the series) instead of a Delete button. A per-occurrence "tombstone" (remember deleted dates on the series) was considered and deferred as its own future issue if ever wanted.
 - Settings — backup, restore & danger zone (added for #161/#162/#163): `/settings` is a server component (`SettingsView`) composing client sections: Data (`DataSection`), Import (`ImportSection`), Danger zone (`DangerZoneSection`) and About (`AboutCard`, reads the version from `package.json` on the server so the file never ships to the client). Export is a versioned JSON envelope `{ app: "morgenmachich", version: 1, exportedAt, data: { tasks, taskSeries, labels } }` (`lib/utils/backup.ts`, read in one Dexie read transaction by `exportAll()` in `lib/db/backup.ts`). Import is **replace-everything**, never a merge: `parseBackup()` is a pure, all-or-nothing validator (JSON → envelope/app/version check → Zod validation of every row with unique ids → referential checks: task→series/label, series→label; errors are capped at 20 plus "…and N more"), the UI shows a preview comparing the file's counts with the current data, and only after an explicit confirm does `importAll()` clear and refill all three tables in a single transaction (a failure rolls back untouched), then best-effort runs `generateOccurrences()`. Before replacing, a safety backup of the current data is auto-downloaded (skipped when the app is empty). "Delete all data" (`deleteAllData()`, single-transaction clear of all three tables) is an inline confirm panel with live counts and an export nudge, disabled when there is nothing to delete. Last-backup timestamp lives in localStorage (`morgenmachich:lastExportedAt`), read through `useSyncExternalStore` (`lib/ui/lastExported.ts`, custom change event + `storage` event) so it is hydration-safe; the nudge (`getBackupNudge()` in `lib/utils/backupNudge.ts`, pure) turns "stale" after 30 days. Theme switching stays deferred (#90): the app ships one dark `morgen` DaisyUI theme.
+- Calendar — projected (ghost) occurrences (added for #168): recurring occurrences were already visible on /calendar because they are real Task rows, but rows only exist ~60 days ahead (`GENERATION_HORIZON_DAYS`), so browsing further out made an active series look like it ended. The calendar now also shows read-only, dimmed "ghost" entries computed on the fly by the pure `projectSeriesOccurrences()` (`lib/utils/projectOccurrences.ts`) instead of generating real rows while browsing — a view must never write to the DB. Rules: only active series project; only today-or-later (no backfill, same as the generator); dedupe runs against every real row of the series including skipped/done ones, so a skipped occurrence never reappears as a ghost; start date and `endDate` come from `occurrencesBetween`. `CalendarDayCell` takes a small `CalendarEntry` view-model (`lib/utils/calendarEntries.ts`) rather than `Task`, so real tasks and ghosts render identically (recurring entries get a `Repeat` icon, ghosts are dimmed); the day drill-down lists a day's ghosts in a read-only "Projected" section (`ProjectedOccurrenceList`). `groupTasksByDate` became generic, and the due-date construction is shared via `occurrenceDueIso()` (`lib/utils/recurrence.ts`) so the generator and the projection agree on time of day.
+- Backlog tasks (decided after #168, epic not built yet): a task with no `dueDate` **is** a backlog task — no new status or flag. `Task.dueDate` is already nullable, so there is no schema change and old backups stay valid. Backlog tasks are listed in their own hideable/showable column/section; a "Plan for…" action promotes one to a due task by setting a due date (today, tomorrow, this week, or a picked date), which moves it out of the backlog. Placement is undecided: `/tasks` is already two columns (Tasks, Recurring), so a third column may be crowded — decide when the epic is planned. Open point for planning: what "no due date" means for tasks that currently show in the main Tasks column.
+- Future direction — Neon (added after #168): the local-only IndexedDB persistence is planned to move to Neon (hosted Postgres) so tasks can also be added from a phone. The `lib/db` repository layer is the swap point; it will need an API layer and authentication, and the versioned backup format (`lib/utils/backup.ts`) is the natural migration path. Not scheduled; decide scope when picked up.
+- Future direction — second brain (added after #168): the app is meant to become part of a "second brain" built with Claude and Obsidian, where Claude helps manage and work on tasks, so the app will eventually need an interface/API for that. Design unknown for now; until then keep domain logic in pure functions (`lib/utils`) and keep data formats versioned so an API/agent interface can reuse them.
 - Testing (added 2026-09-14): Vitest, added at the end of development rather than test-driven alongside each epic — once the feature set is stable, write tests for the parts that most benefit from them (pure date-math/recurrence logic, the `lib/db` repository layer, filter/sort utilities), not a blanket coverage target. Exact scope gets nailed down when that epic is picked up.
 - Deployment target: Render (Node Web Service, not Vercel).
 - Milestones: no v1/v1.1 split — single flat backlog.
@@ -96,7 +100,7 @@ repository-generated fields (id, timestamps, derived state) for use when
 creating records.
 
 ## Feature scope (all confirmed in-scope, no priority tiers)
-Task CRUD, card-view list, calendar view, labels + filtering, priority levels, subtasks with progress bar, recurring tasks (independent occurrences), command palette (⌘K), natural-language quick-add, drag & drop, streak/stats, PWA installability, public landing page, settings (data export/import).
+Task CRUD, card-view list, calendar view, labels + filtering, priority levels, subtasks with progress bar, recurring tasks (independent occurrences), command palette (⌘K), natural-language quick-add, drag & drop, streak/stats, PWA installability, public landing page, settings (data export/import). Planned later: backlog (dateless tasks), light theme, Neon-hosted database (phone access), second-brain (Claude + Obsidian) integration.
 
 ## GitHub issue backlog (flat, no milestones)
 
@@ -141,11 +145,12 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Priority selector in task drawer (None/Low/Medium/High, single-select chip row reusing the label-chip toggle interaction) and a colored dot indicator on the task card (no dot for None; green/yellow-green/red for Low/Medium/High, matching the week-ahead-strip dot introduced in #130) — done (#138; also factored the label chip's soft-tint style into a shared `tintChipStyle()` helper so `LabelChip` and the new `PriorityChip` don't duplicate the styling logic)
 - Priority filter dropdown in the /tasks toolbar (All priorities/High/Medium/Low/None), same filter chain pattern as status and labels — done (#140)
 
-### Epic: Calendar View (/calendar) — core done (#145)
+### Epic: Calendar View (/calendar) — core done (#145), recurring done (#168)
 - Month grid (Mon-Sun weeks, dynamic 4-6 rows) with prev/next navigation and a "Today" reset — done (#145)
 - Tasks plotted per day as a compact mini-list (PriorityDot + truncated title, capped at 3 + "+N" overflow), same idiom as the week-ahead strip's day columns — done (#145)
 - Day click drills into the shared TaskList scoped to that date (any status), reusing TodayView's selectedDay/baseFilter pattern, with a "Back to month" control — done (#145)
-- Render recurring occurrences correctly — unblocked: the Recurring Tasks epic has shipped its series UI, so this can now be picked up and verified
+- Render recurring occurrences correctly — done (#168): real rows already rendered; read-only projected "ghost" occurrences added beyond the 60-day horizon, repeat icon on recurring entries, "Projected" list in the day drill-down
+- Add label + priority filters to the calendar month grid (the grid has no filter bar; only the day drill-down inherits TaskList's) — planned follow-up; must apply to projected occurrences too
 - (Stretch, not yet scoped) week view toggle — separate issue once we've used the month view for a while
 
 ### Epic: Recurring Tasks — done
@@ -191,16 +196,38 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Make it responsive
 - Add basic SEO meta tags
 
-### Epic: Settings — done (light theme deferred, #90)
+### Epic: Settings — done (light theme moved to its own epic, #90)
 - Build settings page skeleton — done (#161, with export)
 - Implement data export (JSON download) — done (#161): versioned envelope, last-backup timestamp + 30-day nudge
 - Implement data import (JSON upload + validation) — done (#162): all-or-nothing validation, preview + confirm, replace-everything in one transaction, safety backup before replacing
 - Delete all data (danger zone) + About card — done (#163)
-- (Deferred) light theme toggle placeholder (#90) — stays deferred: the design is dark-first with a single `morgen` theme; revisit only if a real light-theme design pass is wanted
+- (Deferred) light theme toggle placeholder (#90) — stays deferred; now planned as its own epic (Light Theme, below)
+
+### Epic: Backlog (tasks without a due date)
+- Make "no due date" a first-class, visible concept: backlog tasks (`dueDate === null`) listed in their own hideable/showable column or section
+- "Plan for…" action to promote a backlog task to a due task (today / tomorrow / this week / pick a date)
+- Decide placement relative to the existing /tasks Tasks/Recurring columns
+- Check that Today/Calendar/filters treat dateless tasks consistently
+
+### Epic: Light Theme (formerly deferred #90)
+- Define a light DaisyUI theme alongside the dark `morgen` theme
+- Theme toggle in Settings with persistence (`data-theme` on `<html>`)
+- Design pass across all components
+- (Planned as its own epic; see Settings epic's deferred item #90)
+
+### Epic: Neon Database & Sync (future)
+- Decide API layer + authentication for a hosted database
+- Migrate `lib/db` from Dexie to Neon (Postgres) behind the existing repository interface
+- Migration path for existing local data (versioned backup import)
+- Add tasks from the phone
+
+### Epic: Second Brain Integration (future — Claude + Obsidian)
+- Explore how Claude/Obsidian should read and work on tasks (API/agent interface)
+- Needs the Neon epic's API first; design open
 
 ### Epic: Testing (Vitest) — deferred to end of development
 - Set up Vitest (+ fake-indexeddb for Dexie) in the project
-- Unit tests for pure utilities: recurrence date-math (`lib/utils/recurrence.ts`), filter/sort functions, date helpers (`isDueToday`, `formatDueDate`), and the backup validator (`parseBackup()` in `lib/utils/backup.ts`, `getBackupNudge()` — already exercised with ~20 ad-hoc cases during #162, a good seed)
+- Unit tests for pure utilities: recurrence date-math (`lib/utils/recurrence.ts`), filter/sort functions, date helpers (`isDueToday`, `formatDueDate`), and the backup validator (`parseBackup()` in `lib/utils/backup.ts`, `getBackupNudge()` — already exercised with ~20 ad-hoc cases during #162, a good seed) plus `projectSeriesOccurrences()` (9 scratch cases during #168)
 - Tests for the `lib/db` repository layer (CRUD + validation behavior)
 - (Maybe) component tests for the trickiest UI logic (e.g. TaskDrawerPanel's conditional validation)
 
