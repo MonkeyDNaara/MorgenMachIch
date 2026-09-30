@@ -16,7 +16,7 @@ function formatTimestamp(iso: string): string {
 /**
  * The "Data" section of /settings (#161): what's stored, when it was last
  * backed up, and the export button. Import has its own section
- * (ImportSection, #162); delete-all (#163) will get one too.
+ * (ImportSection, #162), and delete-all is the DangerZoneSection (#163).
  */
 export default function DataSection() {
   const counts = useLiveQuery(() => getDataCounts(), []);

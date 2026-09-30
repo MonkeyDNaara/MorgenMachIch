@@ -1,10 +1,11 @@
 import DataSection from "@/components/settings/DataSection";
 import ImportSection from "@/components/settings/ImportSection";
+import DangerZoneSection from "@/components/settings/DangerZoneSection";
 import AboutCard from "@/components/settings/AboutCard";
 
 /**
- * /settings — data backup (export, import; delete-all has its own issue)
- * and an about card. A server component composing the client
+ * /settings — data backup (export, import), a danger zone (delete all
+ * data) and an about card. A server component composing the client
  * DataSection, in line with the other routes' *View components.
  */
 export default function SettingsView() {
@@ -13,6 +14,7 @@ export default function SettingsView() {
       <h1 className="text-lg font-semibold">Settings</h1>
       <DataSection />
       <ImportSection />
+      <DangerZoneSection />
       <AboutCard />
     </div>
   );
