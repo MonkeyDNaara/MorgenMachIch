@@ -49,3 +49,14 @@ export async function importAll(data: BackupData): Promise<void> {
     console.warn("Imported data, but topping up recurring occurrences failed", error);
   }
 }
+
+/**
+ * Wipes every task, series and label (#163). One transaction, so a
+ * failure leaves everything as it was. Irreversible — the UI puts it
+ * behind an explicit confirm and nudges the user to export first.
+ */
+export async function deleteAllData(): Promise<void> {
+  await db.transaction("rw", db.tasks, db.taskSeries, db.labels, async () => {
+    await Promise.all([db.tasks.clear(), db.taskSeries.clear(), db.labels.clear()]);
+  });
+}
