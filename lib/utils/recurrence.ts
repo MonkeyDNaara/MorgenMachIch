@@ -1,4 +1,4 @@
-import type { RecurrenceRule } from "@/lib/types";
+import type { RecurrenceRule, TaskSeries } from "@/lib/types";
 
 function startOfDay(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -104,4 +104,18 @@ export function computeMonthlyDefaults(dueDateIso: string): {
   const nextWeek = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 7);
   const n = nextWeek.getMonth() !== date.getMonth() ? -1 : occurrence;
   return { dayOfMonth, nthWeekday: { n, weekday } };
+}
+
+/**
+ * The `dueDate` ISO string for one occurrence of `series` on local day
+ * `day`: the series' time of day (or local midnight when all-day) on
+ * that date. Shared by the occurrence generator (real rows, #60) and
+ * the calendar's projected occurrences (#168) so both always agree on
+ * what "the 15th at 09:00" means.
+ */
+export function occurrenceDueIso(series: Pick<TaskSeries, "startDate" | "allDay">, day: Date): string {
+  const start = new Date(series.startDate);
+  const hours = series.allDay ? 0 : start.getHours();
+  const minutes = series.allDay ? 0 : start.getMinutes();
+  return new Date(day.getFullYear(), day.getMonth(), day.getDate(), hours, minutes).toISOString();
 }
