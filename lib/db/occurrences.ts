@@ -1,7 +1,7 @@
 import { db } from "@/lib/db/db";
 import { createTask } from "@/lib/db/tasks";
 import type { TaskSeries } from "@/lib/types";
-import { occurrencesBetween } from "@/lib/utils/recurrence";
+import { occurrencesBetween, occurrenceDueIso } from "@/lib/utils/recurrence";
 import { dateKey } from "@/lib/utils/groupTasksByDate";
 
 /** How far ahead occurrences are kept generated, from whenever this
@@ -59,13 +59,10 @@ async function topUpSeries(series: TaskSeries, now: Date, horizon: Date): Promis
     existing.filter((task) => task.dueDate !== null).map((task) => dateKey(new Date(task.dueDate!))),
   );
 
-  const hours = series.allDay ? 0 : startDate.getHours();
-  const minutes = series.allDay ? 0 : startDate.getMinutes();
-
   for (const date of dates) {
     if (existingDates.has(dateKey(date))) continue;
 
-    const dueDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hours, minutes).toISOString();
+    const dueDate = occurrenceDueIso(series, date);
 
     await createTask({
       title: series.title,
