@@ -1,5 +1,7 @@
 # MorgenMachIch
 
+[![CI](https://github.com/MonkeyDNaara/MorgenMachIch/actions/workflows/ci.yml/badge.svg)](https://github.com/MonkeyDNaara/MorgenMachIch/actions/workflows/ci.yml)
+
 A local-first to-do app with a card-view task list, a calendar view, custom
 labels, and independently-completable recurring tasks. Built as a
 portfolio project to demonstrate an AI-assisted ("vibe coded") development

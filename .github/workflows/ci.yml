@@ -1,0 +1,46 @@
+# Continuous integration: type-check, lint and build every pull request
+# (and every push to main) so a type/lint error can't be merged just
+# because Render's own build happened to pass. Deploys are NOT done here —
+# Render auto-deploys from main (see render.yaml).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Read-only token: this workflow only checks out code and runs scripts.
+permissions:
+  contents: read
+
+# A newer push to the same PR/branch makes the older run pointless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Typecheck, lint, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
