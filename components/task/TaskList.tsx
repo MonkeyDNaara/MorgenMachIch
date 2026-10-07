@@ -23,6 +23,10 @@ type TaskListProps = {
   /** Shown instead of the generic "no matches" message when baseFilter
    * (plus the toolbar filters) leaves nothing to show. */
   emptyMessage?: string;
+  /** Hides this list's own label bar and priority dropdown when the
+   * surrounding view applies those filters itself through `baseFilter`
+   * (/calendar's day view, #171). Status and sort stay. */
+  hideLabelAndPriorityFilters?: boolean;
 };
 
 /**
@@ -49,7 +53,11 @@ type TaskListProps = {
  * own lifted filter state (needed so one shared toolbar can filter both
  * the task list and the Recurring column side by side on /tasks).
  */
-export default function TaskList({ baseFilter, emptyMessage }: TaskListProps = {}) {
+export default function TaskList({
+  baseFilter,
+  emptyMessage,
+  hideLabelAndPriorityFilters = false,
+}: TaskListProps = {}) {
   const tasks = useLiveQuery(() => getTasks(), []);
   const labels = useLiveQuery(() => getLabels(), []);
   const [activeLabelIds, setActiveLabelIds] = useState<string[]>([]);
@@ -91,13 +99,16 @@ export default function TaskList({ baseFilter, emptyMessage }: TaskListProps = {
         onPriorityChange={setPriority}
         sortBy={sortBy}
         onSortByChange={setSortBy}
+        hidePriority={hideLabelAndPriorityFilters}
       />
-      <LabelFilterBar
-        labels={labels ?? []}
-        activeLabelIds={activeLabelIds}
-        onToggle={toggleLabelFilter}
-        onClear={() => setActiveLabelIds([])}
-      />
+      {!hideLabelAndPriorityFilters && (
+        <LabelFilterBar
+          labels={labels ?? []}
+          activeLabelIds={activeLabelIds}
+          onToggle={toggleLabelFilter}
+          onClear={() => setActiveLabelIds([])}
+        />
+      )}
       <div className="mx-auto w-full max-w-3xl p-6">
         <TaskCardList
           tasks={visibleTasks}

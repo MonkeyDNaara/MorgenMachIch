@@ -10,6 +10,7 @@ export type CalendarEntry = {
   key: string;
   title: string;
   priority: Priority;
+  labelIds: string[];
   status: TaskStatus;
   dueDate: string;
   isRecurring: boolean;
@@ -27,6 +28,7 @@ export function taskToEntry(task: Task & { dueDate: string }): CalendarEntry {
     key: task.id,
     title: task.title,
     priority: task.priority,
+    labelIds: task.labelIds,
     status: task.status,
     dueDate: task.dueDate,
     isRecurring: task.seriesId !== null,
@@ -39,6 +41,7 @@ export function ghostToEntry(ghost: GhostOccurrence): CalendarEntry {
     key: `ghost-${ghost.seriesId}-${ghost.dueDate}`,
     title: ghost.title,
     priority: ghost.priority,
+    labelIds: ghost.labelIds,
     status: "open",
     dueDate: ghost.dueDate,
     isRecurring: true,
