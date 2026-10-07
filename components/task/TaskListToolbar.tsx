@@ -4,6 +4,7 @@ import type { StatusFilter } from "@/lib/utils/filterTasksByStatus";
 import type { PriorityFilter } from "@/lib/utils/filterTasksByPriority";
 import type { TaskSortBy } from "@/lib/utils/sortTasks";
 import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
+import PriorityFilterSelect from "@/components/task/PriorityFilterSelect";
 
 const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: "all", label: "All" },
@@ -15,14 +16,6 @@ const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: "skipped", label: "Skipped" },
 ];
 
-const PRIORITY_OPTIONS: { value: PriorityFilter; label: string }[] = [
-  { value: "all", label: "All priorities" },
-  { value: "high", label: "High" },
-  { value: "medium", label: "Medium" },
-  { value: "low", label: "Low" },
-  { value: "none", label: "None" },
-];
-
 type TaskListToolbarProps = {
   status: StatusFilter;
   onStatusChange: (status: StatusFilter) => void;
@@ -30,6 +23,9 @@ type TaskListToolbarProps = {
   onPriorityChange: (priority: PriorityFilter) => void;
   sortBy: TaskSortBy;
   onSortByChange: (sortBy: TaskSortBy) => void;
+  /** Hides the priority dropdown when the surrounding view owns that
+   * filter itself (/calendar, #171). */
+  hidePriority?: boolean;
 };
 
 /**
@@ -47,6 +43,7 @@ export default function TaskListToolbar({
   onPriorityChange,
   sortBy,
   onSortByChange,
+  hidePriority = false,
 }: TaskListToolbarProps) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/5 px-6 py-3">
@@ -71,20 +68,7 @@ export default function TaskListToolbar({
         })}
       </div>
       <div className="flex items-center gap-2">
-        <select
-          value={priority}
-          onChange={(event) =>
-            onPriorityChange(event.target.value as PriorityFilter)
-          }
-          aria-label="Filter by priority"
-          className={`select select-sm ${FIELD_FOCUS}`}
-        >
-          {PRIORITY_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+        {!hidePriority && <PriorityFilterSelect value={priority} onChange={onPriorityChange} />}
         <select
           value={sortBy}
           onChange={(event) => onSortByChange(event.target.value as TaskSortBy)}

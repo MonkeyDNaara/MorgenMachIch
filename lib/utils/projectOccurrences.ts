@@ -10,6 +10,7 @@ export type GhostOccurrence = {
   seriesId: string;
   title: string;
   priority: Priority;
+  labelIds: string[];
   allDay: boolean;
   /** Same shape/construction as a real occurrence's `dueDate`. */
   dueDate: string;
@@ -69,6 +70,7 @@ export function projectSeriesOccurrences(
         seriesId: s.id,
         title: s.title,
         priority: s.priority,
+        labelIds: s.labelIds,
         allDay: s.allDay,
         dueDate: occurrenceDueIso(s, day),
       });
