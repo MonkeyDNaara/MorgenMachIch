@@ -68,4 +68,7 @@ The Settings epic is done too: /settings offers a JSON backup export (with
 a last-backup reminder), an import that validates the whole file first and
 then replaces all data after a preview and confirmation (auto-downloading a
 safety backup beforehand), a delete-all-data danger zone, and an About
-card. A light theme is intentionally deferred.
+card. The calendar also shows read-only projected occurrences of
+recurring series beyond the ~60 days of generated tasks, so a series never
+looks like it ended. Planned next: a backlog for tasks without a due date,
+a light theme, and later a hosted database (Neon).
