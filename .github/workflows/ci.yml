@@ -36,6 +36,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Next.js generates global route types (LayoutProps, PageProps, ...)
+      # into .next/types. They exist locally after `next dev`, but not on a
+      # fresh CI checkout, so generate them first or tsc fails on
+      # `Cannot find name 'LayoutProps'`.
+      - name: Generate route types
+        run: npx next typegen
+
       - name: Typecheck
         run: npx tsc --noEmit
 
