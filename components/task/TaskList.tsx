@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import type { Task } from "@/lib/types";
 import { getTasks } from "@/lib/db/tasks";
@@ -12,6 +12,7 @@ import { sortTasks, type TaskSortBy } from "@/lib/utils/sortTasks";
 import TaskCardList from "@/components/task/TaskCardList";
 import LabelFilterBar from "@/components/task/LabelFilterBar";
 import TaskListToolbar from "@/components/task/TaskListToolbar";
+import type { QuickAddVisibility } from "@/components/task/TaskQuickAdd";
 
 type TaskListProps = {
   /**
@@ -27,6 +28,10 @@ type TaskListProps = {
    * surrounding view applies those filters itself through `baseFilter`
    * (/calendar's day view, #171). Status and sort stay. */
   hideLabelAndPriorityFilters?: boolean;
+  /** Rendered above the cards, in the same column — /today's quick-add bar
+   * (#205). Gets a check that tells whether a task would show up in this
+   * list (scope + current filters), so the bar can explain when it won't. */
+  header?: (visibilityOf: (task: Task) => QuickAddVisibility) => ReactNode;
 };
 
 /**
@@ -57,6 +62,7 @@ export default function TaskList({
   baseFilter,
   emptyMessage,
   hideLabelAndPriorityFilters = false,
+  header,
 }: TaskListProps = {}) {
   const tasks = useLiveQuery(() => getTasks(), []);
   const labels = useLiveQuery(() => getLabels(), []);
@@ -75,20 +81,27 @@ export default function TaskList({
     return <p className="p-8 text-center text-base-content/40">Loading…</p>;
   }
 
-  if (tasks.length === 0) {
+  const applyFilters = (list: Task[]) =>
+    filterTasksByLabels(
+      filterTasksByPriority(filterTasksByStatus(list, status), priority),
+      activeLabelIds,
+    );
+  const visibilityOf = (task: Task): QuickAddVisibility => {
+    if (baseFilter && baseFilter([task]).length === 0) return "out-of-scope";
+    return applyFilters([task]).length === 0 ? "filtered" : "visible";
+  };
+
+  // With a header (the quick-add bar) the full layout renders even with no
+  // tasks, so the bar keeps its place — and its focus — when the first task
+  // is added.
+  if (tasks.length === 0 && !header) {
     return (
       <p className="p-8 text-center text-base-content/40">No tasks yet — hit the + button.</p>
     );
   }
 
   const scopedTasks = baseFilter ? baseFilter(tasks) : tasks;
-  const visibleTasks = sortTasks(
-    filterTasksByLabels(
-      filterTasksByPriority(filterTasksByStatus(scopedTasks, status), priority),
-      activeLabelIds,
-    ),
-    sortBy,
-  );
+  const visibleTasks = sortTasks(applyFilters(scopedTasks), sortBy);
 
   return (
     <div className="flex flex-col">
@@ -110,10 +123,15 @@ export default function TaskList({
         />
       )}
       <div className="mx-auto w-full max-w-3xl p-6">
+        {header && <div className="mb-4">{header(visibilityOf)}</div>}
         <TaskCardList
           tasks={visibleTasks}
           labels={labels ?? []}
-          emptyMessage={emptyMessage ?? "No tasks match the selected filters."}
+          emptyMessage={
+            tasks.length === 0
+              ? "No tasks yet — add one above."
+              : (emptyMessage ?? "No tasks match the selected filters.")
+          }
         />
       </div>
     </div>
