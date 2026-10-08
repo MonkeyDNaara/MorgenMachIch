@@ -5,6 +5,7 @@ import type { Task } from "@/lib/types";
 import { isTodayOrOverdue, isSameLocalDay } from "@/lib/utils/isDueToday";
 import TaskList from "@/components/task/TaskList";
 import WeekAheadStrip from "@/components/task/WeekAheadStrip";
+import TaskQuickAdd from "@/components/task/TaskQuickAdd";
 import { APP_LOCALE } from "@/lib/constants/locale";
 
 function scopeToTodayOrOverdue(tasks: Task[]): Task[] {
@@ -21,6 +22,9 @@ function scopeToTodayOrOverdue(tasks: Task[]): Task[] {
  * instead of the default scope — same "any status" convention as
  * today's own view, just narrowed to that exact date — with a "Back to
  * Today" control to return to the default (#130).
+ *
+ * A quick-add bar sits above the cards (#205). Text without a date is due
+ * today — or on the day drilled into, since that is the day being looked at.
  */
 export default function TodayView() {
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
@@ -59,7 +63,13 @@ export default function TodayView() {
           </button>
         </div>
       )}
-      <TaskList baseFilter={baseFilter} emptyMessage={emptyMessage} />
+      <TaskList
+        baseFilter={baseFilter}
+        emptyMessage={emptyMessage}
+        header={(visibilityOf) => (
+          <TaskQuickAdd defaultDate={selectedDay ?? new Date()} visibilityOf={visibilityOf} />
+        )}
+      />
       <WeekAheadStrip selectedDay={selectedDay} onSelectDay={setSelectedDay} />
     </div>
   );

@@ -22,7 +22,7 @@ import {
 import TaskListToolbar from "@/components/task/TaskListToolbar";
 import LabelFilterBar from "@/components/task/LabelFilterBar";
 import TaskCardList from "@/components/task/TaskCardList";
-import BacklogQuickAdd from "@/components/task/BacklogQuickAdd";
+import TaskQuickAdd, { type QuickAddVisibility } from "@/components/task/TaskQuickAdd";
 import SeriesRow from "@/components/task/SeriesRow";
 
 function excludeSeriesOccurrences(tasks: Task[]): Task[] {
@@ -49,6 +49,11 @@ function excludeSeriesOccurrences(tasks: Task[]): Task[] {
  * an age marker on each card. They no longer appear in the Tasks column.
  * Label and priority filters apply to it like to the Recurring column;
  * status and sort don't. Whether it is shown is remembered per browser.
+ *
+ * One quick-add bar above the columns (#205) replaces the Backlog's own
+ * input from #184: text without a date lands in the Backlog, a date sends
+ * it to the Tasks column. It stays usable while the Backlog is hidden and
+ * says so when a new task ends up somewhere not currently visible.
  *
  * Card rendering is shared with TaskList via TaskCardList; the toolbar
  * and label filter bar are the same components TaskList itself uses,
@@ -80,9 +85,7 @@ export default function TasksView() {
     return <p className="p-8 text-center text-base-content/40">Loading…</p>;
   }
 
-  if (tasks.length === 0 && series.length === 0) {
-    return <p className="p-8 text-center text-base-content/40">No tasks yet — hit the + button.</p>;
-  }
+  const isEmpty = tasks.length === 0 && series.length === 0;
 
   const standaloneTasks = excludeSeriesOccurrences(tasks);
   const backlogTasks = standaloneTasks.filter(isBacklogTask);
@@ -97,6 +100,15 @@ export default function TasksView() {
   const visibleBacklog = sortBacklogTasks(
     filterTasksByLabels(filterTasksByPriority(backlogTasks, priority), activeLabelIds),
   );
+
+  function visibilityOf(task: Task): QuickAddVisibility {
+    const narrowed = filterTasksByLabels(filterTasksByPriority([task], priority), activeLabelIds);
+    if (isBacklogTask(task)) {
+      if (!backlogVisible) return "out-of-scope";
+      return narrowed.length === 0 ? "filtered" : "visible";
+    }
+    return filterTasksByStatus(narrowed, status).length === 0 ? "filtered" : "visible";
+  }
 
   const visibleSeries = [
     ...filterSeriesByLabels(filterSeriesByPriority(series, priority), activeLabelIds),
@@ -118,12 +130,19 @@ export default function TasksView() {
         onToggle={toggleLabelFilter}
         onClear={() => setActiveLabelIds([])}
       />
-      <div className="flex justify-end px-6 pt-3">
+      <div
+        className={`mx-auto flex w-full items-start gap-3 px-6 pt-4 ${
+          backlogVisible ? "max-w-5xl lg:max-w-7xl" : "max-w-5xl"
+        }`}
+      >
+        <div className="min-w-0 flex-1">
+          <TaskQuickAdd defaultDate={null} visibilityOf={visibilityOf} />
+        </div>
         <button
           type="button"
           onClick={() => writeBacklogVisible(!backlogVisible)}
           aria-pressed={backlogVisible}
-          className={`flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium outline-none! transition-colors ${
+          className={`mt-2 flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium outline-none! transition-colors ${
             backlogVisible
               ? "bg-primary text-primary-content"
               : "bg-base-300 text-base-content/60 hover:text-base-content"
@@ -146,7 +165,9 @@ export default function TasksView() {
             <TaskCardList
               tasks={visibleTasks}
               labels={labels ?? []}
-              emptyMessage="No tasks match the selected filters."
+              emptyMessage={
+                isEmpty ? "No tasks yet — add one above." : "No tasks match the selected filters."
+              }
             />
           </div>
         </div>
@@ -175,12 +196,6 @@ export default function TasksView() {
                 <p className="mb-3 font-mono text-xs text-base-content/40">
                   Backlog · {visibleBacklog.length}
                 </p>
-                <BacklogQuickAdd
-                  isVisibleWithFilters={(task) =>
-                    filterTasksByLabels(filterTasksByPriority([task], priority), activeLabelIds)
-                      .length > 0
-                  }
-                />
                 <TaskCardList
                   tasks={visibleBacklog}
                   labels={labels ?? []}
