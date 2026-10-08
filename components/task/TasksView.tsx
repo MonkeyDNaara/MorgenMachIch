@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
+import { Inbox } from "lucide-react";
 import type { Task } from "@/lib/types";
 import { getTasks } from "@/lib/db/tasks";
 import { getLabels } from "@/lib/db/labels";
@@ -12,6 +13,12 @@ import { filterTasksByPriority, type PriorityFilter } from "@/lib/utils/filterTa
 import { filterSeriesByPriority } from "@/lib/utils/filterSeriesByPriority";
 import { filterSeriesByLabels } from "@/lib/utils/filterSeriesByLabels";
 import { sortTasks, type TaskSortBy } from "@/lib/utils/sortTasks";
+import { isBacklogTask, sortBacklogTasks } from "@/lib/utils/backlog";
+import {
+  readBacklogVisible,
+  subscribeBacklogVisible,
+  writeBacklogVisible,
+} from "@/lib/ui/backlogVisible";
 import TaskListToolbar from "@/components/task/TaskListToolbar";
 import LabelFilterBar from "@/components/task/LabelFilterBar";
 import TaskCardList from "@/components/task/TaskCardList";
@@ -36,6 +43,12 @@ function excludeSeriesOccurrences(tasks: Task[]): Task[] {
  * versions. The Recurring column always sorts active series first, then
  * paused, regardless of the sort dropdown.
  *
+ * A third, hideable Backlog column (#182) lists open standalone tasks
+ * without a due date (isBacklogTask), ordered by priority then age, with
+ * an age marker on each card. They no longer appear in the Tasks column.
+ * Label and priority filters apply to it like to the Recurring column;
+ * status and sort don't. Whether it is shown is remembered per browser.
+ *
  * Card rendering is shared with TaskList via TaskCardList; the toolbar
  * and label filter bar are the same components TaskList itself uses,
  * just rendered here directly since this view owns the filter state
@@ -50,6 +63,11 @@ export default function TasksView() {
   const [status, setStatus] = useState<StatusFilter>("all");
   const [priority, setPriority] = useState<PriorityFilter>("all");
   const [sortBy, setSortBy] = useState<TaskSortBy>("dueDate");
+  const backlogVisible = useSyncExternalStore(
+    subscribeBacklogVisible,
+    readBacklogVisible,
+    () => true,
+  );
 
   function toggleLabelFilter(labelId: string) {
     setActiveLabelIds((prev) =>
@@ -66,12 +84,17 @@ export default function TasksView() {
   }
 
   const standaloneTasks = excludeSeriesOccurrences(tasks);
+  const backlogTasks = standaloneTasks.filter(isBacklogTask);
+  const datedTasks = standaloneTasks.filter((task) => !isBacklogTask(task));
   const visibleTasks = sortTasks(
     filterTasksByLabels(
-      filterTasksByPriority(filterTasksByStatus(standaloneTasks, status), priority),
+      filterTasksByPriority(filterTasksByStatus(datedTasks, status), priority),
       activeLabelIds,
     ),
     sortBy,
+  );
+  const visibleBacklog = sortBacklogTasks(
+    filterTasksByLabels(filterTasksByPriority(backlogTasks, priority), activeLabelIds),
   );
 
   const visibleSeries = [
@@ -94,7 +117,28 @@ export default function TasksView() {
         onToggle={toggleLabelFilter}
         onClear={() => setActiveLabelIds([])}
       />
-      <div className="mx-auto grid w-full max-w-5xl grid-cols-1 md:grid-cols-[minmax(0,3fr)_1px_minmax(0,2fr)]">
+      <div className="flex justify-end px-6 pt-3">
+        <button
+          type="button"
+          onClick={() => writeBacklogVisible(!backlogVisible)}
+          aria-pressed={backlogVisible}
+          className={`flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium outline-none! transition-colors ${
+            backlogVisible
+              ? "bg-primary text-primary-content"
+              : "bg-base-300 text-base-content/60 hover:text-base-content"
+          }`}
+        >
+          <Inbox size={14} />
+          Backlog · {backlogTasks.length}
+        </button>
+      </div>
+      <div
+        className={`mx-auto grid w-full grid-cols-1 md:grid-cols-[minmax(0,3fr)_1px_minmax(0,2fr)] ${
+          backlogVisible
+            ? "max-w-5xl lg:max-w-7xl lg:grid-cols-[minmax(0,3fr)_1px_minmax(0,2fr)_1px_minmax(0,2fr)]"
+            : "max-w-5xl"
+        }`}
+      >
         <div className="p-6">
           <div className="mx-auto w-full max-w-md">
             <p className="mb-3 font-mono text-xs text-base-content/40">Tasks</p>
@@ -122,6 +166,28 @@ export default function TasksView() {
             )}
           </div>
         </div>
+        {backlogVisible && (
+          <>
+            <div className="hidden bg-white/5 lg:block" />
+            <div className="border-t border-white/5 p-6 md:col-span-3 lg:col-span-1 lg:border-t-0">
+              <div className="mx-auto w-full max-w-xs">
+                <p className="mb-3 font-mono text-xs text-base-content/40">
+                  Backlog · {visibleBacklog.length}
+                </p>
+                <TaskCardList
+                  tasks={visibleBacklog}
+                  labels={labels ?? []}
+                  showAge
+                  emptyMessage={
+                    backlogTasks.length === 0
+                      ? "Nothing in the backlog. Tasks without a due date show up here."
+                      : "No backlog tasks match the selected filters."
+                  }
+                />
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

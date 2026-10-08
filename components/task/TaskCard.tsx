@@ -4,6 +4,7 @@ import { Check, Minus, SkipForward } from "lucide-react";
 import type { Label, Task } from "@/lib/types";
 import { updateTask } from "@/lib/db/tasks";
 import { formatDueDate, isOverdue } from "@/lib/utils/formatDueDate";
+import { formatTaskAge } from "@/lib/utils/backlog";
 import { useTaskDrawer } from "@/components/task/TaskDrawerProvider";
 import LabelChip from "@/components/label/LabelChip";
 import SubtaskProgressBar from "@/components/task/SubtaskProgressBar";
@@ -14,6 +15,9 @@ type TaskCardProps = {
   /** Every label in the app (fetched once by TaskList, not per-card) —
    * this card looks up its own subset via task.labelIds. */
   labels: Label[];
+  /** Backlog cards (#182) have no due date to show, so they show how
+   * long ago the task was added instead. */
+  showAge?: boolean;
 };
 
 /** At most this many label chips render inline; the rest collapse into
@@ -50,7 +54,7 @@ const MAX_VISIBLE_LABELS = 2;
  * what yields horizontal space first; the row itself can wrap as a
  * last-resort fallback on a narrow viewport with a long title.
  */
-export default function TaskCard({ task, labels }: TaskCardProps) {
+export default function TaskCard({ task, labels, showAge = false }: TaskCardProps) {
   const { openTaskDrawer } = useTaskDrawer();
   const done = task.status === "done";
   const skipped = task.status === "skipped";
@@ -118,6 +122,11 @@ export default function TaskCard({ task, labels }: TaskCardProps) {
             {formatDueDate(task.dueDate, task.allDay)}
             {overdue ? " · overdue" : ""}
             {skipped ? " · skipped" : ""}
+          </span>
+        )}
+        {!task.dueDate && showAge && (
+          <span className="mt-1 block font-mono text-xs text-base-content/40">
+            added {formatTaskAge(task.createdAt)}
           </span>
         )}
         <SubtaskProgressBar subtasks={task.subtasks} />
