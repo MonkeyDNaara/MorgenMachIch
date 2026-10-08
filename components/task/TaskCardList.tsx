@@ -5,6 +5,8 @@ type TaskCardListProps = {
   tasks: Task[];
   labels: Label[];
   emptyMessage: string;
+  /** Show each card's age instead of a due date (the Backlog column, #182). */
+  showAge?: boolean;
 };
 
 /**
@@ -17,7 +19,12 @@ type TaskCardListProps = {
  * TaskList keeps owning its self-contained fetch+filter+toolbar
  * behavior for Today/Calendar, which don't need a shared toolbar.
  */
-export default function TaskCardList({ tasks, labels, emptyMessage }: TaskCardListProps) {
+export default function TaskCardList({
+  tasks,
+  labels,
+  emptyMessage,
+  showAge = false,
+}: TaskCardListProps) {
   if (tasks.length === 0) {
     return <p className="p-8 text-center text-base-content/40">{emptyMessage}</p>;
   }
@@ -25,7 +32,7 @@ export default function TaskCardList({ tasks, labels, emptyMessage }: TaskCardLi
   return (
     <div className="flex flex-col gap-2">
       {tasks.map((task) => (
-        <TaskCard key={task.id} task={task} labels={labels} />
+        <TaskCard key={task.id} task={task} labels={labels} showAge={showAge} />
       ))}
     </div>
   );
