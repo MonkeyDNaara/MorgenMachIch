@@ -22,6 +22,12 @@ export type PaletteItem = {
   rankPenalty?: number;
   /** Always listed, last in its group, regardless of the query ("Add to backlog"). */
   pinned?: boolean;
+  /** Selected by default even though it is pinned — the Add row once the
+   * text contains a date, label or priority (#204), because then the user
+   * is clearly composing a task rather than searching. */
+  preferred?: boolean;
+  /** Small colored pills after the label, e.g. what quick-add parsed (#204). */
+  chips?: { key: string; text: string; color: string }[];
   /** Runs when the row is chosen; the palette closes first. */
   run: () => void;
   /** Cmd/Ctrl+Enter action that keeps the palette open (toggle a task done). */

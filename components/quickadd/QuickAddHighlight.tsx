@@ -1,7 +1,7 @@
 import type { Ref } from "react";
 import type { Label } from "@/lib/types";
 import type { QuickAddToken } from "@/lib/utils/parseQuickAdd";
-import { tokenColor } from "@/components/quickadd/tokenColor";
+import { tokenColor } from "@/components/quickadd/tokenDisplay";
 
 type QuickAddHighlightProps = {
   text: string;
