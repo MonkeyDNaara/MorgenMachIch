@@ -7,6 +7,8 @@ export type PaletteItem = {
   /** Heading the row is listed under (see GROUP_ORDER in CommandPalette). */
   group: string;
   icon: LucideIcon;
+  /** Extra words that find this row without being shown (see matchWithKeywords). */
+  keywords?: readonly string[];
   /** Small mono text on the right, e.g. the route a page command goes to. */
   hint?: string;
   /** Runs when the row is chosen; the palette closes first. */

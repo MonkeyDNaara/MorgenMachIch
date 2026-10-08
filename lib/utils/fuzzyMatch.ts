@@ -134,22 +134,59 @@ export function fuzzyMatch(query: string, text: string): FuzzyMatch | null {
 export type RankedItem<T> = FuzzyMatch & { item: T };
 
 /**
+ * Filters `items` to those `match` accepts and sorts them best-first;
+ * equal scores keep their original order (stable), so a pre-sorted list
+ * stays predictable. The general form behind rankByQuery, for callers
+ * that match on more than one text (e.g. a label plus keywords, #196).
+ */
+export function rankByMatcher<T>(
+  items: readonly T[],
+  match: (item: T) => FuzzyMatch | null,
+): RankedItem<T>[] {
+  const ranked: { entry: RankedItem<T>; order: number }[] = [];
+  items.forEach((item, order) => {
+    const result = match(item);
+    if (result) ranked.push({ entry: { item, ...result }, order });
+  });
+  return ranked
+    .sort((a, b) => b.entry.score - a.entry.score || a.order - b.order)
+    .map(({ entry }) => entry);
+}
+
+/**
  * Filters `items` to those whose text matches `query` and sorts them
- * best-first; equal scores keep their original order (stable), so a
- * pre-sorted list stays predictable. An empty query returns every item
- * in its original order with no highlights.
+ * best-first (see rankByMatcher). An empty query returns every item in
+ * its original order with no highlights.
  */
 export function rankByQuery<T>(
   items: readonly T[],
   query: string,
   getText: (item: T) => string,
 ): RankedItem<T>[] {
-  const ranked: { entry: RankedItem<T>; order: number }[] = [];
-  items.forEach((item, order) => {
-    const match = fuzzyMatch(query, getText(item));
-    if (match) ranked.push({ entry: { item, ...match }, order });
-  });
-  return ranked
-    .sort((a, b) => b.entry.score - a.entry.score || a.order - b.order)
-    .map(({ entry }) => entry);
+  return rankByMatcher(items, (item) => fuzzyMatch(query, getText(item)));
+}
+
+/** How far a keyword-only hit ranks below any match on the label itself. */
+const KEYWORD_PENALTY = 50;
+
+/**
+ * Matches `query` against a label first and, only if the label does not
+ * match, against alternative keywords ("add" → "New task", #196). A
+ * keyword hit scores well below any label hit and carries no highlight
+ * indices, since the keyword itself is not shown.
+ */
+export function matchWithKeywords(
+  query: string,
+  label: string,
+  keywords: readonly string[] = [],
+): FuzzyMatch | null {
+  const onLabel = fuzzyMatch(query, label);
+  if (onLabel) return onLabel;
+
+  let best: number | null = null;
+  for (const keyword of keywords) {
+    const hit = fuzzyMatch(query, keyword);
+    if (hit && (best === null || hit.score > best)) best = hit.score;
+  }
+  return best === null ? null : { score: best - KEYWORD_PENALTY, indices: [] };
 }
