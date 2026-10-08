@@ -7,6 +7,8 @@ type TaskCardListProps = {
   emptyMessage: string;
   /** Show each card's age instead of a due date (the Backlog column, #182). */
   showAge?: boolean;
+  /** Show each card's "Plan for…" menu (the Backlog column, #183). */
+  showPlan?: boolean;
 };
 
 /**
@@ -24,6 +26,7 @@ export default function TaskCardList({
   labels,
   emptyMessage,
   showAge = false,
+  showPlan = false,
 }: TaskCardListProps) {
   if (tasks.length === 0) {
     return <p className="p-8 text-center text-base-content/40">{emptyMessage}</p>;
@@ -32,7 +35,7 @@ export default function TaskCardList({
   return (
     <div className="flex flex-col gap-2">
       {tasks.map((task) => (
-        <TaskCard key={task.id} task={task} labels={labels} showAge={showAge} />
+        <TaskCard key={task.id} task={task} labels={labels} showAge={showAge} showPlan={showPlan} />
       ))}
     </div>
   );
