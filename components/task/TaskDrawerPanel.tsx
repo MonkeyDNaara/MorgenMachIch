@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
 import { X } from "lucide-react";
@@ -11,11 +11,15 @@ import { getLabels } from "@/lib/db/labels";
 import { buildDueDateIso, splitDueDateIso } from "@/lib/utils/dueDate";
 import { computeMonthlyDefaults } from "@/lib/utils/recurrence";
 import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
-import type { Priority, RecurrenceRule, Subtask } from "@/lib/types";
+import type { Label, Priority, RecurrenceRule, Subtask } from "@/lib/types";
+import type { QuickAddResult } from "@/lib/utils/parseQuickAdd";
 import LabelChip from "@/components/label/LabelChip";
 import SubtaskEditor from "@/components/task/SubtaskEditor";
 import PrioritySelector from "@/components/task/PrioritySelector";
 import RecurrenceRuleBuilder from "@/components/task/RecurrenceRuleBuilder";
+import QuickAddTitleField from "@/components/quickadd/QuickAddTitleField";
+
+const NO_LABELS: Label[] = [];
 
 type TaskDrawerPanelProps = {
   /** null = create mode. Otherwise the id of the task being edited. */
@@ -56,6 +60,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loadState, setLoadState] = useState<LoadState>(isEditing ? "loading" : "ready");
+  const titleId = useId();
 
   // Auto-revert the "really delete?" confirm state after a few seconds,
   // so coming back to a task later never finds it primed to delete on
@@ -97,6 +102,23 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
   }, [isEditing, taskId]);
 
   const labels = useLiveQuery(() => getLabels(), []);
+
+  // Apply on the create-mode title field (#206): copy what quick-add
+  // parsed into the form. Labels are added to any already picked; date,
+  // time and priority only change when the text contained them.
+  function applyQuickAdd(result: QuickAddResult) {
+    setTitle(result.title);
+    if (result.dueDate) {
+      const { date, time } = splitDueDateIso(result.dueDate);
+      setDueDate(date);
+      setDueTime(result.allDay ? "" : time);
+      setAllDay(result.allDay);
+    }
+    if (result.labelIds.length > 0) {
+      setLabelIds((prev) => [...prev, ...result.labelIds.filter((id) => !prev.includes(id))]);
+    }
+    if (result.priority) setPriority(result.priority);
+  }
 
   function toggleLabel(id: string) {
     setLabelIds((prev) => (prev.includes(id) ? prev.filter((labelId) => labelId !== id) : [...prev, id]));
@@ -244,16 +266,31 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
 
         {loadState === "ready" && (
           <div className="flex flex-1 flex-col gap-5 overflow-y-auto">
-            <label className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-base-content/60">Title</span>
-              <input
-                type="text"
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                placeholder="What needs to be done?"
-                className={`input w-full ${FIELD_FOCUS}`}
-              />
-            </label>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor={titleId} className="text-xs font-medium text-base-content/60">
+                Title
+              </label>
+              {isEditing ? (
+                <input
+                  id={titleId}
+                  type="text"
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                  placeholder="What needs to be done?"
+                  className={`input w-full ${FIELD_FOCUS}`}
+                />
+              ) : (
+                // Create mode parses the title like the quick-add bars (#206).
+                <QuickAddTitleField
+                  id={titleId}
+                  value={title}
+                  onChange={setTitle}
+                  labels={labels ?? NO_LABELS}
+                  onApply={applyQuickAdd}
+                  placeholder="What needs to be done? e.g. “Call mom fri 3pm #family”"
+                />
+              )}
+            </div>
 
             <div className="flex flex-col gap-1.5">
               <span className="text-xs font-medium text-base-content/60">Priority</span>

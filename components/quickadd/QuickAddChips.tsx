@@ -11,6 +11,8 @@ type QuickAddChipsProps = {
   labels: Label[];
   now: Date;
   onToggle: (id: string) => void;
+  /** Wrapper classes; "contents" lets the chips flow into a parent row (#206). */
+  className?: string;
 };
 
 const ICONS = { date: CalendarClock, label: Tag, priority: Flag } as const;
@@ -30,13 +32,14 @@ export default function QuickAddChips({
   labels,
   now,
   onToggle,
+  className = "mt-2 flex flex-wrap gap-1.5",
 }: QuickAddChipsProps) {
   const ignoredIds = new Set(ignoredTokens.map((token) => token.id));
   const all = [...tokens, ...ignoredTokens].sort((a, b) => a.start - b.start);
   if (all.length === 0) return null;
 
   return (
-    <div id={id} className="mt-2 flex flex-wrap gap-1.5">
+    <div id={id} className={className}>
       {all.map((token) => {
         const ignored = ignoredIds.has(token.id);
         const text = tokenLabel(token, labels, now);
