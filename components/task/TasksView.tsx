@@ -22,6 +22,7 @@ import {
 import TaskListToolbar from "@/components/task/TaskListToolbar";
 import LabelFilterBar from "@/components/task/LabelFilterBar";
 import TaskCardList from "@/components/task/TaskCardList";
+import BacklogQuickAdd from "@/components/task/BacklogQuickAdd";
 import SeriesRow from "@/components/task/SeriesRow";
 
 function excludeSeriesOccurrences(tasks: Task[]): Task[] {
@@ -174,6 +175,12 @@ export default function TasksView() {
                 <p className="mb-3 font-mono text-xs text-base-content/40">
                   Backlog · {visibleBacklog.length}
                 </p>
+                <BacklogQuickAdd
+                  isVisibleWithFilters={(task) =>
+                    filterTasksByLabels(filterTasksByPriority([task], priority), activeLabelIds)
+                      .length > 0
+                  }
+                />
                 <TaskCardList
                   tasks={visibleBacklog}
                   labels={labels ?? []}
