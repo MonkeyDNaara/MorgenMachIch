@@ -9,6 +9,7 @@ import { useTaskDrawer } from "@/components/task/TaskDrawerProvider";
 import LabelChip from "@/components/label/LabelChip";
 import SubtaskProgressBar from "@/components/task/SubtaskProgressBar";
 import PriorityDot from "@/components/task/PriorityDot";
+import PlanForMenu from "@/components/task/PlanForMenu";
 
 type TaskCardProps = {
   task: Task;
@@ -18,6 +19,9 @@ type TaskCardProps = {
   /** Backlog cards (#182) have no due date to show, so they show how
    * long ago the task was added instead. */
   showAge?: boolean;
+  /** Backlog cards also get a "Plan for…" menu (#183) to give the task
+   * a due date and move it out of the backlog. */
+  showPlan?: boolean;
 };
 
 /** At most this many label chips render inline; the rest collapse into
@@ -54,12 +58,18 @@ const MAX_VISIBLE_LABELS = 2;
  * what yields horizontal space first; the row itself can wrap as a
  * last-resort fallback on a narrow viewport with a long title.
  */
-export default function TaskCard({ task, labels, showAge = false }: TaskCardProps) {
+export default function TaskCard({
+  task,
+  labels,
+  showAge = false,
+  showPlan = false,
+}: TaskCardProps) {
   const { openTaskDrawer } = useTaskDrawer();
   const done = task.status === "done";
   const skipped = task.status === "skipped";
   const overdue = task.status === "open" && task.dueDate !== null && isOverdue(task.dueDate);
   const canSkip = task.seriesId !== null && task.status === "open";
+  const canPlan = showPlan && task.dueDate === null && task.status === "open";
 
   const taskLabels = labels.filter((label) => task.labelIds.includes(label.id));
   const visibleLabels = taskLabels.slice(0, MAX_VISIBLE_LABELS);
@@ -131,7 +141,7 @@ export default function TaskCard({ task, labels, showAge = false }: TaskCardProp
         )}
         <SubtaskProgressBar subtasks={task.subtasks} />
       </button>
-      {(taskLabels.length > 0 || canSkip) && (
+      {(taskLabels.length > 0 || canSkip || canPlan) && (
         <div className="ml-auto flex flex-shrink-0 items-center gap-1.5">
           {visibleLabels.map((label) => (
             <LabelChip key={label.id} name={label.name} color={label.color} size="sm" />
@@ -152,6 +162,7 @@ export default function TaskCard({ task, labels, showAge = false }: TaskCardProp
               <SkipForward size={14} />
             </button>
           )}
+          {canPlan && <PlanForMenu task={task} />}
         </div>
       )}
     </div>

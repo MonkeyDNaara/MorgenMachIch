@@ -178,6 +178,7 @@ export default function TasksView() {
                   tasks={visibleBacklog}
                   labels={labels ?? []}
                   showAge
+                  showPlan
                   emptyMessage={
                     backlogTasks.length === 0
                       ? "Nothing in the backlog. Tasks without a due date show up here."
