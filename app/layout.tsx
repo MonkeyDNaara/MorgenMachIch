@@ -7,6 +7,8 @@ import SeriesDrawer from "@/components/task/SeriesDrawer";
 import OccurrenceSync from "@/components/task/OccurrenceSync";
 import { TaskDrawerProvider } from "@/components/task/TaskDrawerProvider";
 import { SeriesDrawerProvider } from "@/components/task/SeriesDrawerProvider";
+import { CommandPaletteProvider } from "@/components/palette/CommandPaletteProvider";
+import CommandPalette from "@/components/palette/CommandPalette";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -35,11 +37,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <OccurrenceSync />
         <TaskDrawerProvider>
           <SeriesDrawerProvider>
-            <NavRail />
-            <main className="flex-1 min-w-0">{children}</main>
-            <AddTaskFab />
-            <TaskDrawer />
-            <SeriesDrawer />
+            <CommandPaletteProvider>
+              <NavRail />
+              <main className="flex-1 min-w-0">{children}</main>
+              <AddTaskFab />
+              <TaskDrawer />
+              <SeriesDrawer />
+              <CommandPalette />
+            </CommandPaletteProvider>
           </SeriesDrawerProvider>
         </TaskDrawerProvider>
       </body>
