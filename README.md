@@ -23,6 +23,8 @@ been idle)*
   for both compile-time types and runtime validation at the storage
   boundary
 - [lucide-react](https://lucide.dev) for icons
+- [chrono-node](https://github.com/wanasit/chrono) for natural-language
+  date parsing in quick-add (English + German)
 - Deployed on [Render](https://render.com) via `render.yaml` (Blueprint)
 
 ## Getting started
@@ -81,10 +83,16 @@ pull request.
 The Backlog epic is done too: tasks without a due date live in their own
 hideable column on /tasks (sorted by priority, then oldest first, with an
 "added 3d ago" marker). A "Plan for…" menu turns one into a due task —
-today, tomorrow, later this week or a picked date — and an inline input at
-the top of the column adds new ones in a keystroke.
+today, tomorrow, later this week or a picked date — and anything typed into
+the quick-add bar on /tasks without a date lands there in a keystroke.
 A command palette (⌘K / Ctrl+K, built without a library) jumps to any page,
 creates tasks, fuzzy-searches existing tasks (open, or tick off with
 ⌘/Ctrl+Enter) and adds a typed title straight to the backlog. All dates use
-one fixed English locale (en-GB). Planned next: natural-language quick-add,
-stats, a light theme, and later a hosted database (Neon).
+one fixed English locale (en-GB).
+Natural-language quick-add is done too: typing "Call mom fri 3pm #family
+!high" (English or German dates) fills in the due date, label and priority,
+with the matched parts colored as you type, a chip for each one (click to
+ignore it) and suggestions after "#" and "!". It works in quick-add bars on
+/today and /tasks, in the command palette, and as an Apply suggestion in the
+new-task drawer. Planned next: stats, a light theme, and later a hosted
+database (Neon).
