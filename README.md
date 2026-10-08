@@ -72,10 +72,16 @@ then replaces all data after a preview and confirmation (auto-downloading a
 safety backup beforehand), a delete-all-data danger zone, and an About
 card. The calendar also shows read-only projected occurrences of
 recurring series beyond the ~60 days of generated tasks, so a series never
-looks like it ended, and it can be filtered by label and priority. Planned next: a backlog for tasks without a due date,
-a light theme, and later a hosted database (Neon).
+looks like it ended, and it can be filtered by label and priority.
 Deployment & Ops is done as well: the app auto-deploys to Render from `main`
 (checked: every merge goes live in about a minute), unknown URLs and runtime
 crashes show styled 404 and error pages (with a hint when browser storage is
 blocked), and a GitHub Actions workflow type-checks, lints and builds every
 pull request.
+The Backlog epic is done too: tasks without a due date live in their own
+hideable column on /tasks (sorted by priority, then oldest first, with an
+"added 3d ago" marker). A "Plan for…" menu turns one into a due task —
+today, tomorrow, later this week or a picked date — and an inline input at
+the top of the column adds new ones in a keystroke. Planned next: a light
+theme, command palette and quick-add, stats, and later a hosted database
+(Neon).
