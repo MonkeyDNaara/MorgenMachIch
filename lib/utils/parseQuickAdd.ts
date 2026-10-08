@@ -19,7 +19,7 @@ import type { Label, Priority } from "@/lib/types";
 
 export type QuickAddTokenKind = "date" | "label" | "priority";
 
-export type QuickAddToken = {
+type QuickAddTokenBase = {
   /** Stable while the token's text is unchanged — pass it back via `ignored`. */
   id: string;
   kind: QuickAddTokenKind;
@@ -28,6 +28,13 @@ export type QuickAddToken = {
   end: number;
   text: string;
 };
+
+/** A matched token plus the value it stands for, so the UI can render a
+ * preview chip without parsing again (#203). */
+export type QuickAddToken =
+  | (QuickAddTokenBase & { kind: "date"; dueDate: string; allDay: boolean })
+  | (QuickAddTokenBase & { kind: "label"; labelId: string })
+  | (QuickAddTokenBase & { kind: "priority"; priority: Priority });
 
 export type QuickAddResult = {
   /** Input without the matched tokens, whitespace collapsed. May be empty. */
@@ -41,6 +48,11 @@ export type QuickAddResult = {
   priority: Priority | null;
   /** Matched (not ignored) tokens, sorted by position. */
   tokens: QuickAddToken[];
+  /** Tokens that matched but were skipped because their id is in
+   * `ignored`, sorted by position — the UI shows them as "restore" chips.
+   * An ignored id that no longer matches anything is simply absent, so the
+   * caller can drop it. */
+  ignoredTokens: QuickAddToken[];
 };
 
 export type QuickAddOptions = {
@@ -164,6 +176,7 @@ function normalizeLabelName(name: string): string {
 export function parseQuickAdd(text: string, options: QuickAddOptions): QuickAddResult {
   const { now, labels, ignored = new Set<string>() } = options;
   const tokens: QuickAddToken[] = [];
+  const ignoredTokens: QuickAddToken[] = [];
 
   const labelsByName = new Map<string, string>();
   for (const label of labels) {
@@ -176,33 +189,42 @@ export function parseQuickAdd(text: string, options: QuickAddOptions): QuickAddR
     const labelId = labelsByName.get(normalizeLabelName(match[2]));
     if (!labelId) continue; // unknown tag: stays in the title, nothing is created
     const id = `label:${labelId}`;
-    if (ignored.has(id)) continue;
     const start = (match.index ?? 0) + match[1].length;
-    tokens.push({
+    const token: QuickAddToken = {
       id,
       kind: "label",
       start,
       end: start + 1 + match[2].length,
       text: `#${match[2]}`,
-    });
+      labelId,
+    };
+    if (ignored.has(id)) {
+      ignoredTokens.push(token);
+      continue;
+    }
+    tokens.push(token);
     if (!labelIds.includes(labelId)) labelIds.push(labelId);
   }
 
   // Only the last priority tag counts; earlier ones stay as plain text.
   let priority: Priority | null = null;
-  if (!ignored.has("priority")) {
-    const last = [...text.matchAll(PRIORITY_TAG)].at(-1);
-    if (last) {
-      const start = (last.index ?? 0) + last[1].length;
-      const word = last[2].toLowerCase();
-      priority = PRIORITY_BY_WORD[word];
-      tokens.push({
-        id: "priority",
-        kind: "priority",
-        start,
-        end: start + 1 + word.length,
-        text: `!${last[2]}`,
-      });
+  const last = [...text.matchAll(PRIORITY_TAG)].at(-1);
+  if (last) {
+    const start = (last.index ?? 0) + last[1].length;
+    const word = last[2].toLowerCase();
+    const token: QuickAddToken = {
+      id: "priority",
+      kind: "priority",
+      start,
+      end: start + 1 + word.length,
+      text: `!${last[2]}`,
+      priority: PRIORITY_BY_WORD[word],
+    };
+    if (ignored.has(token.id)) {
+      ignoredTokens.push(token);
+    } else {
+      priority = token.priority;
+      tokens.push(token);
     }
   }
 
@@ -217,15 +239,29 @@ export function parseQuickAdd(text: string, options: QuickAddOptions): QuickAddR
   for (const candidate of findDateCandidates(masked, now)) {
     const tokenText = text.slice(candidate.start, candidate.end);
     const id = `date:${tokenText.trim().toLowerCase()}`;
-    if (ignored.has(id)) continue; // ignored: try the next date in the text
     const date = resolveDate(candidate.result, now);
-    allDay = !candidate.result.start.isCertain("hour");
-    dueDate = (allDay ? startOfDay(date) : new Date(date.setSeconds(0, 0))).toISOString();
-    tokens.push({ id, kind: "date", start: candidate.start, end: candidate.end, text: tokenText });
+    const candidateAllDay = !candidate.result.start.isCertain("hour");
+    const token: QuickAddToken = {
+      id,
+      kind: "date",
+      start: candidate.start,
+      end: candidate.end,
+      text: tokenText,
+      dueDate: (candidateAllDay ? startOfDay(date) : new Date(date.setSeconds(0, 0))).toISOString(),
+      allDay: candidateAllDay,
+    };
+    if (ignored.has(id)) {
+      ignoredTokens.push(token);
+      continue; // ignored: try the next date in the text
+    }
+    dueDate = token.dueDate;
+    allDay = token.allDay;
+    tokens.push(token);
     break; // only the first date counts; later ones stay in the title
   }
 
   tokens.sort((a, b) => a.start - b.start);
+  ignoredTokens.sort((a, b) => a.start - b.start);
 
   let title = "";
   let cursor = 0;
@@ -235,5 +271,5 @@ export function parseQuickAdd(text: string, options: QuickAddOptions): QuickAddR
   }
   title = (title + text.slice(cursor)).replace(/\s+/g, " ").trim();
 
-  return { title, dueDate, allDay, labelIds, priority, tokens };
+  return { title, dueDate, allDay, labelIds, priority, tokens, ignoredTokens };
 }
