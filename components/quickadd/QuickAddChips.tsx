@@ -2,8 +2,7 @@ import { CalendarClock, Flag, RotateCcw, Tag, X } from "lucide-react";
 import type { Label } from "@/lib/types";
 import type { QuickAddToken } from "@/lib/utils/parseQuickAdd";
 import { tintChipStyle } from "@/lib/ui/colorChip";
-import { formatQuickAddDue } from "@/lib/utils/formatQuickAddDue";
-import { tokenColor } from "@/components/quickadd/tokenColor";
+import { tokenColor, tokenLabel } from "@/components/quickadd/tokenDisplay";
 
 type QuickAddChipsProps = {
   id?: string;
@@ -13,14 +12,6 @@ type QuickAddChipsProps = {
   now: Date;
   onToggle: (id: string) => void;
 };
-
-const PRIORITY_NAMES = { none: "None", low: "Low", medium: "Medium", high: "High" } as const;
-
-function chipText(token: QuickAddToken, labels: Label[], now: Date): string {
-  if (token.kind === "date") return formatQuickAddDue(token.dueDate, token.allDay, now);
-  if (token.kind === "priority") return PRIORITY_NAMES[token.priority];
-  return labels.find((label) => label.id === token.labelId)?.name ?? token.text;
-}
 
 const ICONS = { date: CalendarClock, label: Tag, priority: Flag } as const;
 const KIND_NAMES = { date: "due date", label: "label", priority: "priority" } as const;
@@ -48,7 +39,7 @@ export default function QuickAddChips({
     <div id={id} className="mt-2 flex flex-wrap gap-1.5">
       {all.map((token) => {
         const ignored = ignoredIds.has(token.id);
-        const text = chipText(token, labels, now);
+        const text = tokenLabel(token, labels, now);
         const Icon = ICONS[token.kind];
         const Action = ignored ? RotateCcw : X;
         return (
