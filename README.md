@@ -82,6 +82,9 @@ The Backlog epic is done too: tasks without a due date live in their own
 hideable column on /tasks (sorted by priority, then oldest first, with an
 "added 3d ago" marker). A "Plan for…" menu turns one into a due task —
 today, tomorrow, later this week or a picked date — and an inline input at
-the top of the column adds new ones in a keystroke. Planned next: a light
-theme, command palette and quick-add, stats, and later a hosted database
-(Neon).
+the top of the column adds new ones in a keystroke.
+A command palette (⌘K / Ctrl+K, built without a library) jumps to any page,
+creates tasks, fuzzy-searches existing tasks (open, or tick off with
+⌘/Ctrl+Enter) and adds a typed title straight to the backlog. All dates use
+one fixed English locale (en-GB). Planned next: natural-language quick-add,
+stats, a light theme, and later a hosted database (Neon).
