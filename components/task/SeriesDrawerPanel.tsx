@@ -21,6 +21,7 @@ import LabelChip from "@/components/label/LabelChip";
 import SubtaskEditor from "@/components/task/SubtaskEditor";
 import PrioritySelector from "@/components/task/PrioritySelector";
 import RecurrenceRuleBuilder from "@/components/task/RecurrenceRuleBuilder";
+import { APP_LOCALE } from "@/lib/constants/locale";
 
 type SeriesDrawerPanelProps = {
   seriesId: string;
@@ -168,7 +169,7 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
   }
 
   const anchorLabel = anchorDate
-    ? new Date(`${anchorDate}T00:00`).toLocaleDateString(undefined, {
+    ? new Date(`${anchorDate}T00:00`).toLocaleDateString(APP_LOCALE, {
         weekday: "short",
         day: "numeric",
         month: "short",

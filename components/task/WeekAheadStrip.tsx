@@ -6,6 +6,7 @@ import { upcomingWeekDays } from "@/lib/utils/upcomingWeekDays";
 import { filterTasksByDay } from "@/lib/utils/filterTasksByDay";
 import { formatTime } from "@/lib/utils/formatDueDate";
 import PriorityDot from "@/components/task/PriorityDot";
+import { APP_LOCALE } from "@/lib/constants/locale";
 
 const MAX_VISIBLE_TASKS = 3;
 
@@ -55,9 +56,9 @@ export default function WeekAheadStrip({ selectedDay, onSelectDay }: WeekAheadSt
               }`}
             >
               <p className="text-xs font-semibold text-base-content/70">
-                {day.toLocaleDateString(undefined, { weekday: "short" })}{" "}
+                {day.toLocaleDateString(APP_LOCALE, { weekday: "short" })}{" "}
                 <span className="font-normal text-base-content/40">
-                  {day.toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                  {day.toLocaleDateString(APP_LOCALE, { month: "short", day: "numeric" })}
                 </span>
               </p>
               <div className="flex flex-col gap-1">

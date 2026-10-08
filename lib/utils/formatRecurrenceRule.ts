@@ -1,4 +1,5 @@
 import type { RecurrenceRule } from "@/lib/types";
+import { APP_LOCALE } from "@/lib/constants/locale";
 
 const WEEKDAY_ABBR = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -6,7 +7,7 @@ const WEEKDAY_ABBR = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const NTH_LABELS: Record<number, string> = { 1: "first", 2: "second", 3: "third", 4: "fourth", [-1]: "last" };
 
 function ordinal(n: number): string {
-  const category = new Intl.PluralRules("en", { type: "ordinal" }).select(n);
+  const category = new Intl.PluralRules(APP_LOCALE, { type: "ordinal" }).select(n);
   const suffix = ({ one: "st", two: "nd", few: "rd", other: "th" } as Partial<Record<Intl.LDMLPluralRule, string>>)[
     category
   ] ?? "th";
@@ -48,7 +49,7 @@ export function formatRecurrenceRule(rule: RecurrenceRule): string {
   }
 
   if (rule.endDate) {
-    const endLabel = new Date(rule.endDate).toLocaleDateString(undefined, {
+    const endLabel = new Date(rule.endDate).toLocaleDateString(APP_LOCALE, {
       month: "short",
       day: "numeric",
       year: "numeric",

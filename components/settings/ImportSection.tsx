@@ -5,6 +5,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { exportAll, getDataCounts, importAll, type DataCounts } from "@/lib/db/backup";
 import { backupFileName, buildBackup, parseBackup, serializeBackup, type BackupFile } from "@/lib/utils/backup";
 import { downloadTextFile } from "@/lib/ui/downloadFile";
+import { APP_LOCALE } from "@/lib/constants/locale";
 
 type Stage =
   | { kind: "idle" }
@@ -160,7 +161,7 @@ export default function ImportSection() {
                   })}
                 </p>
                 <p className="text-base-content/50">
-                  Exported {new Date(stage.backup.exportedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
+                  Exported {new Date(stage.backup.exportedAt).toLocaleString(APP_LOCALE, { dateStyle: "medium", timeStyle: "short" })}
                 </p>
                 <p>
                   <span className="text-base-content/50">In the app now: </span>

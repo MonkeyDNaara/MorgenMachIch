@@ -1,4 +1,5 @@
 import { upcomingWeekDays } from "@/lib/utils/upcomingWeekDays";
+import { APP_LOCALE } from "@/lib/constants/locale";
 
 export type PlanDateOption = {
   /** Stable React key — the local date as YYYY-MM-DD. */
@@ -18,10 +19,9 @@ export function toLocalDateKey(date: Date): string {
  * The quick choices for "Plan for…" on a backlog task (#183): Today,
  * Tomorrow, then every remaining day up to this week's Sunday (reusing
  * upcomingWeekDays so "the rest of the week" means the same thing as in
- * the week-ahead strip). Weekday names are forced to en-US to match
- * the English-only UI ("Today"/"Tomorrow" are hardcoded); a shared app
- * locale is a separate follow-up. On Saturday that is just Today + Tomorrow, on
- * Sunday only Today — "Pick date" covers anything further out.
+ * the week-ahead strip). On Saturday that is just Today + Tomorrow, on
+ * Sunday only Today — "Pick date" covers anything further out. Weekday
+ * names come from APP_LOCALE like every other date in the app (#191).
  */
 export function planDateOptions(from: Date = new Date()): PlanDateOption[] {
   const today = new Date(from.getFullYear(), from.getMonth(), from.getDate());
@@ -34,7 +34,7 @@ export function planDateOptions(from: Date = new Date()): PlanDateOption[] {
   for (const day of restOfWeek) {
     options.push({
       key: toLocalDateKey(day),
-      label: day.toLocaleDateString("en-US", { weekday: "long" }),
+      label: day.toLocaleDateString(APP_LOCALE, { weekday: "long" }),
       date: day,
     });
   }

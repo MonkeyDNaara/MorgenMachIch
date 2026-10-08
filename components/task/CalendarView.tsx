@@ -19,6 +19,7 @@ import CalendarDayCell from "@/components/task/CalendarDayCell";
 import ProjectedOccurrenceList from "@/components/task/ProjectedOccurrenceList";
 import PriorityFilterSelect from "@/components/task/PriorityFilterSelect";
 import LabelFilterBar from "@/components/task/LabelFilterBar";
+import { APP_LOCALE } from "@/lib/constants/locale";
 
 const WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -118,7 +119,7 @@ export default function CalendarView() {
       isSameLocalDay(ghost.dueDate, selectedDay),
     );
     const filtersActive = priority !== "all" || activeLabelIds.length > 0;
-    const label = selectedDay.toLocaleDateString(undefined, {
+    const label = selectedDay.toLocaleDateString(APP_LOCALE, {
       weekday: "long",
       month: "short",
       day: "numeric",
@@ -166,7 +167,7 @@ export default function CalendarView() {
       .map(taskToEntry),
     ...applyFilters(ghosts).map(ghostToEntry),
   ]);
-  const monthLabel = new Date(viewYear, viewMonth, 1).toLocaleDateString(undefined, {
+  const monthLabel = new Date(viewYear, viewMonth, 1).toLocaleDateString(APP_LOCALE, {
     month: "long",
     year: "numeric",
   });

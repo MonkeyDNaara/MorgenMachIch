@@ -8,9 +8,10 @@ import { buildBackup, backupFileName, serializeBackup } from "@/lib/utils/backup
 import { getBackupNudge } from "@/lib/utils/backupNudge";
 import { downloadTextFile } from "@/lib/ui/downloadFile";
 import { readLastExportedAt, subscribeLastExportedAt, writeLastExportedAt } from "@/lib/ui/lastExported";
+import { APP_LOCALE } from "@/lib/constants/locale";
 
 function formatTimestamp(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+  return new Date(iso).toLocaleString(APP_LOCALE, { dateStyle: "medium", timeStyle: "short" });
 }
 
 /**
