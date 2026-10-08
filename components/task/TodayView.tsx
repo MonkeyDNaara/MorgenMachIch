@@ -5,6 +5,7 @@ import type { Task } from "@/lib/types";
 import { isTodayOrOverdue, isSameLocalDay } from "@/lib/utils/isDueToday";
 import TaskList from "@/components/task/TaskList";
 import WeekAheadStrip from "@/components/task/WeekAheadStrip";
+import { APP_LOCALE } from "@/lib/constants/locale";
 
 function scopeToTodayOrOverdue(tasks: Task[]): Task[] {
   return tasks.filter(isTodayOrOverdue);
@@ -30,7 +31,7 @@ export default function TodayView() {
     : scopeToTodayOrOverdue;
 
   const emptyMessage = selectedDay
-    ? `Nothing due ${selectedDay.toLocaleDateString(undefined, {
+    ? `Nothing due ${selectedDay.toLocaleDateString(APP_LOCALE, {
         weekday: "long",
         month: "short",
         day: "numeric",
@@ -43,7 +44,7 @@ export default function TodayView() {
         <div className="flex items-center justify-between border-b border-white/5 px-6 py-3">
           <p className="text-sm text-base-content/70">
             Showing{" "}
-            {selectedDay.toLocaleDateString(undefined, {
+            {selectedDay.toLocaleDateString(APP_LOCALE, {
               weekday: "long",
               month: "short",
               day: "numeric",

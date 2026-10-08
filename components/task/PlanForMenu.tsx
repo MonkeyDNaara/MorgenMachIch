@@ -6,6 +6,7 @@ import type { Task } from "@/lib/types";
 import { updateTask } from "@/lib/db/tasks";
 import { planDateOptions, planDueDateIso, toLocalDateKey } from "@/lib/utils/planDateOptions";
 import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
+import { APP_LOCALE } from "@/lib/constants/locale";
 
 type PlanForMenuProps = {
   task: Task;
@@ -84,7 +85,7 @@ export default function PlanForMenu({ task }: PlanForMenuProps) {
             >
               <span>{option.label}</span>
               <span className="font-mono text-xs text-base-content/40">
-                {option.date.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                {option.date.toLocaleDateString(APP_LOCALE, { month: "short", day: "numeric" })}
               </span>
             </button>
           ))}
