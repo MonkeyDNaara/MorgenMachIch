@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Sun, LayoutList, Calendar, Tag, Settings, type LucideIcon } from "lucide-react";
+import { Sun, LayoutList, Calendar, Tag, Search, Settings, type LucideIcon } from "lucide-react";
+import { useCommandPalette } from "@/components/palette/CommandPaletteProvider";
 
 type NavItem = {
   href: string;
@@ -33,6 +34,7 @@ function navItemClasses(active: boolean): string {
 
 export default function NavRail() {
   const pathname = usePathname();
+  const { openPalette } = useCommandPalette();
 
   return (
     <nav
@@ -62,14 +64,27 @@ export default function NavRail() {
         ))}
       </ul>
 
-      <Link
-        href={SETTINGS_ITEM.href}
-        aria-label={SETTINGS_ITEM.label}
-        aria-current={isActive(pathname, SETTINGS_ITEM.href) ? "page" : undefined}
-        className={`mt-auto ${navItemClasses(isActive(pathname, SETTINGS_ITEM.href))}`}
-      >
-        <SETTINGS_ITEM.icon size={16} strokeWidth={1.8} />
-      </Link>
+      <div className="mt-auto flex flex-col items-center gap-3">
+        <button
+          type="button"
+          onClick={openPalette}
+          aria-label="Search"
+          aria-haspopup="dialog"
+          aria-keyshortcuts="Meta+K Control+K"
+          title="Search — ⌘K / Ctrl+K"
+          className={`cursor-pointer ${navItemClasses(false)}`}
+        >
+          <Search size={16} strokeWidth={1.8} />
+        </button>
+        <Link
+          href={SETTINGS_ITEM.href}
+          aria-label={SETTINGS_ITEM.label}
+          aria-current={isActive(pathname, SETTINGS_ITEM.href) ? "page" : undefined}
+          className={navItemClasses(isActive(pathname, SETTINGS_ITEM.href))}
+        >
+          <SETTINGS_ITEM.icon size={16} strokeWidth={1.8} />
+        </Link>
+      </div>
     </nav>
   );
 }
