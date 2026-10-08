@@ -6,6 +6,7 @@ import { useCommandPalette } from "@/components/palette/CommandPaletteProvider";
 import { usePaletteItems } from "@/components/palette/usePaletteItems";
 import HighlightedText from "@/components/palette/HighlightedText";
 import { groupPaletteResults } from "@/lib/utils/groupPaletteResults";
+import { matchWithKeywords } from "@/lib/utils/fuzzyMatch";
 
 /** Order of the group headings; anything not listed comes last. */
 const GROUP_ORDER = ["Pages", "Actions", "Tasks"];
@@ -55,7 +56,12 @@ function PaletteBody({ onClose }: { onClose: () => void }) {
   const listId = useId();
 
   const groups = useMemo(
-    () => groupPaletteResults(items, query, (item) => item.label, GROUP_ORDER),
+    () =>
+      groupPaletteResults(
+        items,
+        (item) => matchWithKeywords(query, item.label, item.keywords),
+        GROUP_ORDER,
+      ),
     [items, query],
   );
   const flat = groups.flatMap((group) => group.entries);

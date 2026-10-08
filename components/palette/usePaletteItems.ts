@@ -2,44 +2,33 @@
 
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Calendar, LayoutList, Sun } from "lucide-react";
+import { COMMANDS, type CommandContext } from "@/lib/commands";
+import { useTaskDrawer } from "@/components/task/TaskDrawerProvider";
+import { commandIcon } from "@/components/palette/commandIcons";
 import type { PaletteItem } from "@/components/palette/types";
 
 /**
- * The palette's item list. For now (#195) a hardcoded placeholder so the
- * shell can be exercised end to end; #196 replaces this with the real
- * command registry in `lib/commands`, and #197 adds task results.
+ * Turns the command registry (`lib/commands`, #196) into palette rows by
+ * giving each command the browser's CommandContext (Next router + the
+ * task drawer) and its icon. #197 adds task results to this list.
  */
 export function usePaletteItems(): PaletteItem[] {
   const router = useRouter();
+  const { openTaskDrawer } = useTaskDrawer();
 
-  return useMemo(
-    () => [
-      {
-        id: "go-today",
-        label: "Today",
-        group: "Pages",
-        icon: Sun,
-        hint: "/today",
-        run: () => router.push("/today"),
-      },
-      {
-        id: "go-tasks",
-        label: "Tasks",
-        group: "Pages",
-        icon: LayoutList,
-        hint: "/tasks",
-        run: () => router.push("/tasks"),
-      },
-      {
-        id: "go-calendar",
-        label: "Calendar",
-        group: "Pages",
-        icon: Calendar,
-        hint: "/calendar",
-        run: () => router.push("/calendar"),
-      },
-    ],
-    [router],
-  );
+  return useMemo(() => {
+    const context: CommandContext = {
+      navigate: (path) => router.push(path),
+      openNewTask: () => openTaskDrawer(),
+    };
+    return COMMANDS.map((command) => ({
+      id: command.id,
+      label: command.label,
+      group: command.group,
+      keywords: command.keywords,
+      icon: commandIcon(command.id),
+      hint: command.hint,
+      run: () => command.run(context),
+    }));
+  }, [router, openTaskDrawer]);
 }
