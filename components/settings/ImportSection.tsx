@@ -107,7 +107,7 @@ export default function ImportSection() {
   return (
     <section className="flex flex-col gap-4 surface-panel p-4">
       <div className="flex flex-col gap-1">
-        <h2 className="text-sm font-semibold">Restore from backup</h2>
+        <h2 className="font-mono text-eyebrow text-base-content/60 uppercase">Restore from backup</h2>
         <p className="text-xs text-base-content/50">
           Import a backup file exported from this app. It replaces everything currently stored here.
         </p>

@@ -50,7 +50,7 @@ export default function DataSection() {
   return (
     <section className="flex flex-col gap-4 surface-panel p-4">
       <div className="flex flex-col gap-1">
-        <h2 className="text-sm font-semibold">Data</h2>
+        <h2 className="font-mono text-eyebrow text-base-content/60 uppercase">Data</h2>
         <p className="text-xs text-base-content/50">
           Everything lives in this browser only. Export a backup so it can be restored if the browser data is ever
           cleared.

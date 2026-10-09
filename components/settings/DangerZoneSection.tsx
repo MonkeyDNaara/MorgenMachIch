@@ -49,7 +49,7 @@ export default function DangerZoneSection() {
   return (
     <section className="flex flex-col gap-4 surface-panel border-error/40 p-4">
       <div className="flex flex-col gap-1">
-        <h2 className="text-sm font-semibold text-error">Danger zone</h2>
+        <h2 className="font-mono text-eyebrow text-error uppercase">Danger zone</h2>
         <p className="text-xs text-base-content/50">
           Permanently delete all tasks, recurring series and labels from this browser.
         </p>

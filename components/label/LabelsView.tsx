@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Pencil, Plus } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { countTasksWithLabel, createLabel, deleteLabel, getLabels, updateLabel } from "@/lib/db/labels";
+import { getTasks } from "@/lib/db/tasks";
 import { DEFAULT_LABEL_COLOR, type LabelColorHex } from "@/lib/constants/labelColors";
 import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
 import type { Label } from "@/lib/types";
@@ -23,6 +24,15 @@ type FormMode = { kind: "none" } | { kind: "create" } | { kind: "edit"; label: L
  */
 export default function LabelsView() {
   const labels = useLiveQuery(() => getLabels(), []);
+  // Tasks per label for the row counts (#241) — the same "every task that
+  // carries it" count the delete confirmation uses.
+  const taskCounts = useLiveQuery(async () => {
+    const counts = new Map<string, number>();
+    for (const task of await getTasks()) {
+      for (const id of task.labelIds) counts.set(id, (counts.get(id) ?? 0) + 1);
+    }
+    return counts;
+  }, []);
 
   const [form, setForm] = useState<FormMode>({ kind: "none" });
   const [name, setName] = useState("");
@@ -169,34 +179,50 @@ export default function LabelsView() {
           ) : (
             <div
               key={label.id}
-              className="flex items-center justify-between gap-3 surface-raised p-3"
+              className="flex items-center gap-3 surface-raised p-3"
             >
               <LabelChip name={label.name} color={label.color} />
+              <span className="ml-auto font-mono text-meta text-base-content/50">
+                {taskCounts?.get(label.id) ?? 0}{" "}
+                {(taskCounts?.get(label.id) ?? 0) === 1 ? "task" : "tasks"}
+              </span>
               <div className="flex items-center gap-1">
                 <button
                   type="button"
                   onClick={() => openEdit(label)}
                   disabled={form.kind !== "none" || deletingId !== null}
                   aria-label={`Edit ${label.name}`}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg text-base-content/60 transition-colors outline-none! hover:text-base-content cursor-pointer disabled:cursor-default disabled:opacity-40"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-base-content/60 transition-colors outline-none! hover:bg-line-strong hover:text-base-content focus-visible:shadow-focus disabled:cursor-default disabled:opacity-40"
                 >
                   <Pencil size={14} />
                 </button>
+                {/* One button that turns into the confirmation, so keyboard focus
+                    stays on it between the two clicks. */}
                 <button
                   type="button"
                   onClick={() => handleDeleteClick(label)}
                   disabled={form.kind !== "none" || (deletingId !== null && deletingId !== label.id)}
-                  className={`btn btn-xs ${
-                    confirmingDeleteId === label.id ? "btn-error" : "btn-ghost text-error"
-                  }`}
+                  aria-label={
+                    confirmingDeleteId === label.id ? undefined : `Delete ${label.name}`
+                  }
+                  title={confirmingDeleteId === label.id ? undefined : "Delete"}
+                  className={
+                    confirmingDeleteId === label.id
+                      ? "btn btn-error btn-xs focus-visible:shadow-focus"
+                      : "flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-base-content/50 transition-colors outline-none! hover:bg-error/10 hover:text-error focus-visible:shadow-focus disabled:cursor-default disabled:opacity-40"
+                  }
                 >
-                  {deletingId === label.id
-                    ? "Deleting…"
-                    : confirmingDeleteId === label.id
-                      ? affectedCount === 0
-                        ? "Really delete?"
-                        : `Remove from ${affectedCount} task${affectedCount === 1 ? "" : "s"}?`
-                      : "Delete"}
+                  {deletingId === label.id ? (
+                    "Deleting…"
+                  ) : confirmingDeleteId === label.id ? (
+                    affectedCount === 0 ? (
+                      "Really delete?"
+                    ) : (
+                      `Remove from ${affectedCount} task${affectedCount === 1 ? "" : "s"}?`
+                    )
+                  ) : (
+                    <Trash2 size={14} />
+                  )}
                 </button>
               </div>
             </div>

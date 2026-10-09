@@ -216,9 +216,14 @@ export default function CalendarView() {
         }
       />
       <div className="flex flex-col gap-4 p-6">
-        <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-base-content/40">
-          {WEEKDAY_LABELS.map((label) => (
-            <span key={label}>{label}</span>
+        <div
+          aria-hidden
+          className="grid grid-cols-7 gap-1.5 px-2 font-mono text-eyebrow text-base-content/50 uppercase"
+        >
+          {WEEKDAY_LABELS.map((label, index) => (
+            <span key={label} className={index >= 5 ? "text-base-content/30" : undefined}>
+              {label}
+            </span>
           ))}
         </div>
         <div className="grid grid-cols-7 gap-1.5">

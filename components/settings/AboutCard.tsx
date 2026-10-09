@@ -11,7 +11,7 @@ const REPO_URL = "https://github.com/MonkeyDNaara/MorgenMachIch";
 export default function AboutCard() {
   return (
     <section className="flex flex-col gap-3 surface-panel p-4">
-      <h2 className="text-sm font-semibold">About</h2>
+      <h2 className="font-mono text-eyebrow text-base-content/60 uppercase">About</h2>
       <div className="flex flex-col gap-1 text-sm text-base-content/70">
         <p>
           <span className="font-medium text-base-content">MorgenMachIch</span>{" "}
