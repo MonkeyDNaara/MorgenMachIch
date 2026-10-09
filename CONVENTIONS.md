@@ -16,7 +16,7 @@ app/
   globals.css
 components/
   task/                    # task-related UI: TaskCard, TaskDrawer, SubtaskList, ...
-  layout/                  # app-shell UI: NavRail, WeekStrip
+  layout/                  # app-shell UI: AppNav, BottomTabBar, PageHeader
   ui/                      # small shared primitives: Chip, IconButton, ProgressBar, ...
 lib/
   db/                      # Dexie schema + repository functions (getTasks, createTask, ...)

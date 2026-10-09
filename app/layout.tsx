@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
-import NavRail from "@/components/layout/NavRail";
+import AppNav from "@/components/layout/AppNav";
+import BottomTabBar from "@/components/layout/BottomTabBar";
 import AddTaskFab from "@/components/layout/AddTaskFab";
 import TaskDrawer from "@/components/task/TaskDrawer";
 import SeriesDrawer from "@/components/task/SeriesDrawer";
@@ -38,8 +39,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <TaskDrawerProvider>
           <SeriesDrawerProvider>
             <CommandPaletteProvider>
-              <NavRail />
-              <main className="flex-1 min-w-0">{children}</main>
+              <AppNav />
+              {/* Below md the BottomTabBar is fixed to the bottom; this padding keeps
+                  the last content row from hiding behind it. */}
+              <main className="min-w-0 flex-1 pb-[calc(4.75rem+env(safe-area-inset-bottom))] md:pb-0">
+                {children}
+              </main>
+              <BottomTabBar />
               <AddTaskFab />
               <TaskDrawer />
               <SeriesDrawer />
