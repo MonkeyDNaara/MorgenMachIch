@@ -234,7 +234,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/50" onClick={onClose} aria-hidden="true" />
+      <div className="fixed inset-0 z-40 bg-scrim" onClick={onClose} aria-hidden="true" />
       <aside
         role="dialog"
         aria-modal="true"

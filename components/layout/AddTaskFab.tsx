@@ -8,9 +8,10 @@ import { useTaskDrawer } from "@/components/task/TaskDrawerProvider";
  * tasks, so the FAB would be a dead end (or confusing) there. */
 const TASK_ROUTES = ["/today", "/tasks", "/calendar"];
 
-/** Floating "+" button from the approved mockup — the primary way to
- * create a task. Opens the drawer in create mode (no taskId). Hidden
- * outside task-related routes. */
+/** Floating "+" button — opens the task drawer in create mode (no
+ * taskId). Mobile only since #235 (below md, above the tab bar): on
+ * larger screens the quick-add bars and ⌘K cover adding. Hidden outside
+ * task-related routes. */
 export default function AddTaskFab() {
   const pathname = usePathname();
   const { openTaskDrawer } = useTaskDrawer();
@@ -25,7 +26,7 @@ export default function AddTaskFab() {
       type="button"
       onClick={() => openTaskDrawer()}
       aria-label="Add task"
-      className="fixed bottom-6 right-6 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-content shadow-gloss transition-transform hover:scale-105"
+      className="fixed right-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-30 flex h-14 w-14 md:hidden items-center justify-center rounded-full bg-primary text-primary-content shadow-gloss transition-transform hover:scale-105"
     >
       <Plus size={22} strokeWidth={2.4} />
     </button>

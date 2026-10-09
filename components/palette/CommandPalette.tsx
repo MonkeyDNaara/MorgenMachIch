@@ -16,6 +16,7 @@ import HighlightedText from "@/components/palette/HighlightedText";
 import PriorityDot from "@/components/task/PriorityDot";
 import type { PaletteItem } from "@/components/palette/types";
 import { groupPaletteResults } from "@/lib/utils/groupPaletteResults";
+import { useModKey } from "@/lib/ui/useModKey";
 import { matchWithKeywords, type FuzzyMatch } from "@/lib/utils/fuzzyMatch";
 
 /** Order of the group headings; anything not listed comes last. */
@@ -71,7 +72,7 @@ export default function CommandPalette() {
       </dialog>
       <div
         role="status"
-        className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center px-4"
+        className="pointer-events-none fixed inset-x-0 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-50 md:bottom-6 flex justify-center px-4"
       >
         {notice && (
           <p className="rounded-full border border-line-strong bg-base-300 px-4 py-2 text-sm shadow-overlay">
@@ -115,8 +116,7 @@ function PaletteBody({ onClose }: { onClose: () => void }) {
   });
   const [announcement, setAnnouncement] = useState<string | null>(null);
   const listId = useId();
-  // Read once per opening; the body only renders in the browser.
-  const [modKey] = useState(() => (/Mac|iPhone|iPad/.test(navigator.userAgent) ? "⌘" : "Ctrl"));
+  const modKey = useModKey();
 
   const groups = useMemo(
     () =>

@@ -1,2 +1,2 @@
-App-shell UI: `NavRail`, `WeekStrip`, and other structural pieces shared
+App-shell UI: `AppNav` (rail/sidebar), `BottomTabBar`, `PageHeader`, and other structural pieces shared
 across every route.
