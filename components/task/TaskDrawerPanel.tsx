@@ -320,7 +320,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
               ) : labels.length === 0 ? (
                 <p className="text-sm text-base-content/40">
                   No labels yet —{" "}
-                  <Link href="/labels" className="text-primary hover:underline">
+                  <Link href="/labels" className="text-accent hover:underline">
                     create one
                   </Link>
                   .
@@ -368,7 +368,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
                     type="checkbox"
                     checked={allDay}
                     onChange={(event) => setAllDay(event.target.checked)}
-                    className="checkbox checkbox-sm checkbox-primary"
+                    className="checkbox checkbox-sm"
                   />
                   All day
                 </label>
@@ -388,7 +388,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
                       type="checkbox"
                       checked={repeatEnabled}
                       onChange={(event) => handleRepeatToggle(event.target.checked)}
-                      className="checkbox checkbox-sm checkbox-primary"
+                      className="checkbox checkbox-sm"
                     />
                   </label>
                 </div>

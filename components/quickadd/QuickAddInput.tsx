@@ -132,7 +132,7 @@ export default function QuickAddInput({
           }
           autoComplete="off"
           spellCheck={false}
-          className={`input ${sizeClass} ${textSize} w-full pr-24 text-transparent caret-primary ${FIELD_FOCUS}`}
+          className={`input ${sizeClass} ${textSize} w-full pr-24 text-transparent caret-accent ${FIELD_FOCUS}`}
         />
         <div
           ref={layerRef}

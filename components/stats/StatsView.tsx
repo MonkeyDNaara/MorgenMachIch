@@ -83,7 +83,7 @@ export default function StatsView() {
               <button
                 type="button"
                 onClick={() => void updateSettings({ statsSince: null })}
-                className="cursor-pointer text-primary hover:underline"
+                className="cursor-pointer text-accent hover:underline"
               >
                 Count all history
               </button>

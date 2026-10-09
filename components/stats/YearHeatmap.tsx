@@ -159,7 +159,7 @@ export default function YearHeatmap({ heatmap }: { heatmap: Heatmap }) {
                 onBlur={() => setTooltipIndex(null)}
                 onMouseEnter={() => setTooltipIndex(index)}
                 onMouseLeave={() => setTooltipIndex(null)}
-                className="outline-none focus-visible:stroke-primary focus-visible:stroke-2"
+                className="outline-none focus-visible:stroke-accent focus-visible:stroke-2"
               />
             );
           })}

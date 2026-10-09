@@ -19,7 +19,7 @@ const SIZE_CLASSES: Record<NonNullable<LabelChipProps["size"]>, string> = {
  * background, full-saturation color as text/border, no leading dot.
  * Locked after a side-by-side comparison against a solid-filled
  * alternative — reads calmer against the dark theme and doesn't compete
- * with the cyan primary. Shared by the labels page, the task drawer's
+ * with the theme accent. Shared by the labels page, the task drawer's
  * label picker, and task cards.
  *
  * The tint styling itself lives in lib/ui/colorChip.ts (tintChipStyle),

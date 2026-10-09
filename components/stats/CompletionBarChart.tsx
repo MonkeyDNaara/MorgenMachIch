@@ -46,7 +46,7 @@ function axisLabel(series: DayCount[], index: number, unit: "day" | "week"): str
  * Bars of completions per day or per week on /stats (#217), hand-built in
  * SVG at the container's measured width (a ResizeObserver keeps it sharp
  * instead of stretching a viewBox). The newest bar — today or this week —
- * is drawn in full cyan. Counts show above the bars when there are few
+ * is drawn in the full accent color. Counts show above the bars when there are few
  * enough to read; otherwise hover or focus a bar for its tooltip. Like the
  * heatmap, the bars are one tab stop with ←/→ to move.
  */
@@ -140,7 +140,7 @@ export default function CompletionBarChart({ series, unit }: CompletionBarChartP
                   onBlur={() => setTooltipIndex(null)}
                   onMouseEnter={() => setTooltipIndex(index)}
                   onMouseLeave={() => setTooltipIndex(null)}
-                  className="outline-none focus-visible:stroke-primary focus-visible:stroke-2"
+                  className="outline-none focus-visible:stroke-accent focus-visible:stroke-2"
                 />
                 {showValues && entry.count > 0 && (
                   <text
@@ -160,7 +160,7 @@ export default function CompletionBarChart({ series, unit }: CompletionBarChartP
                     textAnchor={unit === "week" ? "start" : "middle"}
                     aria-hidden
                     className={`font-mono text-[11px] ${
-                      label === "Today" ? "fill-primary" : "fill-base-content/40"
+                      label === "Today" ? "fill-accent" : "fill-base-content/40"
                     }`}
                   >
                     {label}

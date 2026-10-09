@@ -53,7 +53,7 @@ export default function StatsResetPanel() {
           </button>
         </div>
       ) : confirming ? (
-        <div className="flex flex-col gap-3 rounded-lg border border-primary/30 bg-primary/5 p-3">
+        <div className="flex flex-col gap-3 rounded-lg border border-accent/30 bg-accent/5 p-3">
           <p className="text-xs text-base-content/70">
             Streaks, the heatmap and all charts will start fresh from today ({formatDay(today)}).
             Your tasks are not changed, and you can count all history again at any time.

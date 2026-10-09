@@ -112,7 +112,7 @@ export default function QuickAddTitleField({
           }
           autoComplete="off"
           spellCheck={false}
-          className={`input w-full text-transparent caret-primary ${FIELD_FOCUS}`}
+          className={`input w-full text-transparent caret-accent ${FIELD_FOCUS}`}
         />
         <div
           ref={layerRef}

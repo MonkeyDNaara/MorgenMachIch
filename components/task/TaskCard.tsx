@@ -8,7 +8,7 @@ import { formatTaskAge } from "@/lib/utils/backlog";
 import { useTaskDrawer } from "@/components/task/TaskDrawerProvider";
 import LabelChip from "@/components/label/LabelChip";
 import SubtaskProgressBar from "@/components/task/SubtaskProgressBar";
-import PriorityDot from "@/components/task/PriorityDot";
+import { PRIORITY_DOT_COLORS } from "@/lib/constants/priorityColors";
 import PlanForMenu from "@/components/task/PlanForMenu";
 
 type TaskCardProps = {
@@ -43,10 +43,10 @@ const MAX_VISIBLE_LABELS = 2;
  * line-through) but with a dash in the status circle instead of a
  * checkmark, so it doesn't read as "still open."
  *
- * The priority dot (added for #138) sits right before the title text,
- * on the same line — a colored urgency marker, same idiom as Todoist
- * etc. — distinct from labels, which are categorical tags and stay on
- * the right. Renders nothing for "none" priority (see PriorityDot).
+ * Priority (added for #138) colors the status circle's ring since #232
+ * (green/yellow/red from the theme's success/warning/error), replacing
+ * the small dot before the title — distinct from labels, which are
+ * categorical tags and stay on the right. "None" keeps the neutral ring.
  *
  * The subtask progress bar (added for #134) lives inside the title/date
  * button, below the date, so it's naturally a third stacked line rather
@@ -86,6 +86,10 @@ export default function TaskCard({
     await updateTask(task.id, { status: "skipped" });
   }
 
+  // Priority lives on the checkbox ring (#232) instead of a dot before the
+  // title; overdue keeps its red ring, done/skipped tasks drop the color.
+  const priorityRing = !done && !skipped && !overdue ? PRIORITY_DOT_COLORS[task.priority] : null;
+
   return (
     <div
       className={`flex w-full flex-wrap items-center gap-3 rounded-box border bg-base-200 p-3 shadow-raised transition-colors focus-within:shadow-focus! ${
@@ -99,15 +103,18 @@ export default function TaskCard({
         aria-pressed={done}
         className={`flex h-6 w-6 flex-shrink-0 cursor-pointer items-center justify-center rounded-full border-2 outline-none! transition-colors ${
           done
-            ? "border-primary bg-primary"
+            ? "border-base-300 bg-base-300"
             : skipped
               ? "border-base-content/20"
               : overdue
                 ? "border-error/70 hover:border-error"
-                : "border-base-content/30 hover:border-base-content/60"
+                : priorityRing
+                  ? "hover:brightness-125"
+                  : "border-base-content/30 hover:border-base-content/60"
         }`}
+        style={priorityRing ? { borderColor: priorityRing } : undefined}
       >
-        {done && <Check size={14} className="text-primary-content" />}
+        {done && <Check size={14} className="text-base-content/70" />}
         {skipped && <Minus size={14} className="text-base-content/40" />}
       </button>
       <button
@@ -120,7 +127,6 @@ export default function TaskCard({
             done || skipped ? "text-base-content/50 line-through" : ""
           }`}
         >
-          <PriorityDot priority={task.priority} className="flex-shrink-0" />
           <span className="min-w-0 flex-1 truncate">{task.title}</span>
         </span>
         {task.dueDate && (

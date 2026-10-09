@@ -15,9 +15,9 @@
   --color-neutral: #7ba3a8;
   --color-neutral-content: #e8f2f3;
 
-  /* primary stays cyan until the colour-roles issue (#232) switches it to amber. */
-  --color-primary: #4dd1e0;
-  --color-primary-content: #0a1315;
+  /* primary = actions (add, save, confirm, FAB). */
+  --color-primary: #ff9f5a;
+  --color-primary-content: #2a1606;
 
   /* accent = data, today, times, charts, links, focus. */
   --color-accent: #4dd1e0;

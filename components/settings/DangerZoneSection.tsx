@@ -56,7 +56,7 @@ export default function DangerZoneSection() {
       </div>
 
       {deleted && (
-        <p className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-xs text-base-content/70">
+        <p className="rounded-lg border border-accent/30 bg-accent/5 p-3 text-xs text-base-content/70">
           All data deleted.
         </p>
       )}

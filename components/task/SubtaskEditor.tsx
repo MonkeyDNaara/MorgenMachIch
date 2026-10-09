@@ -52,7 +52,7 @@ export default function SubtaskEditor({ subtasks, onChange }: SubtaskEditorProps
             type="checkbox"
             checked={subtask.done}
             onChange={(event) => updateSubtask(subtask.id, { done: event.target.checked })}
-            className="checkbox checkbox-sm checkbox-primary"
+            className="checkbox checkbox-sm"
           />
           <input
             type="text"

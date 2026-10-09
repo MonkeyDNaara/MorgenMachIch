@@ -21,7 +21,7 @@ export default function HighlightedText({ text, indices }: HighlightedTextProps)
     <>
       {segments.map((segment, index) =>
         segment.match ? (
-          <span key={index} className="font-semibold text-primary">
+          <span key={index} className="font-semibold text-accent">
             {segment.text}
           </span>
         ) : (
