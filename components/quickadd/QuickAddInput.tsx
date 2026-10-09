@@ -2,6 +2,7 @@
 
 import { useId, useLayoutEffect, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
+import { Plus } from "lucide-react";
 import type { Label } from "@/lib/types";
 import { getLabels } from "@/lib/db/labels";
 import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
@@ -29,6 +30,10 @@ type QuickAddInputProps = {
 };
 
 const SIZE_CLASSES = { sm: "input-sm", md: "input-md" } as const;
+
+/** Identical on the input and the highlight layer (#238): room for the "+"
+ * on the left and, from sm up, for the "→ Today" hint on the right. */
+const PADDING = "pl-10 pr-3 sm:pr-24";
 
 /**
  * Quick-add field with natural-language parsing (#203). Typing
@@ -132,28 +137,39 @@ export default function QuickAddInput({
           }
           autoComplete="off"
           spellCheck={false}
-          className={`input ${sizeClass} ${textSize} w-full pr-24 text-transparent caret-accent ${FIELD_FOCUS}`}
+          className={`input ${sizeClass} ${textSize} w-full ${PADDING} text-transparent caret-accent ${FIELD_FOCUS}`}
         />
         <div
           ref={layerRef}
           aria-hidden
-          className={`input ${sizeClass} ${textSize} pointer-events-none absolute inset-0 w-full overflow-hidden border-transparent bg-transparent pr-24 shadow-none`}
+          className={`input ${sizeClass} ${textSize} pointer-events-none absolute inset-0 w-full overflow-hidden border-transparent bg-transparent ${PADDING} shadow-none`}
         >
           <span className="whitespace-pre">
             <QuickAddHighlight
               text={text}
               tokens={result.tokens}
               labels={labels}
-              placeholder={placeholder}
+              placeholder={
+                <>
+                  <span className="sm:hidden">Add a task…</span>
+                  <span className="hidden sm:inline">{placeholder}</span>
+                </>
+              }
               anchorIndex={autocomplete.anchorIndex}
               anchorRef={autocomplete.anchorRef}
             />
           </span>
         </div>
+        <Plus
+          aria-hidden
+          size={18}
+          strokeWidth={2.2}
+          className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-primary"
+        />
         {!hasDate && (
           <span
             aria-hidden
-            className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-base-content/40"
+            className="pointer-events-none absolute top-1/2 right-3 hidden -translate-y-1/2 font-mono text-xs text-base-content/40 sm:block"
           >
             → {defaultHint}
           </span>
@@ -161,6 +177,13 @@ export default function QuickAddInput({
 
         <TagSuggestionList autocomplete={autocomplete} variant="popover" />
       </div>
+
+      {/* Below sm the hint moves under the field so it can never overlap the text. */}
+      {!hasDate && (
+        <p aria-hidden className="mt-1.5 font-mono text-meta text-base-content/50 sm:hidden">
+          → {defaultHint} · try “gym tue 7am #health”
+        </p>
+      )}
 
       <QuickAddChips
         id={chipsId}

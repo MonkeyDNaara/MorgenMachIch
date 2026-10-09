@@ -1,4 +1,4 @@
-import type { Ref } from "react";
+import type { ReactNode, Ref } from "react";
 import type { Label } from "@/lib/types";
 import type { QuickAddToken } from "@/lib/utils/parseQuickAdd";
 import { tokenColor } from "@/components/quickadd/tokenDisplay";
@@ -8,7 +8,7 @@ type QuickAddHighlightProps = {
   tokens: QuickAddToken[];
   labels: Label[];
   /** Shown in the muted color while `text` is empty. */
-  placeholder?: string;
+  placeholder?: ReactNode;
   /** Text index where an empty marker element is rendered, used to place
    * the label autocomplete right under the "#" being typed. */
   anchorIndex?: number | null;
