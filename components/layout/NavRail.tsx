@@ -39,7 +39,7 @@ function navItemClasses(active: boolean): string {
     "flex h-[34px] w-[34px] items-center justify-center rounded-xl transition-colors";
   return active
     ? `${base} bg-primary text-primary-content shadow-lg shadow-primary/30`
-    : `${base} bg-base-300 text-base-content/60 shadow-inner shadow-black/40 hover:text-base-content`;
+    : `${base} bg-base-300 text-base-content/60 shadow-sunken hover:text-base-content`;
 }
 
 export default function NavRail() {
@@ -49,7 +49,7 @@ export default function NavRail() {
   return (
     <nav
       aria-label="Main navigation"
-      className="flex w-16 shrink-0 flex-col items-center gap-5 border-r border-white/5 bg-base-200 py-6"
+      className="flex w-16 shrink-0 flex-col items-center gap-5 border-r border-line bg-base-200 py-6"
     >
       <Link
         href="/today"

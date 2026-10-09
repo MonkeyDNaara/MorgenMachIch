@@ -53,7 +53,7 @@ export default function StreakBadge() {
       href="/stats"
       aria-label={label}
       title="Open stats"
-      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium whitespace-nowrap outline-none! transition-colors focus-visible:shadow-[0_0_0_3px_rgba(77,209,224,0.35)] ${className}`}
+      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium whitespace-nowrap outline-none! transition-colors focus-visible:shadow-focus ${className}`}
     >
       <TrendingUp size={13} strokeWidth={2} aria-hidden />
       {text}

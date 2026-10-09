@@ -62,7 +62,7 @@ export default function TodayView() {
         <StreakBadge />
       </header>
       {selectedDay && (
-        <div className="flex items-center justify-between border-b border-white/5 px-6 py-3">
+        <div className="flex items-center justify-between border-b border-line px-6 py-3">
           <p className="text-sm text-base-content/70">
             Showing{" "}
             {selectedDay.toLocaleDateString(APP_LOCALE, {

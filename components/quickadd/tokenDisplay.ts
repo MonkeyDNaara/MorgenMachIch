@@ -3,8 +3,8 @@ import type { QuickAddToken } from "@/lib/utils/parseQuickAdd";
 import { PRIORITY_DOT_COLORS } from "@/lib/constants/priorityColors";
 import { formatQuickAddDue } from "@/lib/utils/formatQuickAddDue";
 
-/** The theme's cyan accent as a hex, so it works with tintChipStyle's alpha suffixes. */
-export const DATE_TOKEN_COLOR = "#4dd1e0";
+/** The theme's accent; tintChipStyle mixes it with color-mix, so a CSS variable works. */
+export const DATE_TOKEN_COLOR = "var(--color-accent)";
 
 /**
  * One color per token, shared by the in-input highlight and the preview

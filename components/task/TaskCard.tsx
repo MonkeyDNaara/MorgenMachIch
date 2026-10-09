@@ -88,7 +88,7 @@ export default function TaskCard({
 
   return (
     <div
-      className={`flex w-full flex-wrap items-center gap-3 rounded-box border bg-base-200 p-3 shadow-lg shadow-black/20 transition-colors focus-within:shadow-[0_0_0_3px_rgba(77,209,224,0.35)]! ${
+      className={`flex w-full flex-wrap items-center gap-3 rounded-box border bg-base-200 p-3 shadow-raised transition-colors focus-within:shadow-focus! ${
         overdue ? "border-error/50" : "border-transparent"
       }`}
     >

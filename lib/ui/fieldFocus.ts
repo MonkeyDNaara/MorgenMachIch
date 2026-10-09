@@ -12,4 +12,4 @@
 export const FIELD_FOCUS =
   "bg-base-200 outline-none! [--input-color:var(--color-base-300)] " +
   "focus:[--input-color:var(--color-primary)]! " +
-  "focus:shadow-[0_0_0_4px_rgba(77,209,224,0.25)]!";
+  "focus:shadow-focus!";

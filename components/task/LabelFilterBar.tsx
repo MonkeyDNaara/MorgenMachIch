@@ -27,7 +27,7 @@ export default function LabelFilterBar({
   if (labels.length === 0) return null;
 
   return (
-    <div className="flex flex-wrap items-center gap-2 border-b border-white/5 px-6 py-3">
+    <div className="flex flex-wrap items-center gap-2 border-b border-line px-6 py-3">
       {labels.map((label) => {
         const active = activeLabelIds.includes(label.id);
         return (

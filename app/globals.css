@@ -6,28 +6,56 @@
   prefersdark: true;
   color-scheme: dark;
 
-  --color-base-100: #10171a;
-  --color-base-200: #0c1214;
-  --color-base-300: #1c262a;
-  --color-base-content: #e9f4f5;
+  /* Surfaces: page < surface < raised (see claude/design-system.md). */
+  --color-base-100: #0b1214;
+  --color-base-200: #111a1d;
+  --color-base-300: #19242a;
+  --color-base-content: #e8f2f3;
 
   --color-neutral: #7ba3a8;
-  --color-neutral-content: #e9f4f5;
+  --color-neutral-content: #e8f2f3;
 
+  /* primary stays cyan until the colour-roles issue (#232) switches it to amber. */
   --color-primary: #4dd1e0;
   --color-primary-content: #0a1315;
 
+  /* accent = data, today, times, charts, links, focus. */
+  --color-accent: #4dd1e0;
+  --color-accent-content: #0a1315;
+
+  /* Priority low / medium / high (high doubles as "overdue"). */
+  --color-success: #7cc36c;
+  --color-success-content: #0e1a0b;
+  --color-warning: #c3af32;
+  --color-warning-content: #1c1904;
   --color-error: #e2604a;
   --color-error-content: #2b120d;
 
-  /* secondary, accent, info, success, warning intentionally left
-     unset — they map to priority levels / status colors we haven't
-     designed yet (issue #7). daisyUI falls back to sensible defaults
-     until we assign real values here. */
+  /* Theme-specific extras, exposed to Tailwind in @theme inline below.
+     A light theme redefines the same names. */
+  --mm-sunken: #080d0f;
+  --mm-line: rgb(255 255 255 / 0.05);
+  --mm-line-strong: rgb(255 255 255 / 0.1);
+  --mm-scrim: rgb(0 0 0 / 0.6);
+  --mm-shadow-raised:
+    inset 0 1px 0 rgb(255 255 255 / 0.06), 0 1px 2px rgb(0 0 0 / 0.5), 0 6px 16px rgb(0 0 0 / 0.25);
+  --mm-shadow-raised-sm: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 1px 3px rgb(0 0 0 / 0.4);
+  --mm-shadow-sunken: inset 0 1px 3px rgb(0 0 0 / 0.6), 0 1px 0 rgb(255 255 255 / 0.04);
+  --mm-shadow-overlay: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 12px 32px rgb(0 0 0 / 0.5);
+  --mm-shadow-gloss:
+    inset 0 1px 0 rgb(255 255 255 / 0.4), inset 0 -2px 0 rgb(0 0 0 / 0.15),
+    0 4px 14px color-mix(in oklab, var(--color-primary) 25%, transparent),
+    0 2px 4px rgb(0 0 0 / 0.5);
+  /* Chart levels 1–4 (heatmap, bar chart): increasing shares of the accent. */
+  --mm-data-1: color-mix(in oklab, var(--color-accent) 28%, transparent);
+  --mm-data-2: color-mix(in oklab, var(--color-accent) 50%, transparent);
+  --mm-data-3: color-mix(in oklab, var(--color-accent) 75%, transparent);
+  --mm-data-4: var(--color-accent);
 
+  /* Selector stays 1.25rem so checkboxes keep their circular look. */
   --radius-selector: 1.25rem;
-  --radius-field: 0.75rem;
-  --radius-box: 1.25rem;
+  --radius-field: 0.875rem;
+  --radius-box: 0.875rem;
 
   --border: 1px;
   --depth: 1;
@@ -37,6 +65,27 @@
 @theme inline {
   --font-sans: var(--font-space-grotesk);
   --font-mono: var(--font-jetbrains-mono);
+
+  /* bg-sunken, border-line, border-line-strong, bg-scrim … */
+  --color-sunken: var(--mm-sunken);
+  --color-line: var(--mm-line);
+  --color-line-strong: var(--mm-line-strong);
+  --color-scrim: var(--mm-scrim);
+
+  /* shadow-raised, shadow-sunken, shadow-overlay, shadow-gloss, shadow-focus … */
+  --shadow-raised: var(--mm-shadow-raised);
+  --shadow-raised-sm: var(--mm-shadow-raised-sm);
+  --shadow-sunken: var(--mm-shadow-sunken);
+  --shadow-overlay: var(--mm-shadow-overlay);
+  --shadow-gloss: var(--mm-shadow-gloss);
+  --shadow-focus: 0 0 0 3px color-mix(in oklab, var(--color-accent) 35%, transparent);
+  --shadow-glow: 0 0 0 3px color-mix(in oklab, var(--color-accent) 15%, transparent);
+
+  /* Chart levels 1–4 (bg-data-1 …); SVG code reads the --mm-data-* variables directly. */
+  --color-data-1: var(--mm-data-1);
+  --color-data-2: var(--mm-data-2);
+  --color-data-3: var(--mm-data-3);
+  --color-data-4: var(--mm-data-4);
 }
 
 body {

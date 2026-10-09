@@ -35,7 +35,7 @@ export default function SeriesRow({ series, labels }: SeriesRowProps) {
 
   return (
     <div
-      className={`flex w-full flex-wrap items-center gap-3 rounded-box border border-transparent bg-base-200 p-3 shadow-lg shadow-black/20 transition-colors ${
+      className={`flex w-full flex-wrap items-center gap-3 rounded-box border border-transparent bg-base-200 p-3 shadow-raised transition-colors ${
         paused ? "opacity-60" : ""
       }`}
     >

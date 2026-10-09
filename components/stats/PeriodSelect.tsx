@@ -29,7 +29,7 @@ export default function PeriodSelect({ value, onChange }: PeriodSelectProps) {
           role="radio"
           aria-checked={value === option.value}
           onClick={() => onChange(option.value)}
-          className={`cursor-pointer rounded-full px-3 py-1 text-xs outline-none! transition-colors focus-visible:shadow-[0_0_0_2px_rgba(77,209,224,0.5)] ${
+          className={`cursor-pointer rounded-full px-3 py-1 text-xs outline-none! transition-colors focus-visible:shadow-focus ${
             value === option.value
               ? "bg-base-300 text-base-content"
               : "text-base-content/50 hover:text-base-content"

@@ -36,7 +36,7 @@ export default function StatsResetPanel() {
   const today = startOfLocalDay(new Date()).toISOString();
 
   return (
-    <div className="flex flex-col gap-3 border-t border-white/5 pt-4">
+    <div className="flex flex-col gap-3 border-t border-line pt-4">
       <div className="flex flex-col gap-1">
         <h3 className="text-xs font-semibold">Stats</h3>
         <p className="text-xs text-base-content/50">

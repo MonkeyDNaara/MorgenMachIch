@@ -239,7 +239,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
         role="dialog"
         aria-modal="true"
         aria-label={isEditing ? "Edit task" : "New task"}
-        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col gap-6 border-l border-white/5 bg-base-100 p-6 shadow-2xl"
+        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col gap-6 border-l border-line bg-base-100 p-6 shadow-overlay"
       >
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">{isEditing ? "Edit Task" : "New Task"}</h2>
@@ -405,7 +405,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
           </div>
         )}
 
-        <div className="flex flex-col gap-2 border-t border-white/5 pt-4">
+        <div className="flex flex-col gap-2 border-t border-line pt-4">
           <div className="flex items-center justify-between gap-2">
             <div>
               {isEditing && loadState === "ready" && seriesId !== null && (

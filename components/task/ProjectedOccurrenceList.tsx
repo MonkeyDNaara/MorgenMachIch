@@ -18,7 +18,7 @@ export default function ProjectedOccurrenceList({ ghosts }: ProjectedOccurrenceL
   if (ghosts.length === 0) return null;
 
   return (
-    <section className="mx-6 mb-6 flex flex-col gap-2 rounded-box border border-dashed border-white/10 p-4">
+    <section className="mx-6 mb-6 flex flex-col gap-2 rounded-box border border-dashed border-line-strong p-4">
       <h2 className="text-xs font-medium uppercase tracking-wide text-base-content/50">Projected</h2>
       <ul className="flex flex-col gap-1.5">
         {ghosts.map((ghost) => (
