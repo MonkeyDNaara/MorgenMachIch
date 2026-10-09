@@ -6,6 +6,7 @@ import { isTodayOrOverdue, isSameLocalDay } from "@/lib/utils/isDueToday";
 import TaskList from "@/components/task/TaskList";
 import WeekAheadStrip from "@/components/task/WeekAheadStrip";
 import TaskQuickAdd from "@/components/task/TaskQuickAdd";
+import StreakBadge from "@/components/stats/StreakBadge";
 import { APP_LOCALE } from "@/lib/constants/locale";
 
 function scopeToTodayOrOverdue(tasks: Task[]): Task[] {
@@ -23,7 +24,8 @@ function scopeToTodayOrOverdue(tasks: Task[]): Task[] {
  * today's own view, just narrowed to that exact date — with a "Back to
  * Today" control to return to the default (#130).
  *
- * A quick-add bar sits above the cards (#205). Text without a date is due
+ * A slim header shows the date and the streak badge (#219), which links
+ * to /stats. A quick-add bar sits above the cards (#205). Text without a date is due
  * today — or on the day drilled into, since that is the day being looked at.
  */
 export default function TodayView() {
@@ -44,6 +46,21 @@ export default function TodayView() {
 
   return (
     <div className="flex flex-col">
+      <header className="flex items-center justify-between gap-3 px-6 pt-5 pb-1">
+        <div>
+          <h1 className="text-lg font-semibold">Today</h1>
+          {/* The server renders in UTC; near midnight the browser's local date can
+              differ, so React is told this text may change on hydration. */}
+          <p className="text-xs text-base-content/50" suppressHydrationWarning>
+            {new Date().toLocaleDateString(APP_LOCALE, {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+            })}
+          </p>
+        </div>
+        <StreakBadge />
+      </header>
       {selectedDay && (
         <div className="flex items-center justify-between border-b border-white/5 px-6 py-3">
           <p className="text-sm text-base-content/70">
