@@ -28,7 +28,15 @@ export function formatDueDate(iso: string, allDay: boolean): string {
   return `${datePart}, ${formatTime(iso)}`;
 }
 
-/** True if the given ISO dueDate is strictly before the current moment. */
-export function isOverdue(iso: string): boolean {
-  return new Date(iso).getTime() < Date.now();
+/**
+ * True if a due date has passed. A timed task is overdue once its moment
+ * is over; an all-day task (stored as local midnight) only from the next
+ * local day on — before #237 an all-day task due today counted as
+ * overdue from 00:00, which turned it red on its own day.
+ */
+export function isOverdue(iso: string, allDay = false, now: Date = new Date()): boolean {
+  const due = new Date(iso);
+  if (!allDay) return due.getTime() < now.getTime();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return due.getTime() < startOfToday.getTime();
 }

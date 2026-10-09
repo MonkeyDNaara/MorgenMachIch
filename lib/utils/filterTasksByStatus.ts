@@ -23,7 +23,8 @@ export function filterTasksByStatus(tasks: Task[], status: StatusFilter): Task[]
   if (status === "all") return tasks.filter((task) => task.status !== "skipped");
   if (status === "overdue") {
     return tasks.filter(
-      (task) => task.status === "open" && task.dueDate !== null && isOverdue(task.dueDate),
+      (task) =>
+        task.status === "open" && task.dueDate !== null && isOverdue(task.dueDate, task.allDay),
     );
   }
   return tasks.filter((task) => task.status === status);

@@ -116,6 +116,9 @@
   --text-heading--line-height: 1.4;
   --text-heading--font-weight: 600;
 
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.35;
+
   --text-meta: 0.75rem;
   --text-meta--line-height: 1.4;
 

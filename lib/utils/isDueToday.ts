@@ -32,5 +32,5 @@ export function isDueToday(iso: string): boolean {
 export function isTodayOrOverdue(task: Task): boolean {
   if (task.dueDate === null) return false;
   if (isDueToday(task.dueDate)) return true;
-  return task.status !== "done" && isOverdue(task.dueDate);
+  return task.status !== "done" && isOverdue(task.dueDate, task.allDay);
 }

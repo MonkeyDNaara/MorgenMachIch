@@ -1,9 +1,10 @@
 "use client";
 
-import { Check, Minus, SkipForward } from "lucide-react";
+import { Check, Minus, Repeat, SkipForward } from "lucide-react";
 import type { Label, Task } from "@/lib/types";
 import { updateTask } from "@/lib/db/tasks";
-import { formatDueDate, isOverdue } from "@/lib/utils/formatDueDate";
+import { isOverdue } from "@/lib/utils/formatDueDate";
+import { dueMeta } from "@/lib/utils/dueMeta";
 import { formatTaskAge } from "@/lib/utils/backlog";
 import { useTaskDrawer } from "@/components/task/TaskDrawerProvider";
 import LabelChip from "@/components/label/LabelChip";
@@ -58,6 +59,12 @@ const MAX_VISIBLE_LABELS = 2;
  * what yields horizontal space first; the row itself can wrap as a
  * last-resort fallback on a narrow viewport with a long title.
  */
+const META_TONE = {
+  accent: "text-accent",
+  error: "text-error",
+  muted: "text-base-content/50",
+} as const;
+
 export default function TaskCard({
   task,
   labels,
@@ -67,7 +74,9 @@ export default function TaskCard({
   const { openTaskDrawer } = useTaskDrawer();
   const done = task.status === "done";
   const skipped = task.status === "skipped";
-  const overdue = task.status === "open" && task.dueDate !== null && isOverdue(task.dueDate);
+  const overdue =
+    task.status === "open" && task.dueDate !== null && isOverdue(task.dueDate, task.allDay);
+  const meta = dueMeta(task, new Date());
   const canSkip = task.seriesId !== null && task.status === "open";
   const canPlan = showPlan && task.dueDate === null && task.status === "open";
 
@@ -125,26 +134,21 @@ export default function TaskCard({
         className="min-w-0 flex-1 cursor-pointer text-left outline-none!"
       >
         <span
-          className={`flex min-w-0 items-center gap-1.5 text-sm font-medium ${
-            done || skipped ? "text-base-content/50 line-through" : ""
+          className={`block truncate text-body font-medium ${
+            done || skipped ? "text-base-content/50 line-through decoration-base-content/30" : ""
           }`}
         >
-          <span className="min-w-0 flex-1 truncate">{task.title}</span>
+          {task.title}
         </span>
-        {task.dueDate && (
-          <span
-            className={`mt-1 block font-mono text-xs ${
-              overdue ? "text-error" : "text-base-content/50"
-            }`}
-          >
-            {formatDueDate(task.dueDate, task.allDay)}
-            {overdue ? " · overdue" : ""}
-            {skipped ? " · skipped" : ""}
-          </span>
-        )}
-        {!task.dueDate && showAge && (
-          <span className="mt-1 block font-mono text-xs text-base-content/40">
-            added {formatTaskAge(task.createdAt)}
+        {(meta || showAge || task.seriesId) && (
+          <span className="mt-1 flex items-center gap-1.5 font-mono text-meta">
+            {meta && <span className={META_TONE[meta.tone]}>{meta.text}</span>}
+            {!meta && showAge && (
+              <span className="text-base-content/50">added {formatTaskAge(task.createdAt)}</span>
+            )}
+            {task.seriesId && (
+              <Repeat size={12} aria-label="Recurring" className="text-base-content/40" />
+            )}
           </span>
         )}
         <SubtaskProgressBar subtasks={task.subtasks} />
