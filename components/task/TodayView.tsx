@@ -1,12 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
 import type { Task } from "@/lib/types";
+import { getTasks } from "@/lib/db/tasks";
+import { dayProgress } from "@/lib/utils/dayProgress";
 import { isTodayOrOverdue, isSameLocalDay } from "@/lib/utils/isDueToday";
 import TaskList from "@/components/task/TaskList";
 import WeekAheadStrip from "@/components/task/WeekAheadStrip";
 import TaskQuickAdd from "@/components/task/TaskQuickAdd";
 import StreakBadge from "@/components/stats/StreakBadge";
+import PageHeader from "@/components/layout/PageHeader";
+import DayProgress from "@/components/task/DayProgress";
 import { APP_LOCALE } from "@/lib/constants/locale";
 
 function scopeToTodayOrOverdue(tasks: Task[]): Task[] {
@@ -24,12 +29,15 @@ function scopeToTodayOrOverdue(tasks: Task[]): Task[] {
  * today's own view, just narrowed to that exact date — with a "Back to
  * Today" control to return to the default (#130).
  *
- * A slim header shows the date and the streak badge (#219), which links
- * to /stats. A quick-add bar sits above the cards (#205). Text without a date is due
+ * The header (#233) is editorial: an eyebrow with the date, the weekday
+ * as a display title, today's progress (dayProgress) and the streak
+ * badge (#219), which links to /stats. A quick-add bar sits above the cards (#205). Text without a date is due
  * today — or on the day drilled into, since that is the day being looked at.
  */
 export default function TodayView() {
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+  const tasks = useLiveQuery(() => getTasks(), []);
+  const now = new Date();
 
   const baseFilter = selectedDay
     ? (tasks: Task[]) =>
@@ -46,21 +54,29 @@ export default function TodayView() {
 
   return (
     <div className="flex flex-col">
-      <header className="flex items-center justify-between gap-3 px-6 pt-5 pb-1">
-        <div>
-          <h1 className="text-lg font-semibold">Today</h1>
-          {/* The server renders in UTC; near midnight the browser's local date can
-              differ, so React is told this text may change on hydration. */}
-          <p className="text-xs text-base-content/50" suppressHydrationWarning>
-            {new Date().toLocaleDateString(APP_LOCALE, {
-              weekday: "long",
+      {/* The server renders in UTC; near midnight the browser's local date can
+          differ, so React is told the date text may change on hydration. */}
+      <PageHeader
+        className="mx-auto w-full max-w-3xl px-6 pt-8"
+        eyebrow={
+          <span suppressHydrationWarning>
+            <span className="text-accent">Today</span> ·{" "}
+            {now.toLocaleDateString(APP_LOCALE, {
               day: "numeric",
-              month: "long",
+              month: "short",
+              year: "numeric",
             })}
-          </p>
-        </div>
-        <StreakBadge />
-      </header>
+          </span>
+        }
+        title={
+          <span suppressHydrationWarning>
+            {now.toLocaleDateString(APP_LOCALE, { weekday: "long" })}.
+          </span>
+        }
+        titleSize="display"
+        meta={!selectedDay && tasks ? <DayProgress {...dayProgress(tasks, now)} /> : undefined}
+        actions={<StreakBadge />}
+      />
       {selectedDay && (
         <div className="flex items-center justify-between border-b border-line px-6 py-3">
           <p className="text-sm text-base-content/70">
