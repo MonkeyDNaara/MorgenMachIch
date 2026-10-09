@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, Repeat, SlidersHorizontal } from "lucide-react";
 import type { Task } from "@/lib/types";
 import { getTasks } from "@/lib/db/tasks";
 import { listTaskSeries } from "@/lib/db/taskSeries";
@@ -149,12 +149,24 @@ export default function CalendarView() {
         <TaskList
           baseFilter={(allTasks) => applyFilters(scopeToSelectedDay(selectedDay)(allTasks))}
           hideLabelAndPriorityFilters
-          emptyMessage={
+          empty={
             dayGhosts.length > 0
-              ? `No tasks generated for ${label} yet.`
+              ? {
+                  icon: Repeat,
+                  title: `No tasks generated for ${label} yet.`,
+                  hint: "The projected occurrences below appear as tasks closer to the day.",
+                }
               : filtersActive
-                ? `No matching tasks for ${label}.`
-                : `Nothing due ${label}.`
+                ? {
+                    icon: SlidersHorizontal,
+                    title: `No matching tasks for ${label}.`,
+                    hint: "Change or clear the filters to see more.",
+                  }
+                : {
+                    icon: CalendarDays,
+                    title: `Nothing due ${label}.`,
+                    hint: "A free day — add a task with the + button.",
+                  }
           }
         />
         <ProjectedOccurrenceList ghosts={dayGhosts} />
