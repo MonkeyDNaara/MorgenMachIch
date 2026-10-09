@@ -11,6 +11,8 @@ import LabelChip from "@/components/label/LabelChip";
 import SubtaskProgressBar from "@/components/task/SubtaskProgressBar";
 import { PRIORITY_DOT_COLORS } from "@/lib/constants/priorityColors";
 import PlanForMenu from "@/components/task/PlanForMenu";
+import SnoozeButton from "@/components/task/SnoozeButton";
+import { isDueToday } from "@/lib/utils/isDueToday";
 
 type TaskCardProps = {
   task: Task;
@@ -79,6 +81,14 @@ export default function TaskCard({
   const meta = dueMeta(task, new Date());
   const canSkip = task.seriesId !== null && task.status === "open";
   const canPlan = showPlan && task.dueDate === null && task.status === "open";
+  // "→ Morgen" (#239): open, non-recurring tasks due today or overdue.
+  // Recurring occurrences keep Skip — a snoozed occurrence would collide
+  // with the next generated date.
+  const canSnooze =
+    task.status === "open" &&
+    task.seriesId === null &&
+    task.dueDate !== null &&
+    (overdue || isDueToday(task.dueDate));
 
   const taskLabels = labels.filter((label) => task.labelIds.includes(label.id));
   const visibleLabels = taskLabels.slice(0, MAX_VISIBLE_LABELS);
@@ -101,7 +111,7 @@ export default function TaskCard({
 
   return (
     <div
-      className={`flex w-full flex-wrap items-center gap-3 rounded-box border p-3 transition-colors focus-within:shadow-focus! ${
+      className={`group flex w-full flex-wrap items-center gap-3 rounded-box border p-3 transition-colors focus-within:shadow-focus! ${
         done || skipped
           ? "border-line bg-transparent"
           : `surface-raised ${overdue ? "border-error/50" : "border-transparent"}`
@@ -153,7 +163,7 @@ export default function TaskCard({
         )}
         <SubtaskProgressBar subtasks={task.subtasks} />
       </button>
-      {(taskLabels.length > 0 || canSkip || canPlan) && (
+      {(taskLabels.length > 0 || canSkip || canPlan || canSnooze) && (
         <div className="ml-auto flex flex-shrink-0 items-center gap-1.5">
           {visibleLabels.map((label) => (
             <LabelChip key={label.id} name={label.name} color={label.color} size="sm" />
@@ -175,6 +185,7 @@ export default function TaskCard({
             </button>
           )}
           {canPlan && <PlanForMenu task={task} />}
+          {canSnooze && <SnoozeButton task={task} alwaysVisible={overdue} />}
         </div>
       )}
     </div>

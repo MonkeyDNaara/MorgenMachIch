@@ -41,11 +41,11 @@ function matchItem(item: PaletteItem, query: string): FuzzyMatch | null {
  * sync, the backdrop click and the upper-third placement are ours.
  *
  * The body is mounted only while open, so the query and selection reset
- * on every opening without any cleanup code. The confirmation notice
- * (#197) lives outside the dialog because it is shown after it closes.
+ * on every opening without any cleanup code. Confirmations after a
+ * command (#197) go through the app-wide ToastProvider (#239).
  */
 export default function CommandPalette() {
-  const { isOpen, closePalette, notice } = useCommandPalette();
+  const { isOpen, closePalette } = useCommandPalette();
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -70,16 +70,6 @@ export default function CommandPalette() {
       >
         {isOpen && <PaletteBody onClose={closePalette} />}
       </dialog>
-      <div
-        role="status"
-        className="pointer-events-none fixed inset-x-0 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-50 md:bottom-6 flex justify-center px-4"
-      >
-        {notice && (
-          <p className="rounded-full border border-line-strong bg-base-300 px-4 py-2 text-sm shadow-overlay">
-            {notice}
-          </p>
-        )}
-      </div>
     </>
   );
 }
