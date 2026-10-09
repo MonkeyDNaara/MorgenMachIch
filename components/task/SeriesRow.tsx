@@ -5,7 +5,7 @@ import type { Label, TaskSeries } from "@/lib/types";
 import { updateTaskSeries } from "@/lib/db/taskSeries";
 import { formatRecurrenceRule } from "@/lib/utils/formatRecurrenceRule";
 import LabelChip from "@/components/label/LabelChip";
-import PriorityDot from "@/components/task/PriorityDot";
+import { PRIORITY_DOT_COLORS } from "@/lib/constants/priorityColors";
 import { useSeriesDrawer } from "@/components/task/SeriesDrawerProvider";
 
 type SeriesRowProps = {
@@ -25,6 +25,8 @@ const MAX_VISIBLE_LABELS = 2;
 export default function SeriesRow({ series, labels }: SeriesRowProps) {
   const { openSeriesDrawer } = useSeriesDrawer();
   const paused = !series.active;
+  // Same priority ring as the task card's status circle (#237); none or paused stays neutral.
+  const ringColor = paused ? null : PRIORITY_DOT_COLORS[series.priority];
   const seriesLabels = labels.filter((label) => series.labelIds.includes(label.id));
   const visibleLabels = seriesLabels.slice(0, MAX_VISIBLE_LABELS);
   const overflowCount = seriesLabels.length - visibleLabels.length;
@@ -35,21 +37,28 @@ export default function SeriesRow({ series, labels }: SeriesRowProps) {
 
   return (
     <div
-      className={`flex w-full flex-wrap items-center gap-3 surface-raised border border-transparent p-3 transition-colors ${
-        paused ? "opacity-60" : ""
+      className={`flex w-full flex-wrap items-center gap-3 rounded-box border p-3 transition-colors ${
+        paused ? "border-line bg-transparent" : "surface-raised border-transparent"
       }`}
     >
-      <Repeat size={16} className="flex-shrink-0 text-base-content/40" />
+      <span
+        aria-hidden
+        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-base-content/30 surface-sunken text-base-content/50"
+        style={ringColor ? { borderColor: ringColor } : undefined}
+      >
+        <Repeat size={12} />
+      </span>
       <button
         type="button"
         onClick={() => openSeriesDrawer(series.id)}
         className="min-w-0 flex-1 cursor-pointer text-left outline-none!"
       >
-        <span className="flex min-w-0 items-center gap-1.5 text-sm font-medium">
-          <PriorityDot priority={series.priority} className="flex-shrink-0" />
-          <span className="min-w-0 flex-1 truncate">{series.title}</span>
+        <span
+          className={`block truncate text-body font-medium ${paused ? "text-base-content/50" : ""}`}
+        >
+          {series.title}
         </span>
-        <span className="mt-1 block font-mono text-xs text-base-content/50">
+        <span className="mt-1 block font-mono text-meta text-base-content/50">
           {formatRecurrenceRule(series.recurrence)}
           {paused ? " · paused" : ""}
         </span>
