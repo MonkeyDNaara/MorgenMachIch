@@ -120,6 +120,26 @@ export function dailySeries(byDay: Map<string, number>, now: Date, days: number)
   return series;
 }
 
+/**
+ * Completions per week for the last `weeks` weeks, oldest first, ending
+ * with the current week. Each entry's `date`/`key` is that week's Monday.
+ * Used for the bar chart's "All" view (#217), where daily bars would be
+ * too thin to read.
+ */
+export function weeklySeries(byDay: Map<string, number>, now: Date, weeks: number): DayCount[] {
+  const thisMonday = startOfLocalWeek(now);
+  const series: DayCount[] = [];
+  for (let offset = weeks - 1; offset >= 0; offset--) {
+    const monday = addLocalDays(thisMonday, -7 * offset);
+    let count = 0;
+    for (let day = 0; day < 7; day++) {
+      count += byDay.get(toLocalDateKey(addLocalDays(monday, day))) ?? 0;
+    }
+    series.push({ key: toLocalDateKey(monday), date: monday, count });
+  }
+  return series;
+}
+
 export type HeatmapCell = DayCount & {
   /** 0 = nothing, 1–4 = quarters of the busiest day in the grid. */
   level: 0 | 1 | 2 | 3 | 4;

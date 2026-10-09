@@ -1,22 +1,34 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { getTasks } from "@/lib/db/tasks";
-import { completionsByDay, periodTotals, streakSummary, yearHeatmap } from "@/lib/utils/stats";
+import {
+  completionsByDay,
+  dailySeries,
+  periodTotals,
+  streakSummary,
+  weeklySeries,
+  yearHeatmap,
+  type StatsPeriod,
+} from "@/lib/utils/stats";
 import StreakHero from "@/components/stats/StreakHero";
 import StatCard from "@/components/stats/StatCard";
 import YearHeatmap from "@/components/stats/YearHeatmap";
+import PeriodSelect from "@/components/stats/PeriodSelect";
+import CompletionBarChart from "@/components/stats/CompletionBarChart";
 
 /**
  * /stats (#215): streak hero + best streak / this week / this month, then
- * the year heatmap (#216). The bar chart (#217) and the label breakdown
- * (#218) are added below in their own issues. Reads tasks through a live query, so
+ * the year heatmap (#216) and the completions bar chart with its period
+ * switch (#217). The label breakdown (#218) joins the bar chart next. Reads tasks through a live query, so
  * completing a task anywhere updates the numbers right away.
  */
 export default function StatsView() {
   const tasks = useLiveQuery(() => getTasks(), []);
   const byDay = useMemo(() => completionsByDay(tasks ?? []), [tasks]);
+  // Shared by the bar chart and (#218) the label breakdown.
+  const [period, setPeriod] = useState<StatsPeriod>("7d");
 
   if (tasks === undefined) {
     return <p className="p-8 text-center text-base-content/40">Loading…</p>;
@@ -26,6 +38,13 @@ export default function StatsView() {
   const streak = streakSummary(byDay, now);
   const totals = periodTotals(byDay, now);
   const heatmap = yearHeatmap(byDay, now);
+  // "All" is shown per week over the last year; daily bars would be too thin.
+  const unit = period === "all" ? "week" : "day";
+  const series =
+    period === "all"
+      ? weeklySeries(byDay, now, 52)
+      : dailySeries(byDay, now, period === "7d" ? 7 : 30);
+  const seriesTotal = series.reduce((sum, entry) => sum + entry.count, 0);
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 p-6">
@@ -55,6 +74,18 @@ export default function StatsView() {
           </span>
         </h2>
         <YearHeatmap heatmap={heatmap} />
+      </section>
+
+      <section className="rounded-box bg-base-200 p-4 shadow-lg shadow-black/20">
+        <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-sm font-semibold">Completed per {unit}</h2>
+          <PeriodSelect value={period} onChange={setPeriod} />
+        </div>
+        <p className="mb-3 text-xs text-base-content/40">
+          {seriesTotal} completed · {(seriesTotal / series.length).toFixed(1)} per {unit}
+          {period === "all" && " · last 12 months"}
+        </p>
+        <CompletionBarChart key={period} series={series} unit={unit} />
       </section>
 
       <p className="text-center text-xs text-base-content/35">
