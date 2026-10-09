@@ -25,6 +25,7 @@ import YearHeatmap from "@/components/stats/YearHeatmap";
 import PeriodSelect from "@/components/stats/PeriodSelect";
 import CompletionBarChart from "@/components/stats/CompletionBarChart";
 import LabelBreakdown from "@/components/stats/LabelBreakdown";
+import PageHeader from "@/components/layout/PageHeader";
 import OnTimeRate from "@/components/stats/OnTimeRate";
 
 const PERIOD_CAPTIONS = { "7d": "last 7 days", "30d": "last 30 days", all: "all time" } as const;
@@ -69,30 +70,33 @@ export default function StatsView() {
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 p-6">
-      <header>
-        <h1 className="text-lg font-semibold">Stats</h1>
-        <p className="text-xs text-base-content/50">
-          {statsSince ? (
-            <>
-              Counting since{" "}
-              {new Date(statsSince).toLocaleDateString(APP_LOCALE, {
-                day: "numeric",
-                month: "short",
-              })}{" "}
-              ·{" "}
-              <button
-                type="button"
-                onClick={() => void updateSettings({ statsSince: null })}
-                className="cursor-pointer text-accent hover:underline"
-              >
-                Count all history
-              </button>
-            </>
-          ) : (
-            "Built from the tasks you've completed."
-          )}
-        </p>
-      </header>
+      <PageHeader
+        className="pt-2 pb-2"
+        title="Stats"
+        meta={
+          <>
+            {statsSince ? (
+              <>
+                Counting since{" "}
+                {new Date(statsSince).toLocaleDateString(APP_LOCALE, {
+                  day: "numeric",
+                  month: "short",
+                })}{" "}
+                ·{" "}
+                <button
+                  type="button"
+                  onClick={() => void updateSettings({ statsSince: null })}
+                  className="cursor-pointer text-accent hover:underline"
+                >
+                  Count all history
+                </button>
+              </>
+            ) : (
+              "Built from the tasks you've completed."
+            )}
+          </>
+        }
+      />
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
         <StreakHero streak={streak} byDay={byDay} todayCount={totals.today} now={now} />

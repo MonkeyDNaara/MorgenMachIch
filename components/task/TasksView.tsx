@@ -24,6 +24,7 @@ import LabelFilterBar from "@/components/task/LabelFilterBar";
 import TaskCardList from "@/components/task/TaskCardList";
 import TaskQuickAdd, { type QuickAddVisibility } from "@/components/task/TaskQuickAdd";
 import SeriesRow from "@/components/task/SeriesRow";
+import PageHeader from "@/components/layout/PageHeader";
 
 function excludeSeriesOccurrences(tasks: Task[]): Task[] {
   return tasks.filter((task) => task.seriesId === null);
@@ -110,12 +111,25 @@ export default function TasksView() {
     return filterTasksByStatus(narrowed, status).length === 0 ? "filtered" : "visible";
   }
 
+  const openCount = datedTasks.filter((task) => task.status === "open").length;
+
   const visibleSeries = [
     ...filterSeriesByLabels(filterSeriesByPriority(series, priority), activeLabelIds),
   ].sort((a, b) => Number(b.active) - Number(a.active));
 
   return (
     <div className="flex flex-col">
+      <PageHeader
+        className={`mx-auto w-full px-6 pt-8 pb-6 ${
+          backlogVisible ? "max-w-5xl lg:max-w-7xl" : "max-w-5xl"
+        }`}
+        title="Tasks"
+        meta={
+          <span className="font-mono text-meta">
+            {openCount} open · {backlogTasks.length} in backlog · {series.length} recurring
+          </span>
+        }
+      />
       <TaskListToolbar
         status={status}
         onStatusChange={setStatus}

@@ -8,6 +8,7 @@ import { DEFAULT_LABEL_COLOR, type LabelColorHex } from "@/lib/constants/labelCo
 import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
 import type { Label } from "@/lib/types";
 import LabelChip from "@/components/label/LabelChip";
+import PageHeader from "@/components/layout/PageHeader";
 import ColorSwatchPicker from "@/components/label/ColorSwatchPicker";
 
 type FormMode = { kind: "none" } | { kind: "create" } | { kind: "edit"; label: Label };
@@ -106,15 +107,25 @@ export default function LabelsView() {
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">Labels</h1>
-        {form.kind === "none" && (
-          <button type="button" onClick={openCreate} className="btn btn-primary btn-sm gap-1">
-            <Plus size={14} />
-            New label
-          </button>
-        )}
-      </div>
+      <PageHeader
+        className="pt-2 pb-2"
+        title="Labels"
+        meta={
+          labels && (
+            <span className="font-mono text-meta">
+              {labels.length} {labels.length === 1 ? "label" : "labels"}
+            </span>
+          )
+        }
+        actions={
+          form.kind === "none" && (
+            <button type="button" onClick={openCreate} className="btn btn-primary btn-sm gap-1">
+              <Plus size={14} />
+              New label
+            </button>
+          )
+        }
+      />
 
       {form.kind === "create" && (
         <LabelForm

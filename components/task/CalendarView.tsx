@@ -19,6 +19,7 @@ import CalendarDayCell from "@/components/task/CalendarDayCell";
 import ProjectedOccurrenceList from "@/components/task/ProjectedOccurrenceList";
 import PriorityFilterSelect from "@/components/task/PriorityFilterSelect";
 import LabelFilterBar from "@/components/task/LabelFilterBar";
+import PageHeader from "@/components/layout/PageHeader";
 import { APP_LOCALE } from "@/lib/constants/locale";
 
 const WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -127,17 +128,21 @@ export default function CalendarView() {
 
     return (
       <div className="flex flex-col">
+        <PageHeader
+          className="px-6 pt-8 pb-6"
+          eyebrow="Calendar"
+          title={label}
+          actions={
+            <button
+              type="button"
+              onClick={() => setSelectedDay(null)}
+              className="btn btn-ghost btn-xs cursor-pointer text-base-content/60"
+            >
+              Back to month
+            </button>
+          }
+        />
         {filterBar}
-        <div className="flex items-center justify-between border-b border-line px-6 py-3">
-          <p className="text-sm text-base-content/70">Showing {label}</p>
-          <button
-            type="button"
-            onClick={() => setSelectedDay(null)}
-            className="btn btn-ghost btn-xs cursor-pointer text-base-content/60"
-          >
-            Back to month
-          </button>
-        </div>
         <TaskList
           baseFilter={(allTasks) => applyFilters(scopeToSelectedDay(selectedDay)(allTasks))}
           hideLabelAndPriorityFilters
@@ -174,10 +179,11 @@ export default function CalendarView() {
 
   return (
     <div className="flex flex-col">
-      {filterBar}
-      <div className="flex flex-col gap-4 p-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-lg font-semibold">{monthLabel}</h1>
+      <PageHeader
+        className="px-6 pt-8 pb-6"
+        eyebrow="Calendar"
+        title={monthLabel}
+        actions={
           <div className="flex items-center gap-1">
             <button
               type="button"
@@ -203,7 +209,10 @@ export default function CalendarView() {
               <ChevronRight size={16} />
             </button>
           </div>
-        </div>
+        }
+      />
+      {filterBar}
+      <div className="flex flex-col gap-4 p-6">
         <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-base-content/40">
           {WEEKDAY_LABELS.map((label) => (
             <span key={label}>{label}</span>
