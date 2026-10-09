@@ -16,6 +16,7 @@ import { getLabels } from "@/lib/db/labels";
 import { buildDueDateIso, splitDueDateIso } from "@/lib/utils/dueDate";
 import { computeMonthlyDefaults } from "@/lib/utils/recurrence";
 import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
+import { FIELD_LABEL } from "@/lib/ui/fieldLabel";
 import type { Priority, RecurrenceRule, Subtask } from "@/lib/types";
 import LabelChip from "@/components/label/LabelChip";
 import SubtaskEditor from "@/components/task/SubtaskEditor";
@@ -184,16 +185,16 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
         role="dialog"
         aria-modal="true"
         aria-label="Edit series"
-        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col gap-6 border-l border-line bg-base-100 p-6 shadow-overlay"
+        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col gap-6 border-l border-line bg-base-200 p-6 shadow-overlay"
       >
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Edit Series</h2>
+          <h2 className="text-xl font-semibold tracking-tight">Edit Series</h2>
           <button
             type="button"
             onClick={onClose}
             disabled={busy}
             aria-label="Close"
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-base-300 text-base-content/60 transition-colors hover:text-base-content disabled:opacity-40"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl bg-base-300 text-base-content/60 shadow-raised-sm outline-none! transition-colors hover:text-base-content focus-visible:shadow-focus disabled:opacity-40"
           >
             <X size={16} />
           </button>
@@ -210,7 +211,7 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
         {loadState === "ready" && (
           <div className="flex flex-1 flex-col gap-5 overflow-y-auto">
             <label className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-base-content/60">Title</span>
+              <span className={FIELD_LABEL}>Title</span>
               <input
                 type="text"
                 value={title}
@@ -221,12 +222,12 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
             </label>
 
             <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-base-content/60">Priority</span>
+              <span className={FIELD_LABEL}>Priority</span>
               <PrioritySelector value={priority} onChange={setPriority} />
             </div>
 
             <label className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-base-content/60">Notes</span>
+              <span className={FIELD_LABEL}>Notes</span>
               <textarea
                 value={notes}
                 onChange={(event) => setNotes(event.target.value)}
@@ -237,12 +238,12 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
             </label>
 
             <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-base-content/60">Subtasks</span>
+              <span className={FIELD_LABEL}>Subtasks</span>
               <SubtaskEditor subtasks={subtasks} onChange={setSubtasks} />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-base-content/60">Labels</span>
+              <span className={FIELD_LABEL}>Labels</span>
               {labels === undefined ? (
                 <p className="text-sm text-base-content/40">Loading…</p>
               ) : labels.length === 0 ? (
@@ -276,34 +277,36 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-base-content/60">Time</span>
-              <div className="flex flex-wrap items-center gap-3">
+              <span className={FIELD_LABEL}>Time</span>
+              <div className="flex flex-col gap-2">
                 <input
                   type="time"
                   value={dueTime}
                   onChange={(event) => setDueTime(event.target.value)}
                   disabled={allDay}
-                  className={`input disabled:opacity-40 ${FIELD_FOCUS}`}
+                  aria-label="Time of day"
+                  className={`input w-full disabled:opacity-40 ${FIELD_FOCUS}`}
                 />
-                <label className="ml-auto flex items-center gap-2 text-sm text-base-content/70">
+                <label className="flex w-full cursor-pointer items-center justify-between gap-2 text-sm text-base-content/70">
+                  All day
                   <input
                     type="checkbox"
+                    role="switch"
                     checked={allDay}
                     onChange={(event) => setAllDay(event.target.checked)}
-                    className="checkbox checkbox-sm"
+                    className="toggle toggle-sm toggle-accent"
                   />
-                  All day
                 </label>
               </div>
               <p className="text-xs text-base-content/40">Series started {anchorLabel} — the start date can&apos;t be changed.</p>
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-base-content/60">Repeat</span>
+              <span className={FIELD_LABEL}>Repeat</span>
               <RecurrenceRuleBuilder value={recurrence} onChange={handleRecurrenceChange} />
             </div>
 
-            <p className="rounded-lg bg-base-200 p-3 text-xs text-base-content/50">
+            <p className="rounded-lg surface-sunken p-3 text-xs text-base-content/50">
               Saving updates every upcoming open occurrence of this series. Completed and skipped ones stay as they
               are.
             </p>
@@ -312,7 +315,7 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
 
         <div className="flex flex-col gap-2 border-t border-line pt-4">
           {deleteCounts !== null && (
-            <div className="flex flex-col gap-2 rounded-lg bg-base-200 p-3">
+            <div className="flex flex-col gap-2 rounded-lg bg-base-300 p-3 shadow-raised-sm">
               <p className="text-xs text-base-content/60">Delete this series?</p>
               <button
                 type="button"

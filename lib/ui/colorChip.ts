@@ -8,7 +8,7 @@ import type { CSSProperties } from "react";
  * inline styles instead of Tailwind classes. `color-mix` makes the
  * tint work for both hex and CSS variables (#231).
  *
- * Extracted out of LabelChip (#138) so PriorityChip reuses the exact
+ * Extracted out of LabelChip (#138) so other chips reuse the exact
  * same tint math instead of duplicating it.
  */
 export function tintChipStyle(color: string): CSSProperties {

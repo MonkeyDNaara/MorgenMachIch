@@ -11,6 +11,7 @@ import { getLabels } from "@/lib/db/labels";
 import { buildDueDateIso, splitDueDateIso } from "@/lib/utils/dueDate";
 import { computeMonthlyDefaults } from "@/lib/utils/recurrence";
 import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
+import { FIELD_LABEL } from "@/lib/ui/fieldLabel";
 import type { Label, Priority, RecurrenceRule, Subtask } from "@/lib/types";
 import type { QuickAddResult } from "@/lib/utils/parseQuickAdd";
 import LabelChip from "@/components/label/LabelChip";
@@ -239,16 +240,16 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
         role="dialog"
         aria-modal="true"
         aria-label={isEditing ? "Edit task" : "New task"}
-        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col gap-6 border-l border-line bg-base-100 p-6 shadow-overlay"
+        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col gap-6 border-l border-line bg-base-200 p-6 shadow-overlay"
       >
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">{isEditing ? "Edit Task" : "New Task"}</h2>
+          <h2 className="text-xl font-semibold tracking-tight">{isEditing ? "Edit Task" : "New Task"}</h2>
           <button
             type="button"
             onClick={onClose}
             disabled={busy}
             aria-label="Close"
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-base-300 text-base-content/60 transition-colors hover:text-base-content disabled:opacity-40"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl bg-base-300 text-base-content/60 shadow-raised-sm outline-none! transition-colors hover:text-base-content focus-visible:shadow-focus disabled:opacity-40"
           >
             <X size={16} />
           </button>
@@ -267,7 +268,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
         {loadState === "ready" && (
           <div className="flex flex-1 flex-col gap-5 overflow-y-auto">
             <div className="flex flex-col gap-1.5">
-              <label htmlFor={titleId} className="text-xs font-medium text-base-content/60">
+              <label htmlFor={titleId} className={FIELD_LABEL}>
                 Title
               </label>
               {isEditing ? (
@@ -293,12 +294,12 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-base-content/60">Priority</span>
+              <span className={FIELD_LABEL}>Priority</span>
               <PrioritySelector value={priority} onChange={setPriority} />
             </div>
 
             <label className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-base-content/60">Notes</span>
+              <span className={FIELD_LABEL}>Notes</span>
               <textarea
                 value={notes}
                 onChange={(event) => setNotes(event.target.value)}
@@ -309,12 +310,12 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
             </label>
 
             <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-base-content/60">Subtasks</span>
+              <span className={FIELD_LABEL}>Subtasks</span>
               <SubtaskEditor subtasks={subtasks} onChange={setSubtasks} />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-base-content/60">Labels</span>
+              <span className={FIELD_LABEL}>Labels</span>
               {labels === undefined ? (
                 <p className="text-sm text-base-content/40">Loading…</p>
               ) : labels.length === 0 ? (
@@ -347,30 +348,33 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
               )}
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-base-content/60">Due date</span>
-              <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-col gap-2">
+              <span className={FIELD_LABEL}>Due date</span>
+              <div className="grid grid-cols-2 gap-3">
                 <input
                   type="date"
                   value={dueDate}
                   onChange={(event) => setDueDate(event.target.value)}
-                  className={`input ${FIELD_FOCUS}`}
+                  aria-label="Due date"
+                  className={`input w-full ${FIELD_FOCUS}`}
                 />
                 <input
                   type="time"
                   value={dueTime}
                   onChange={(event) => setDueTime(event.target.value)}
                   disabled={allDay}
-                  className={`input disabled:opacity-40 ${FIELD_FOCUS}`}
+                  aria-label="Due time"
+                  className={`input w-full disabled:opacity-40 ${FIELD_FOCUS}`}
                 />
-                <label className="ml-auto flex items-center gap-2 text-sm text-base-content/70">
+                <label className="col-span-2 flex w-full cursor-pointer items-center justify-between gap-2 text-sm text-base-content/70">
+                  All day
                   <input
                     type="checkbox"
+                    role="switch"
                     checked={allDay}
                     onChange={(event) => setAllDay(event.target.checked)}
-                    className="checkbox checkbox-sm"
+                    className="toggle toggle-sm toggle-accent"
                   />
-                  All day
                 </label>
               </div>
             </div>
@@ -381,17 +385,16 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
                 separate concern for a later issue (#63/#148). */}
             {!isEditing && (
               <div className="flex flex-col gap-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-base-content/60">Repeat</span>
-                  <label className="flex items-center gap-2 text-sm text-base-content/70">
-                    <input
-                      type="checkbox"
-                      checked={repeatEnabled}
-                      onChange={(event) => handleRepeatToggle(event.target.checked)}
-                      className="checkbox checkbox-sm"
-                    />
-                  </label>
-                </div>
+                <label className="flex cursor-pointer items-center justify-between">
+                  <span className={FIELD_LABEL}>Repeat</span>
+                  <input
+                    type="checkbox"
+                    role="switch"
+                    checked={repeatEnabled}
+                    onChange={(event) => handleRepeatToggle(event.target.checked)}
+                    className="toggle toggle-sm toggle-accent"
+                  />
+                </label>
                 {repeatEnabled &&
                   (dueDate ? (
                     <RecurrenceRuleBuilder value={recurrence} onChange={handleRecurrenceChange} />
