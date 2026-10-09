@@ -6,6 +6,7 @@ import {
   Sun,
   Tag,
   Terminal,
+  TrendingUp,
   type LucideIcon,
 } from "lucide-react";
 
@@ -16,6 +17,7 @@ const COMMAND_ICONS: Record<string, LucideIcon> = {
   "go-tasks": LayoutList,
   "go-calendar": Calendar,
   "go-labels": Tag,
+  "go-stats": TrendingUp,
   "go-settings": Settings,
   "new-task": Plus,
 };

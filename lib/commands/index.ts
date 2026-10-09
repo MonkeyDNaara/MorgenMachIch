@@ -24,6 +24,7 @@ export const COMMANDS: readonly Command[] = [
   goTo("go-tasks", "Tasks", "/tasks", ["list", "all", "backlog", "recurring", "series"]),
   goTo("go-calendar", "Calendar", "/calendar", ["month", "schedule", "dates", "plan"]),
   goTo("go-labels", "Labels", "/labels", ["tags", "categories"]),
+  goTo("go-stats", "Stats", "/stats", ["streak", "statistics", "progress", "heatmap"]),
   goTo("go-settings", "Settings", "/settings", [
     "backup",
     "export",
