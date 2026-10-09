@@ -108,6 +108,20 @@ export const LabelSchema = z.object({
 export type Label = z.infer<typeof LabelSchema>;
 
 /**
+ * App-wide settings, stored as a single row with the fixed id "app" (#226).
+ * `statsSince` is the stats start date ("reset stats"): an ISO datetime at
+ * local midnight, or null to count all history. Kept in the database (not
+ * localStorage) so it travels with backups and a future hosted database.
+ */
+export const AppSettingsSchema = z.object({
+  id: z.literal("app"),
+  statsSince: z.string().nullable(),
+});
+export type AppSettings = z.infer<typeof AppSettingsSchema>;
+
+export const DEFAULT_APP_SETTINGS: AppSettings = { id: "app", statsSince: null };
+
+/**
  * Input schemas/types for creating new records — omit fields the
  * repository layer generates itself (id, timestamps, derived state).
  */

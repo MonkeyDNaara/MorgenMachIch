@@ -1,17 +1,29 @@
-import { LabelSchema, TaskSchema, TaskSeriesSchema, type Label, type Task, type TaskSeries } from "@/lib/types";
+import {
+  AppSettingsSchema,
+  DEFAULT_APP_SETTINGS,
+  LabelSchema,
+  TaskSchema,
+  TaskSeriesSchema,
+  type AppSettings,
+  type Label,
+  type Task,
+  type TaskSeries,
+} from "@/lib/types";
 
 /** Identifies a file as one of this app's backups, so importing (#162)
  * can reject an unrelated JSON file with a clear message. */
 export const BACKUP_APP_NAME = "morgenmachich";
 
 /** Bump when the backup shape changes in a way old files can't satisfy,
- * and teach the importer to migrate (or reject) the older versions. */
-export const BACKUP_VERSION = 1;
+ * and teach the importer to migrate (or reject) the older versions.
+ * v2 (#226) adds `settings`; v1 files import with default settings. */
+export const BACKUP_VERSION = 2;
 
 export type BackupData = {
   tasks: Task[];
   taskSeries: TaskSeries[];
   labels: Label[];
+  settings: AppSettings;
 };
 
 export type BackupFile = {
@@ -149,6 +161,15 @@ export function parseBackup(text: string): BackupParseResult {
   }
 
   const errors: string[] = [];
+
+  // v1 backups predate settings (#226): restore them with the defaults.
+  let settings: AppSettings = DEFAULT_APP_SETTINGS;
+  if (version >= 2) {
+    const result = AppSettingsSchema.safeParse(data.settings);
+    if (result.success) settings = result.data;
+    else errors.push("The backup's settings are missing or invalid.");
+  }
+
   const tasks = validateRows<Task>("Task", data.tasks, TaskSchema, errors);
   const taskSeries = validateRows<TaskSeries>("Series", data.taskSeries, TaskSeriesSchema, errors);
   const labels = validateRows<Label>("Label", data.labels, LabelSchema, errors);
@@ -178,6 +199,11 @@ export function parseBackup(text: string): BackupParseResult {
 
   return {
     ok: true,
-    backup: { app: BACKUP_APP_NAME, version, exportedAt, data: { tasks, taskSeries, labels } },
+    backup: {
+      app: BACKUP_APP_NAME,
+      version,
+      exportedAt,
+      data: { tasks, taskSeries, labels, settings },
+    },
   };
 }

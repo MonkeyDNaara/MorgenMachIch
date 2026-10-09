@@ -4,7 +4,10 @@ import { useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { getTasks } from "@/lib/db/tasks";
 import { getLabels } from "@/lib/db/labels";
+import { getSettings, updateSettings } from "@/lib/db/settings";
+import { APP_LOCALE } from "@/lib/constants/locale";
 import {
+  applyStatsStart,
   completionsByDay,
   completionsByLabel,
   dailySeries,
@@ -36,11 +39,16 @@ const PERIOD_CAPTIONS = { "7d": "last 7 days", "30d": "last 30 days", all: "all 
 export default function StatsView() {
   const tasks = useLiveQuery(() => getTasks(), []);
   const labels = useLiveQuery(() => getLabels(), []);
-  const byDay = useMemo(() => completionsByDay(tasks ?? []), [tasks]);
+  const settings = useLiveQuery(() => getSettings(), []);
+  const statsSince = settings?.statsSince ?? null;
+  // The stats start date (#226) is applied once here; everything below
+  // works on the already-filtered list.
+  const counted = useMemo(() => applyStatsStart(tasks ?? [], statsSince), [tasks, statsSince]);
+  const byDay = useMemo(() => completionsByDay(counted), [counted]);
   // Shared by the bar chart and (#218) the label breakdown.
   const [period, setPeriod] = useState<StatsPeriod>("7d");
 
-  if (tasks === undefined) {
+  if (tasks === undefined || settings === undefined) {
     return <p className="p-8 text-center text-base-content/40">Loading…</p>;
   }
 
@@ -56,14 +64,34 @@ export default function StatsView() {
       : dailySeries(byDay, now, period === "7d" ? 7 : 30);
   const seriesTotal = series.reduce((sum, entry) => sum + entry.count, 0);
   const since = periodStart(period, now);
-  const byLabel = completionsByLabel(tasks, since);
-  const onTime = onTimeRate(tasks, since);
+  const byLabel = completionsByLabel(counted, since);
+  const onTime = onTimeRate(counted, since);
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 p-6">
       <header>
         <h1 className="text-lg font-semibold">Stats</h1>
-        <p className="text-xs text-base-content/50">Built from the tasks you&apos;ve completed.</p>
+        <p className="text-xs text-base-content/50">
+          {statsSince ? (
+            <>
+              Counting since{" "}
+              {new Date(statsSince).toLocaleDateString(APP_LOCALE, {
+                day: "numeric",
+                month: "short",
+              })}{" "}
+              ·{" "}
+              <button
+                type="button"
+                onClick={() => void updateSettings({ statsSince: null })}
+                className="cursor-pointer text-primary hover:underline"
+              >
+                Count all history
+              </button>
+            </>
+          ) : (
+            "Built from the tasks you've completed."
+          )}
+        </p>
       </header>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">

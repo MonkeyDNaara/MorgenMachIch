@@ -3,6 +3,7 @@ import { generateOccurrences } from "@/lib/db/occurrences";
 import { getLabels } from "@/lib/db/labels";
 import { listTaskSeries } from "@/lib/db/taskSeries";
 import { getTasks } from "@/lib/db/tasks";
+import { getSettings } from "@/lib/db/settings";
 import type { BackupData } from "@/lib/utils/backup";
 
 /**
@@ -12,9 +13,14 @@ import type { BackupData } from "@/lib/utils/backup";
  * tables are a consistent snapshot even if something writes mid-export.
  */
 export async function exportAll(): Promise<BackupData> {
-  return db.transaction("r", db.tasks, db.taskSeries, db.labels, async () => {
-    const [tasks, taskSeries, labels] = await Promise.all([getTasks(), listTaskSeries(), getLabels()]);
-    return { tasks, taskSeries, labels };
+  return db.transaction("r", db.tasks, db.taskSeries, db.labels, db.settings, async () => {
+    const [tasks, taskSeries, labels, settings] = await Promise.all([
+      getTasks(),
+      listTaskSeries(),
+      getLabels(),
+      getSettings(),
+    ]);
+    return { tasks, taskSeries, labels, settings };
   });
 }
 
@@ -36,8 +42,9 @@ export async function getDataCounts(): Promise<DataCounts> {
  * data is already restored, and the app tops up again on the next load.
  */
 export async function importAll(data: BackupData): Promise<void> {
-  await db.transaction("rw", db.tasks, db.taskSeries, db.labels, async () => {
-    await Promise.all([db.tasks.clear(), db.taskSeries.clear(), db.labels.clear()]);
+  await db.transaction("rw", db.tasks, db.taskSeries, db.labels, db.settings, async () => {
+    await Promise.all([db.tasks.clear(), db.taskSeries.clear(), db.labels.clear(), db.settings.clear()]);
+    await db.settings.put(data.settings);
     await db.labels.bulkAdd(data.labels);
     await db.taskSeries.bulkAdd(data.taskSeries);
     await db.tasks.bulkAdd(data.tasks);
@@ -51,12 +58,13 @@ export async function importAll(data: BackupData): Promise<void> {
 }
 
 /**
- * Wipes every task, series and label (#163). One transaction, so a
+ * Wipes every task, series and label (#163), and since #226 the settings
+ * (so a stats start date doesn't outlive the data it applied to). One transaction, so a
  * failure leaves everything as it was. Irreversible — the UI puts it
  * behind an explicit confirm and nudges the user to export first.
  */
 export async function deleteAllData(): Promise<void> {
-  await db.transaction("rw", db.tasks, db.taskSeries, db.labels, async () => {
-    await Promise.all([db.tasks.clear(), db.taskSeries.clear(), db.labels.clear()]);
+  await db.transaction("rw", db.tasks, db.taskSeries, db.labels, db.settings, async () => {
+    await Promise.all([db.tasks.clear(), db.taskSeries.clear(), db.labels.clear(), db.settings.clear()]);
   });
 }
