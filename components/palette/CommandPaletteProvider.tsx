@@ -6,7 +6,6 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -15,12 +14,7 @@ type CommandPaletteContextValue = {
   isOpen: boolean;
   openPalette: () => void;
   closePalette: () => void;
-  /** Short confirmation shown after the palette closes (#197), or null. */
-  notice: string | null;
-  notify: (message: string) => void;
 };
-
-const NOTICE_MS = 3000;
 
 const CommandPaletteContext = createContext<CommandPaletteContextValue | null>(null);
 
@@ -38,20 +32,6 @@ export function CommandPaletteProvider({ children }: { children: ReactNode }) {
   const openPalette = useCallback(() => setIsOpen(true), []);
   const closePalette = useCallback(() => setIsOpen(false), []);
 
-  const [notice, setNotice] = useState<string | null>(null);
-  const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const notify = useCallback((message: string) => {
-    if (noticeTimer.current) clearTimeout(noticeTimer.current);
-    setNotice(message);
-    noticeTimer.current = setTimeout(() => setNotice(null), NOTICE_MS);
-  }, []);
-  useEffect(
-    () => () => {
-      if (noticeTimer.current) clearTimeout(noticeTimer.current);
-    },
-    [],
-  );
-
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if ((event.metaKey || event.ctrlKey) && !event.altKey && event.key.toLowerCase() === "k") {
@@ -64,8 +44,8 @@ export function CommandPaletteProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ isOpen, openPalette, closePalette, notice, notify }),
-    [isOpen, openPalette, closePalette, notice, notify],
+    () => ({ isOpen, openPalette, closePalette }),
+    [isOpen, openPalette, closePalette],
   );
 
   return <CommandPaletteContext.Provider value={value}>{children}</CommandPaletteContext.Provider>;

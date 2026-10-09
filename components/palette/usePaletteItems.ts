@@ -12,8 +12,8 @@ import { formatQuickAddDue } from "@/lib/utils/formatQuickAddDue";
 import type { QuickAddResult } from "@/lib/utils/parseQuickAdd";
 import { tokenColor, tokenLabel } from "@/components/quickadd/tokenDisplay";
 import { useTaskDrawer } from "@/components/task/TaskDrawerProvider";
-import { useCommandPalette } from "@/components/palette/CommandPaletteProvider";
 import { commandIcon } from "@/components/palette/commandIcons";
+import { useToast } from "@/components/layout/ToastProvider";
 import type { PaletteItem } from "@/components/palette/types";
 
 /** Done tasks still show up, but below every open match. */
@@ -40,7 +40,7 @@ export function usePaletteItems(
 ): PaletteItem[] {
   const router = useRouter();
   const { openTaskDrawer } = useTaskDrawer();
-  const { notify } = useCommandPalette();
+  const { notify } = useToast();
   const tasks = useLiveQuery(getTasks, []);
 
   return useMemo(() => {
