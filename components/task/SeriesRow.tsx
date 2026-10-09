@@ -35,7 +35,7 @@ export default function SeriesRow({ series, labels }: SeriesRowProps) {
 
   return (
     <div
-      className={`flex w-full flex-wrap items-center gap-3 rounded-box border border-transparent bg-base-200 p-3 shadow-raised transition-colors ${
+      className={`flex w-full flex-wrap items-center gap-3 surface-raised border border-transparent p-3 transition-colors ${
         paused ? "opacity-60" : ""
       }`}
     >
@@ -59,7 +59,7 @@ export default function SeriesRow({ series, labels }: SeriesRowProps) {
           <LabelChip key={label.id} name={label.name} color={label.color} size="sm" />
         ))}
         {overflowCount > 0 && (
-          <span className="inline-flex items-center rounded-full bg-base-300 px-2 py-0.5 text-[10px] font-medium text-base-content/60">
+          <span className="inline-flex items-center rounded-full bg-line-strong px-2 py-0.5 text-[10px] font-medium text-base-content/60">
             +{overflowCount}
           </span>
         )}
@@ -68,7 +68,7 @@ export default function SeriesRow({ series, labels }: SeriesRowProps) {
           onClick={handleToggleActive}
           aria-label={paused ? "Resume series" : "Pause series"}
           title={paused ? "Resume series" : "Pause series"}
-          className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-base-content/40 outline-none! transition-colors hover:bg-base-300 hover:text-base-content/70"
+          className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-base-content/40 outline-none! transition-colors hover:bg-line-strong hover:text-base-content/70"
         >
           {paused ? <Play size={14} /> : <Pause size={14} />}
         </button>

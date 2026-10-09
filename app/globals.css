@@ -88,6 +88,18 @@
   --color-data-4: var(--mm-data-4);
 }
 
+/* Surfaces (#234): page (base-100) < panel < raised; sunken for things you
+   type into or choose between; flat (border only) for done/secondary items. */
+@utility surface-panel {
+  @apply rounded-box border border-line bg-base-200;
+}
+@utility surface-raised {
+  @apply rounded-box bg-base-300 shadow-raised;
+}
+@utility surface-sunken {
+  @apply bg-sunken shadow-sunken;
+}
+
 /* Type scale (#233): one class sets size, line height, tracking and weight. */
 @theme {
   --text-display: 3.5rem;

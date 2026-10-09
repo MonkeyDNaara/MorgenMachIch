@@ -51,7 +51,7 @@ export default function WeekAheadStrip({ selectedDay, onSelectDay }: WeekAheadSt
               type="button"
               onClick={() => onSelectDay(day)}
               aria-pressed={active}
-              className={`flex w-36 cursor-pointer flex-col gap-1.5 rounded-box border bg-base-200 p-3 text-left outline-none! transition-colors hover:border-accent/30 ${
+              className={`flex w-36 cursor-pointer flex-col gap-1.5 surface-raised border p-3 text-left outline-none! transition-colors hover:border-accent/30 ${
                 active ? "border-accent/50" : "border-transparent"
               }`}
             >

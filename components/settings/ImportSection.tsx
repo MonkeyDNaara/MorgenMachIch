@@ -104,7 +104,7 @@ export default function ImportSection() {
   }
 
   return (
-    <section className="flex flex-col gap-4 rounded-box bg-base-200 p-4 shadow-raised">
+    <section className="flex flex-col gap-4 surface-panel p-4">
       <div className="flex flex-col gap-1">
         <h2 className="text-sm font-semibold">Restore from backup</h2>
         <p className="text-xs text-base-content/50">
@@ -150,7 +150,7 @@ export default function ImportSection() {
 
           {stage.kind === "preview" && (
             <div className="flex flex-col gap-3">
-              <div className="flex flex-col gap-2 rounded-lg bg-base-300 p-3 font-mono text-xs">
+              <div className="flex flex-col gap-2 rounded-lg surface-sunken p-3 font-mono text-xs">
                 <p className="text-base-content/50">{stage.fileName}</p>
                 <p>
                   <span className="text-base-content/50">In the file: </span>

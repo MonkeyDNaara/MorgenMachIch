@@ -111,7 +111,7 @@ export default function StatsView() {
         </div>
       </div>
 
-      <section className="rounded-box bg-base-200 p-4 shadow-raised">
+      <section className="surface-panel p-4">
         <h2 className="mb-3 text-sm font-semibold">
           Last 12 months
           <span className="ml-1.5 text-xs font-normal text-base-content/40">
@@ -122,7 +122,7 @@ export default function StatsView() {
       </section>
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-        <section className="rounded-box bg-base-200 p-4 shadow-raised">
+        <section className="surface-panel p-4">
           <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-sm font-semibold">Completed per {unit}</h2>
             <PeriodSelect value={period} onChange={setPeriod} />
@@ -134,7 +134,7 @@ export default function StatsView() {
           <CompletionBarChart key={period} series={series} unit={unit} />
         </section>
 
-        <section className="flex flex-col gap-4 rounded-box bg-base-200 p-4 shadow-raised">
+        <section className="flex flex-col gap-4 surface-panel p-4">
           <div className="flex items-center justify-between gap-2">
             <h2 className="text-sm font-semibold">By label</h2>
             <span className="text-xs text-base-content/40">{PERIOD_CAPTIONS[period]}</span>

@@ -66,7 +66,7 @@ export default function PlanForMenu({ task }: PlanForMenuProps) {
         title="Plan for…"
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-base-content/40 outline-none! transition-colors hover:bg-base-300 hover:text-base-content/70"
+        className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-base-content/40 outline-none! transition-colors hover:bg-line-strong hover:text-base-content/70"
       >
         <CalendarPlus size={14} />
       </button>

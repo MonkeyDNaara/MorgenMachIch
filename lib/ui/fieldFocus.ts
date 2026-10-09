@@ -10,6 +10,6 @@
  * per-component.
  */
 export const FIELD_FOCUS =
-  "bg-base-200 outline-none! [--input-color:var(--color-base-300)] " +
+  "surface-sunken outline-none! [--input-color:var(--color-line-strong)] " +
   "focus:[--input-color:var(--color-accent)]! " +
   "focus:shadow-focus!";
