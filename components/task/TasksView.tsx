@@ -151,11 +151,11 @@ export default function TasksView() {
         }
       />
       <div
-        className={`mx-auto flex w-full items-start gap-3 px-6 pt-4 ${
+        className={`mx-auto flex w-full flex-wrap items-start gap-3 px-6 pt-4 ${
           backlogVisible ? "max-w-5xl lg:max-w-7xl" : "max-w-5xl"
         }`}
       >
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-[1_1_16rem]">
           <TaskQuickAdd defaultDate={null} visibilityOf={visibilityOf} />
         </div>
         <button
