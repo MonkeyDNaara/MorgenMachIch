@@ -34,6 +34,24 @@ export function startOfLocalWeek(date: Date): Date {
   return addLocalDays(startOfLocalDay(date), -((date.getDay() + 6) % 7));
 }
 
+/**
+ * Applies the stats start date (#226, "reset stats"): done tasks completed
+ * before `statsSince` are left out, everything else is kept unchanged. Run
+ * it once on the task list before any other stats function, so streaks,
+ * heatmap, charts and the label breakdown all follow the same start.
+ */
+export function applyStatsStart<T extends CompletedTask>(
+  tasks: T[],
+  statsSince: string | null,
+): T[] {
+  if (statsSince === null) return tasks;
+  const since = new Date(statsSince);
+  return tasks.filter((task) => {
+    const completedAt = completedAtOf(task);
+    return completedAt === null || completedAt >= since;
+  });
+}
+
 /** Completions per local day, keyed "YYYY-MM-DD". */
 export function completionsByDay(tasks: CompletedTask[]): Map<string, number> {
   const byDay = new Map<string, number>();

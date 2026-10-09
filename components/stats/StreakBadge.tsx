@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
 import { TrendingUp } from "lucide-react";
 import { getTasks } from "@/lib/db/tasks";
-import { completionsByDay, streakSummary } from "@/lib/utils/stats";
+import { getSettings } from "@/lib/db/settings";
+import { applyStatsStart, completionsByDay, streakSummary } from "@/lib/utils/stats";
 
 /**
  * Small streak pill in the /today header (#219), linking to /stats.
@@ -16,9 +17,12 @@ import { completionsByDay, streakSummary } from "@/lib/utils/stats";
  */
 export default function StreakBadge() {
   const tasks = useLiveQuery(() => getTasks(), []);
-  if (tasks === undefined) return null;
+  const settings = useLiveQuery(() => getSettings(), []);
+  if (tasks === undefined || settings === undefined) return null;
 
-  const streak = streakSummary(completionsByDay(tasks), new Date());
+  // Same stats start date as /stats (#226).
+  const counted = applyStatsStart(tasks, settings.statsSince);
+  const streak = streakSummary(completionsByDay(counted), new Date());
   const days = `${streak.current}-day streak`;
 
   const { text, label, className } = streak.atRisk

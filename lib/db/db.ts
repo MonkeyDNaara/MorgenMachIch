@@ -1,5 +1,5 @@
 import Dexie, { type Table } from "dexie";
-import type { Task, TaskSeries, Label } from "@/lib/types";
+import type { AppSettings, Task, TaskSeries, Label } from "@/lib/types";
 
 /**
  * Local IndexedDB database (via Dexie). This is the only file that should
@@ -15,6 +15,10 @@ import type { Task, TaskSeries, Label } from "@/lib/types";
  * - createdAt: sorting
  * - active:    filtering paused series out of occurrence generation
  *
+ * Version 2 (#226) adds the single-row `settings` table; Dexie creates it
+ * on open and leaves the other tables untouched, so no data migration is
+ * needed.
+ *
  * No index on priority: the local dataset is small enough to filter that
  * in memory after an indexed status/date lookup, so a dedicated index
  * would add complexity without a real performance benefit.
@@ -23,6 +27,7 @@ export class MorgenDB extends Dexie {
   tasks!: Table<Task, string>;
   taskSeries!: Table<TaskSeries, string>;
   labels!: Table<Label, string>;
+  settings!: Table<AppSettings, string>;
 
   constructor() {
     super("MorgenMachIchDB");
@@ -30,6 +35,9 @@ export class MorgenDB extends Dexie {
       tasks: "id, status, dueDate, seriesId, *labelIds, createdAt",
       taskSeries: "id, active",
       labels: "id, name",
+    });
+    this.version(2).stores({
+      settings: "id",
     });
   }
 }

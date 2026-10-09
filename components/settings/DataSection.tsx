@@ -9,6 +9,7 @@ import { getBackupNudge } from "@/lib/utils/backupNudge";
 import { downloadTextFile } from "@/lib/ui/downloadFile";
 import { readLastExportedAt, subscribeLastExportedAt, writeLastExportedAt } from "@/lib/ui/lastExported";
 import { APP_LOCALE } from "@/lib/constants/locale";
+import StatsResetPanel from "@/components/settings/StatsResetPanel";
 
 function formatTimestamp(iso: string): string {
   return new Date(iso).toLocaleString(APP_LOCALE, { dateStyle: "medium", timeStyle: "short" });
@@ -85,6 +86,8 @@ export default function DataSection() {
       </div>
 
       {error && <p className="text-xs text-error">{error}</p>}
+
+      <StatsResetPanel />
     </section>
   );
 }
