@@ -4,11 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { APP_LOCALE } from "@/lib/constants/locale";
 import type { Heatmap, HeatmapCell } from "@/lib/utils/stats";
 
-const CELL = 11;
 const GAP = 3;
-const STEP = CELL + GAP;
+/** Cell + gap per week column: grows to fill the card (#242), never below MIN_STEP. */
+const MIN_STEP = 14;
+const MAX_STEP = 22;
 const LEFT = 28; // room for the weekday labels
 const TOP = 16; // room for the month labels
+const RIGHT = 16; // room so the last month label is never clipped
 const WEEKDAY_LABELS = ["Mon", "", "Wed", "", "Fri", "", ""];
 
 /** Level 0 is the empty-cell gray; 1–4 are the theme's data levels (shares of the accent). */
@@ -47,6 +49,17 @@ export default function YearHeatmap({ heatmap }: { heatmap: Heatmap }) {
   const [focusIndex, setFocusIndex] = useState(todayIndex);
   const [tooltipIndex, setTooltipIndex] = useState<number | null>(null);
   const [scrollLeft, setScrollLeft] = useState(0);
+  const [available, setAvailable] = useState(0);
+
+  // Size the cells to the card's width (same ResizeObserver idea as the
+  // bar chart); on narrow screens they stay at MIN_STEP and the grid scrolls.
+  useEffect(() => {
+    const scroller = scrollRef.current;
+    if (!scroller) return;
+    const observer = new ResizeObserver(([entry]) => setAvailable(entry.contentRect.width));
+    observer.observe(scroller);
+    return () => observer.disconnect();
+  }, []);
 
   // Start at the newest week when the grid is wider than the card.
   useEffect(() => {
@@ -54,11 +67,17 @@ export default function YearHeatmap({ heatmap }: { heatmap: Heatmap }) {
     if (scroller) scroller.scrollLeft = scroller.scrollWidth;
   }, []);
 
-  const width = LEFT + heatmap.weeks.length * STEP;
-  const height = TOP + 7 * STEP;
+  const weekCount = heatmap.weeks.length;
+  const step = Math.max(
+    MIN_STEP,
+    Math.min(MAX_STEP, Math.floor((available - LEFT - RIGHT) / Math.max(1, weekCount))),
+  );
+  const cellSize = step - GAP;
+  const width = LEFT + weekCount * step + RIGHT;
+  const height = TOP + 7 * step;
   const position = (index: number) => ({
-    x: LEFT + Math.floor(index / 7) * STEP,
-    y: TOP + (index % 7) * STEP,
+    x: LEFT + Math.floor(index / 7) * step,
+    y: TOP + (index % 7) * step,
   });
   const busiest = cells.reduce<HeatmapCell | null>(
     (best, cell) => (cell.count > (best?.count ?? 0) ? cell : best),
@@ -109,7 +128,7 @@ export default function YearHeatmap({ heatmap }: { heatmap: Heatmap }) {
           {heatmap.months.map((month) => (
             <text
               key={`${month.weekIndex}-${month.label}`}
-              x={LEFT + month.weekIndex * STEP}
+              x={LEFT + month.weekIndex * step}
               y={10}
               aria-hidden
               className="fill-base-content/40 font-mono text-[10px]"
@@ -122,7 +141,7 @@ export default function YearHeatmap({ heatmap }: { heatmap: Heatmap }) {
               <text
                 key={label}
                 x={0}
-                y={TOP + row * STEP + 9}
+                y={TOP + row * step + cellSize / 2 + 3}
                 aria-hidden
                 className="fill-base-content/40 font-mono text-[9px]"
               >
@@ -141,9 +160,9 @@ export default function YearHeatmap({ heatmap }: { heatmap: Heatmap }) {
                 }}
                 x={x}
                 y={y}
-                width={CELL}
-                height={CELL}
-                rx={3}
+                width={cellSize}
+                height={cellSize}
+                rx={Math.round(cellSize / 4)}
                 fill={LEVEL_FILLS[cell.level]}
                 stroke={isToday ? "var(--color-base-content)" : undefined}
                 strokeOpacity={isToday ? 0.7 : undefined}
@@ -170,7 +189,7 @@ export default function YearHeatmap({ heatmap }: { heatmap: Heatmap }) {
         <div
           role="presentation"
           className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-lg border border-line-strong bg-base-300 px-2 py-1 font-mono text-[11px] whitespace-nowrap shadow-overlay"
-          style={{ left: tooltipPos.x - scrollLeft + CELL / 2, top: tooltipPos.y - 6 }}
+          style={{ left: tooltipPos.x - scrollLeft + cellSize / 2, top: tooltipPos.y - 6 }}
         >
           {describe(tooltipCell)}
         </div>
