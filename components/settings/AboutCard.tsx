@@ -10,7 +10,7 @@ const REPO_URL = "https://github.com/MonkeyDNaara/MorgenMachIch";
  */
 export default function AboutCard() {
   return (
-    <section className="flex flex-col gap-3 rounded-box bg-base-200 p-4 shadow-raised">
+    <section className="flex flex-col gap-3 surface-panel p-4">
       <h2 className="text-sm font-semibold">About</h2>
       <div className="flex flex-col gap-1 text-sm text-base-content/70">
         <p>

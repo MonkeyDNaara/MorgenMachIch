@@ -92,8 +92,10 @@ export default function TaskCard({
 
   return (
     <div
-      className={`flex w-full flex-wrap items-center gap-3 rounded-box border bg-base-200 p-3 shadow-raised transition-colors focus-within:shadow-focus! ${
-        overdue ? "border-error/50" : "border-transparent"
+      className={`flex w-full flex-wrap items-center gap-3 rounded-box border p-3 transition-colors focus-within:shadow-focus! ${
+        done || skipped
+          ? "border-line bg-transparent"
+          : `surface-raised ${overdue ? "border-error/50" : "border-transparent"}`
       }`}
     >
       <button
@@ -103,14 +105,14 @@ export default function TaskCard({
         aria-pressed={done}
         className={`flex h-6 w-6 flex-shrink-0 cursor-pointer items-center justify-center rounded-full border-2 outline-none! transition-colors ${
           done
-            ? "border-base-300 bg-base-300"
+            ? "border-transparent bg-line-strong"
             : skipped
               ? "border-base-content/20"
               : overdue
-                ? "border-error/70 hover:border-error"
+                ? "surface-sunken border-error/70 hover:border-error"
                 : priorityRing
-                  ? "hover:brightness-125"
-                  : "border-base-content/30 hover:border-base-content/60"
+                  ? "surface-sunken hover:brightness-125"
+                  : "surface-sunken border-base-content/30 hover:border-base-content/60"
         }`}
         style={priorityRing ? { borderColor: priorityRing } : undefined}
       >
@@ -153,7 +155,7 @@ export default function TaskCard({
             <LabelChip key={label.id} name={label.name} color={label.color} size="sm" />
           ))}
           {overflowCount > 0 && (
-            <span className="inline-flex items-center rounded-full bg-base-300 px-2 py-0.5 text-[10px] font-medium text-base-content/60">
+            <span className="inline-flex items-center rounded-full bg-line-strong px-2 py-0.5 text-[10px] font-medium text-base-content/60">
               +{overflowCount}
             </span>
           )}
@@ -163,7 +165,7 @@ export default function TaskCard({
               onClick={handleSkip}
               aria-label="Skip this occurrence"
               title="Skip this occurrence"
-              className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-base-content/40 outline-none! transition-colors hover:bg-base-300 hover:text-base-content/70"
+              className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-base-content/40 outline-none! transition-colors hover:bg-line-strong hover:text-base-content/70"
             >
               <SkipForward size={14} />
             </button>

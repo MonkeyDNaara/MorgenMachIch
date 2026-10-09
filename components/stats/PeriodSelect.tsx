@@ -20,7 +20,7 @@ export default function PeriodSelect({ value, onChange }: PeriodSelectProps) {
     <div
       role="radiogroup"
       aria-label="Period"
-      className="inline-flex rounded-full border border-base-300 bg-base-100 p-0.5"
+      className="inline-flex rounded-full surface-sunken p-0.5"
     >
       {OPTIONS.map((option) => (
         <button
@@ -31,7 +31,7 @@ export default function PeriodSelect({ value, onChange }: PeriodSelectProps) {
           onClick={() => onChange(option.value)}
           className={`cursor-pointer rounded-full px-3 py-1 text-xs outline-none! transition-colors focus-visible:shadow-focus ${
             value === option.value
-              ? "bg-base-300 text-base-content"
+              ? "bg-base-300 text-base-content shadow-raised-sm"
               : "text-base-content/50 hover:text-base-content"
           }`}
         >

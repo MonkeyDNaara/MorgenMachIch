@@ -48,7 +48,7 @@ export default function DataSection() {
   const nudge = lastExportedAt === undefined ? null : getBackupNudge(lastExportedAt);
 
   return (
-    <section className="flex flex-col gap-4 rounded-box bg-base-200 p-4 shadow-raised">
+    <section className="flex flex-col gap-4 surface-panel p-4">
       <div className="flex flex-col gap-1">
         <h2 className="text-sm font-semibold">Data</h2>
         <p className="text-xs text-base-content/50">

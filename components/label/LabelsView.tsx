@@ -169,7 +169,7 @@ export default function LabelsView() {
           ) : (
             <div
               key={label.id}
-              className="flex items-center justify-between gap-3 rounded-box bg-base-200 p-3"
+              className="flex items-center justify-between gap-3 surface-raised p-3"
             >
               <LabelChip name={label.name} color={label.color} />
               <div className="flex items-center gap-1">
@@ -237,7 +237,7 @@ function LabelForm({
   error,
 }: LabelFormProps) {
   return (
-    <div className="flex flex-col gap-4 rounded-box border border-line bg-base-200 p-4">
+    <div className="flex flex-col gap-4 surface-panel p-4">
       <span className="text-xs font-medium text-base-content/60">{heading}</span>
       <input
         type="text"

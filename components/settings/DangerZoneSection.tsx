@@ -47,7 +47,7 @@ export default function DangerZoneSection() {
   }
 
   return (
-    <section className="flex flex-col gap-4 rounded-box border border-error/40 bg-base-200 p-4 shadow-raised">
+    <section className="flex flex-col gap-4 surface-panel border-error/40 p-4">
       <div className="flex flex-col gap-1">
         <h2 className="text-sm font-semibold text-error">Danger zone</h2>
         <p className="text-xs text-base-content/50">

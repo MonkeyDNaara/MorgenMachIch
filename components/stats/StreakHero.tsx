@@ -39,7 +39,7 @@ export default function StreakHero({ streak, byDay, todayCount, now }: StreakHer
         : null;
 
   return (
-    <section className="flex flex-col justify-between gap-4 rounded-box bg-base-200 p-4 shadow-raised">
+    <section className="flex flex-col justify-between gap-4 surface-panel p-4">
       <h2 className="text-xs text-base-content/60">Current streak</h2>
       <p className="text-6xl leading-none font-semibold tracking-tight text-accent tabular-nums">
         {streak.current}

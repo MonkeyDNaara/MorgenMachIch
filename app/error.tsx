@@ -45,7 +45,7 @@ export default function ErrorPage({
       </div>
       <details className="w-full max-w-md text-left text-xs text-base-content/50">
         <summary className="cursor-pointer text-center">Technical details</summary>
-        <pre className="mt-2 overflow-x-auto whitespace-pre-wrap rounded-box bg-base-300 p-3 font-mono">
+        <pre className="mt-2 overflow-x-auto whitespace-pre-wrap rounded-box surface-sunken p-3 font-mono">
           {`${error.name}: ${error.message}`}
           {error.digest ? `\ndigest: ${error.digest}` : ""}
         </pre>
