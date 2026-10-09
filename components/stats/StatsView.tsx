@@ -3,9 +3,13 @@
 import { useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { getTasks } from "@/lib/db/tasks";
+import { getLabels } from "@/lib/db/labels";
 import {
   completionsByDay,
+  completionsByLabel,
   dailySeries,
+  onTimeRate,
+  periodStart,
   periodTotals,
   streakSummary,
   weeklySeries,
@@ -17,15 +21,21 @@ import StatCard from "@/components/stats/StatCard";
 import YearHeatmap from "@/components/stats/YearHeatmap";
 import PeriodSelect from "@/components/stats/PeriodSelect";
 import CompletionBarChart from "@/components/stats/CompletionBarChart";
+import LabelBreakdown from "@/components/stats/LabelBreakdown";
+import OnTimeRate from "@/components/stats/OnTimeRate";
+
+const PERIOD_CAPTIONS = { "7d": "last 7 days", "30d": "last 30 days", all: "all time" } as const;
 
 /**
  * /stats (#215): streak hero + best streak / this week / this month, then
- * the year heatmap (#216) and the completions bar chart with its period
- * switch (#217). The label breakdown (#218) joins the bar chart next. Reads tasks through a live query, so
+ * the year heatmap (#216), the completions bar chart with its period
+ * switch (#217) and, next to it, the label breakdown and on-time rate
+ * (#218), which follow the same period. Reads tasks through a live query, so
  * completing a task anywhere updates the numbers right away.
  */
 export default function StatsView() {
   const tasks = useLiveQuery(() => getTasks(), []);
+  const labels = useLiveQuery(() => getLabels(), []);
   const byDay = useMemo(() => completionsByDay(tasks ?? []), [tasks]);
   // Shared by the bar chart and (#218) the label breakdown.
   const [period, setPeriod] = useState<StatsPeriod>("7d");
@@ -45,6 +55,9 @@ export default function StatsView() {
       ? weeklySeries(byDay, now, 52)
       : dailySeries(byDay, now, period === "7d" ? 7 : 30);
   const seriesTotal = series.reduce((sum, entry) => sum + entry.count, 0);
+  const since = periodStart(period, now);
+  const byLabel = completionsByLabel(tasks, since);
+  const onTime = onTimeRate(tasks, since);
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 p-6">
@@ -76,17 +89,30 @@ export default function StatsView() {
         <YearHeatmap heatmap={heatmap} />
       </section>
 
-      <section className="rounded-box bg-base-200 p-4 shadow-lg shadow-black/20">
-        <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-sm font-semibold">Completed per {unit}</h2>
-          <PeriodSelect value={period} onChange={setPeriod} />
-        </div>
-        <p className="mb-3 text-xs text-base-content/40">
-          {seriesTotal} completed · {(seriesTotal / series.length).toFixed(1)} per {unit}
-          {period === "all" && " · last 12 months"}
-        </p>
-        <CompletionBarChart key={period} series={series} unit={unit} />
-      </section>
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+        <section className="rounded-box bg-base-200 p-4 shadow-lg shadow-black/20">
+          <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-sm font-semibold">Completed per {unit}</h2>
+            <PeriodSelect value={period} onChange={setPeriod} />
+          </div>
+          <p className="mb-3 text-xs text-base-content/40">
+            {seriesTotal} completed · {(seriesTotal / series.length).toFixed(1)} per {unit}
+            {period === "all" && " · last 12 months"}
+          </p>
+          <CompletionBarChart key={period} series={series} unit={unit} />
+        </section>
+
+        <section className="flex flex-col gap-4 rounded-box bg-base-200 p-4 shadow-lg shadow-black/20">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="text-sm font-semibold">By label</h2>
+            <span className="text-xs text-base-content/40">{PERIOD_CAPTIONS[period]}</span>
+          </div>
+          <LabelBreakdown rows={byLabel} labels={labels ?? []} />
+          <div className="mt-auto border-t border-white/5 pt-4">
+            <OnTimeRate {...onTime} />
+          </div>
+        </section>
+      </div>
 
       <p className="text-center text-xs text-base-content/35">
         Stats only count completed tasks that are still in the app — reopening or deleting a task
