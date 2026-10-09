@@ -94,5 +94,12 @@ Natural-language quick-add is done too: typing "Call mom fri 3pm #family
 with the matched parts colored as you type, a chip for each one (click to
 ignore it) and suggestions after "#" and "!". It works in quick-add bars on
 /today and /tasks, in the command palette, and as an Apply suggestion in the
-new-task drawer. Planned next: stats, a light theme, and later a hosted
-database (Neon).
+new-task drawer.
+Stats & Streaks is done as well: a /stats page shows the current and best
+streak, a GitHub-style year heatmap, completions per day or week, a
+breakdown by label and how many dated tasks were done on time — all
+hand-built SVG, no chart library — and a streak badge sits in the /today
+header. Stats are calculated from completed tasks, so backups carry them
+automatically, and "Reset stats" in Settings gives a fresh start without
+changing any task. Planned next: a styling pass, a light theme, and later a
+hosted database (Neon).
