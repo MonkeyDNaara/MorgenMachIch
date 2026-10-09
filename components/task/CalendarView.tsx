@@ -17,8 +17,7 @@ import { ghostToEntry, hasDueDate, taskToEntry } from "@/lib/utils/calendarEntri
 import TaskList from "@/components/task/TaskList";
 import CalendarDayCell from "@/components/task/CalendarDayCell";
 import ProjectedOccurrenceList from "@/components/task/ProjectedOccurrenceList";
-import PriorityFilterSelect from "@/components/task/PriorityFilterSelect";
-import LabelFilterBar from "@/components/task/LabelFilterBar";
+import FilterPopover from "@/components/task/FilterPopover";
 import PageHeader from "@/components/layout/PageHeader";
 import { APP_LOCALE } from "@/lib/constants/locale";
 
@@ -78,18 +77,20 @@ export default function CalendarView() {
     return filterTasksByLabels(filterTasksByPriority(items, priority), activeLabelIds);
   }
 
-  const filterBar = (
-    <div className="flex flex-col">
-      <div className="flex items-center gap-2 border-b border-line px-6 py-3">
-        <PriorityFilterSelect value={priority} onChange={setPriority} />
-      </div>
-      <LabelFilterBar
-        labels={labels ?? []}
-        activeLabelIds={activeLabelIds}
-        onToggle={toggleLabelFilter}
-        onClear={() => setActiveLabelIds([])}
-      />
-    </div>
+  // One Filter popover in the header for both the grid and the day view
+  // (#236), so there is still a single source of truth for the filters.
+  const filterControl = (
+    <FilterPopover
+      labels={labels ?? []}
+      activeLabelIds={activeLabelIds}
+      onToggleLabel={toggleLabelFilter}
+      priority={priority}
+      onPriorityChange={setPriority}
+      onClear={() => {
+        setActiveLabelIds([]);
+        setPriority("all");
+      }}
+    />
   );
 
   function goToPrevMonth() {
@@ -133,16 +134,18 @@ export default function CalendarView() {
           eyebrow="Calendar"
           title={label}
           actions={
-            <button
-              type="button"
-              onClick={() => setSelectedDay(null)}
-              className="btn btn-ghost btn-xs cursor-pointer text-base-content/60"
-            >
-              Back to month
-            </button>
+            <>
+              {filterControl}
+              <button
+                type="button"
+                onClick={() => setSelectedDay(null)}
+                className="btn btn-ghost btn-xs cursor-pointer text-base-content/60"
+              >
+                Back to month
+              </button>
+            </>
           }
         />
-        {filterBar}
         <TaskList
           baseFilter={(allTasks) => applyFilters(scopeToSelectedDay(selectedDay)(allTasks))}
           hideLabelAndPriorityFilters
@@ -185,6 +188,7 @@ export default function CalendarView() {
         title={monthLabel}
         actions={
           <div className="flex items-center gap-1">
+            <div className="mr-2">{filterControl}</div>
             <button
               type="button"
               onClick={goToPrevMonth}
@@ -211,7 +215,6 @@ export default function CalendarView() {
           </div>
         }
       />
-      {filterBar}
       <div className="flex flex-col gap-4 p-6">
         <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-base-content/40">
           {WEEKDAY_LABELS.map((label) => (

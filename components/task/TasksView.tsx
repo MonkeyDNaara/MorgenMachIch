@@ -20,7 +20,7 @@ import {
   writeBacklogVisible,
 } from "@/lib/ui/backlogVisible";
 import TaskListToolbar from "@/components/task/TaskListToolbar";
-import LabelFilterBar from "@/components/task/LabelFilterBar";
+import FilterPopover from "@/components/task/FilterPopover";
 import TaskCardList from "@/components/task/TaskCardList";
 import TaskQuickAdd, { type QuickAddVisibility } from "@/components/task/TaskQuickAdd";
 import SeriesRow from "@/components/task/SeriesRow";
@@ -131,18 +131,24 @@ export default function TasksView() {
         }
       />
       <TaskListToolbar
+        className={`mx-auto w-full px-6 ${backlogVisible ? "max-w-5xl lg:max-w-7xl" : "max-w-5xl"}`}
         status={status}
         onStatusChange={setStatus}
-        priority={priority}
-        onPriorityChange={setPriority}
         sortBy={sortBy}
         onSortByChange={setSortBy}
-      />
-      <LabelFilterBar
-        labels={labels ?? []}
-        activeLabelIds={activeLabelIds}
-        onToggle={toggleLabelFilter}
-        onClear={() => setActiveLabelIds([])}
+        filter={
+          <FilterPopover
+            labels={labels ?? []}
+            activeLabelIds={activeLabelIds}
+            onToggleLabel={toggleLabelFilter}
+            priority={priority}
+            onPriorityChange={setPriority}
+            onClear={() => {
+              setActiveLabelIds([]);
+              setPriority("all");
+            }}
+          />
+        }
       />
       <div
         className={`mx-auto flex w-full items-start gap-3 px-6 pt-4 ${
@@ -159,7 +165,7 @@ export default function TasksView() {
           className={`mt-2 flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium outline-none! transition-colors ${
             backlogVisible
               ? "bg-base-300 text-base-content shadow-raised-sm"
-              : "bg-base-300 text-base-content/60 hover:text-base-content"
+              : "text-base-content/60 hover:bg-line hover:text-base-content"
           }`}
         >
           <Inbox size={14} />

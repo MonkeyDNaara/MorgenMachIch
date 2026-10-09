@@ -10,7 +10,7 @@ import { filterTasksByStatus, type StatusFilter } from "@/lib/utils/filterTasksB
 import { filterTasksByPriority, type PriorityFilter } from "@/lib/utils/filterTasksByPriority";
 import { sortTasks, type TaskSortBy } from "@/lib/utils/sortTasks";
 import TaskCardList from "@/components/task/TaskCardList";
-import LabelFilterBar from "@/components/task/LabelFilterBar";
+import FilterPopover from "@/components/task/FilterPopover";
 import TaskListToolbar from "@/components/task/TaskListToolbar";
 import type { QuickAddVisibility } from "@/components/task/TaskQuickAdd";
 
@@ -106,22 +106,27 @@ export default function TaskList({
   return (
     <div className="flex flex-col">
       <TaskListToolbar
+        className="mx-auto w-full max-w-3xl px-6 pt-6"
         status={status}
         onStatusChange={setStatus}
-        priority={priority}
-        onPriorityChange={setPriority}
         sortBy={sortBy}
         onSortByChange={setSortBy}
-        hidePriority={hideLabelAndPriorityFilters}
+        filter={
+          !hideLabelAndPriorityFilters && (
+            <FilterPopover
+              labels={labels ?? []}
+              activeLabelIds={activeLabelIds}
+              onToggleLabel={toggleLabelFilter}
+              priority={priority}
+              onPriorityChange={setPriority}
+              onClear={() => {
+                setActiveLabelIds([]);
+                setPriority("all");
+              }}
+            />
+          )
+        }
       />
-      {!hideLabelAndPriorityFilters && (
-        <LabelFilterBar
-          labels={labels ?? []}
-          activeLabelIds={activeLabelIds}
-          onToggle={toggleLabelFilter}
-          onClear={() => setActiveLabelIds([])}
-        />
-      )}
       <div className="mx-auto w-full max-w-3xl p-6">
         {header && <div className="mb-4">{header(visibilityOf)}</div>}
         <TaskCardList

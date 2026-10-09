@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Ellipsis, Search } from "lucide-react";
+import { useDismiss } from "@/lib/ui/useDismiss";
 import { useCommandPalette } from "@/components/palette/CommandPaletteProvider";
 import { NAV_ITEMS, isActive, type NavItem } from "@/components/layout/navItems";
 
@@ -19,8 +20,8 @@ const menuItemClasses =
 /**
  * Mobile navigation below md (#235): a bar fixed to the bottom with
  * Today, Tasks, Calendar, Stats and More. More opens a small menu above
- * the bar with Labels, Search and Settings — plain React state like
- * PlanForMenu (Escape or an outside click closes it, focus returns to
+ * the bar with Labels, Search and Settings — plain React state with
+ * useDismiss (Escape or an outside click closes it, focus returns to
  * the More button). More counts as active on /labels and /settings.
  */
 export default function BottomTabBar() {
@@ -31,25 +32,7 @@ export default function BottomTabBar() {
   const moreRef = useRef<HTMLButtonElement>(null);
   const moreActive = MORE_ITEMS.some((item) => isActive(pathname, item.href));
 
-  useEffect(() => {
-    if (!menuOpen) return;
-    function onPointerDown(event: PointerEvent) {
-      const target = event.target as Node;
-      if (menuRef.current?.contains(target) || moreRef.current?.contains(target)) return;
-      setMenuOpen(false);
-    }
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key !== "Escape") return;
-      setMenuOpen(false);
-      moreRef.current?.focus();
-    }
-    document.addEventListener("pointerdown", onPointerDown);
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("pointerdown", onPointerDown);
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [menuOpen]);
+  useDismiss(menuOpen, () => setMenuOpen(false), [menuRef, moreRef], moreRef);
 
   return (
     <nav

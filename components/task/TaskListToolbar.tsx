@@ -1,10 +1,9 @@
 "use client";
 
+import type { ReactNode } from "react";
+import { ArrowDownUp } from "lucide-react";
 import type { StatusFilter } from "@/lib/utils/filterTasksByStatus";
-import type { PriorityFilter } from "@/lib/utils/filterTasksByPriority";
 import type { TaskSortBy } from "@/lib/utils/sortTasks";
-import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
-import PriorityFilterSelect from "@/components/task/PriorityFilterSelect";
 
 const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: "all", label: "All" },
@@ -16,50 +15,61 @@ const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: "skipped", label: "Skipped" },
 ];
 
+const SORT_LABELS: Record<TaskSortBy, { short: string; long: string }> = {
+  dueDate: { short: "due ↑", long: "due date, soonest first" },
+  createdAt: { short: "newest", long: "created, newest first" },
+};
+
 type TaskListToolbarProps = {
   status: StatusFilter;
   onStatusChange: (status: StatusFilter) => void;
-  priority: PriorityFilter;
-  onPriorityChange: (priority: PriorityFilter) => void;
   sortBy: TaskSortBy;
   onSortByChange: (sortBy: TaskSortBy) => void;
-  /** Hides the priority dropdown when the surrounding view owns that
-   * filter itself (/calendar, #171). */
-  hidePriority?: boolean;
+  /** The Filter popover, or nothing when the surrounding view owns the
+   * label/priority filters itself (/calendar's day view, #171). */
+  filter?: ReactNode;
+  /** Width/padding classes so the toolbar lines up with the page's content column. */
+  className?: string;
 };
 
 /**
- * Status filter (single-select pill row — a task only has one status,
- * unlike labels), plus priority and sort dropdowns, for /tasks. Priority
- * is a dropdown rather than a second pill row (#140) — it's a secondary
- * filter next to status, and a second full pill row would crowd this
- * toolbar. Sits above the label filter bar. Plain component state owned
- * by TaskList, resets on reload, same as the label filter.
+ * One-row toolbar (#236): a sunken segmented control for the status
+ * filter (a task has exactly one status, so it is single-select), then
+ * the Filter popover for labels and priority and a compact sort toggle
+ * (there are only two sort orders). On narrow screens the segmented
+ * control scrolls sideways instead of clipping. Plain state owned by the
+ * parent view, resets on reload.
  */
 export default function TaskListToolbar({
   status,
   onStatusChange,
-  priority,
-  onPriorityChange,
   sortBy,
   onSortByChange,
-  hidePriority = false,
+  filter,
+  className = "",
 }: TaskListToolbarProps) {
+  const nextSort: TaskSortBy = sortBy === "dueDate" ? "createdAt" : "dueDate";
+
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-3">
-      <div className="flex gap-1.5">
+    <div className={`flex flex-wrap items-center gap-2 ${className}`}>
+      <div
+        role="radiogroup"
+        aria-label="Status"
+        className="flex max-w-full min-w-0 gap-0.5 overflow-x-auto rounded-xl surface-sunken p-1"
+      >
         {STATUS_OPTIONS.map((option) => {
           const active = status === option.value;
           return (
             <button
               key={option.value}
               type="button"
+              role="radio"
+              aria-checked={active}
               onClick={() => onStatusChange(option.value)}
-              aria-pressed={active}
-              className={`cursor-pointer rounded-full px-3 py-1 text-xs font-medium outline-none! transition-colors ${
+              className={`shrink-0 cursor-pointer rounded-lg px-3 py-1.5 text-sm outline-none! transition-colors focus-visible:shadow-focus ${
                 active
                   ? "bg-base-300 text-base-content shadow-raised-sm"
-                  : "bg-base-300 text-base-content/60 hover:text-base-content"
+                  : "text-base-content/60 hover:text-base-content"
               }`}
             >
               {option.label}
@@ -67,17 +77,18 @@ export default function TaskListToolbar({
           );
         })}
       </div>
-      <div className="flex items-center gap-2">
-        {!hidePriority && <PriorityFilterSelect value={priority} onChange={onPriorityChange} />}
-        <select
-          value={sortBy}
-          onChange={(event) => onSortByChange(event.target.value as TaskSortBy)}
-          aria-label="Sort tasks by"
-          className={`select select-sm w-75 ${FIELD_FOCUS}`}
+      <div className="ml-auto flex items-center gap-2">
+        {filter}
+        <button
+          type="button"
+          onClick={() => onSortByChange(nextSort)}
+          aria-label={`Sorted by ${SORT_LABELS[sortBy].long}. Switch to ${SORT_LABELS[nextSort].long}`}
+          title={`Sort by ${SORT_LABELS[nextSort].long}`}
+          className="flex h-9 cursor-pointer items-center gap-1.5 rounded-field px-2 font-mono text-meta text-base-content/60 outline-none! transition-colors hover:bg-line hover:text-base-content focus-visible:shadow-focus"
         >
-          <option value="dueDate">Due date (soonest first)</option>
-          <option value="createdAt">Created (newest first)</option>
-        </select>
+          <ArrowDownUp size={13} />
+          {SORT_LABELS[sortBy].short}
+        </button>
       </div>
     </div>
   );
