@@ -24,7 +24,7 @@ export default function TagSuggestionList({ autocomplete, variant }: TagSuggesti
       data-variant={variant}
       className={
         popover
-          ? "absolute top-full z-20 mt-1.5 w-56 rounded-xl border border-base-300 bg-base-100 p-1 shadow-[0_10px_28px_rgba(0,0,0,0.5)]"
+          ? "absolute top-full z-20 mt-1.5 w-56 rounded-xl border border-base-300 bg-base-100 p-1 shadow-overlay"
           : "p-2"
       }
     >

@@ -37,7 +37,7 @@ export default function WeekAheadStrip({ selectedDay, onSelectDay }: WeekAheadSt
   if (dayColumns.length === 0) return null;
 
   return (
-    <div className="border-t border-white/5 px-6 py-4">
+    <div className="border-t border-line px-6 py-4">
       <p className="mb-3 font-mono text-xs text-base-content/40">Coming up</p>
       <div className="flex flex-wrap gap-3">
         {dayColumns.map(({ day, tasks: dayTasks }) => {

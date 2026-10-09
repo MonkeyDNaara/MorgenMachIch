@@ -73,7 +73,7 @@ export default function PlanForMenu({ task }: PlanForMenuProps) {
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-full z-20 mt-1 w-48 rounded-box border border-base-content/10 bg-base-300 p-1 shadow-lg shadow-black/30"
+          className="absolute right-0 top-full z-20 mt-1 w-48 rounded-box border border-base-content/10 bg-base-300 p-1 shadow-overlay"
         >
           {options.map((option) => (
             <button

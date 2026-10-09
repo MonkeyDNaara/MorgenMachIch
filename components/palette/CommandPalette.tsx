@@ -65,7 +65,7 @@ export default function CommandPalette() {
         onMouseDown={(event) => {
           if (event.target === event.currentTarget) closePalette();
         }}
-        className="mx-auto mb-auto mt-[15vh] w-[calc(100%-2rem)] max-w-[560px] overflow-hidden rounded-box border border-white/10 bg-base-200 p-0 text-base-content shadow-2xl shadow-black/60 backdrop:bg-black/60 backdrop:backdrop-blur-[2px]"
+        className="mx-auto mb-auto mt-[15vh] w-[calc(100%-2rem)] max-w-[560px] overflow-hidden rounded-box border border-line-strong bg-base-200 p-0 text-base-content shadow-overlay backdrop:bg-scrim backdrop:backdrop-blur-[2px]"
       >
         {isOpen && <PaletteBody onClose={closePalette} />}
       </dialog>
@@ -74,7 +74,7 @@ export default function CommandPalette() {
         className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center px-4"
       >
         {notice && (
-          <p className="rounded-full border border-white/10 bg-base-300 px-4 py-2 text-sm shadow-lg shadow-black/40">
+          <p className="rounded-full border border-line-strong bg-base-300 px-4 py-2 text-sm shadow-overlay">
             {notice}
           </p>
         )}
@@ -182,7 +182,7 @@ function PaletteBody({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-3 border-b border-white/5 px-4 py-3">
+      <div className="flex items-center gap-3 border-b border-line px-4 py-3">
         <Search size={16} className="flex-shrink-0 text-base-content/40" aria-hidden />
         <div className="relative min-w-0 flex-1">
           <input
@@ -313,7 +313,7 @@ function PaletteBody({ onClose }: { onClose: () => void }) {
 
       <div
         aria-hidden
-        className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-white/5 px-4 py-2 font-mono text-[11px] text-base-content/40"
+        className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-line px-4 py-2 font-mono text-[11px] text-base-content/40"
       >
         <span>
           <Kbd>↑</Kbd>
@@ -362,7 +362,7 @@ function bestMatchIndex(entries: { score: number }[]): number {
 
 function Kbd({ children }: { children: React.ReactNode }) {
   return (
-    <kbd className="mr-1 rounded border border-white/10 bg-base-300 px-1.5 py-0.5 font-mono text-[10px] text-base-content/60">
+    <kbd className="mr-1 rounded border border-line-strong bg-base-300 px-1.5 py-0.5 font-mono text-[10px] text-base-content/60">
       {children}
     </kbd>
   );

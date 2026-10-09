@@ -114,9 +114,9 @@ export default function CompletionBarChart({ series, unit }: CompletionBarChartP
                   rx={Math.min(6, barWidth / 3)}
                   fill={
                     isNewest
-                      ? "var(--color-primary)"
+                      ? "var(--mm-data-4)"
                       : entry.count > 0
-                        ? "rgba(77, 209, 224, 0.45)"
+                        ? "var(--mm-data-2)"
                         : "var(--color-base-300)"
                   }
                   role="listitem"
@@ -175,7 +175,7 @@ export default function CompletionBarChart({ series, unit }: CompletionBarChartP
       {tooltipEntry && tooltipIndex !== null && (
         <div
           role="presentation"
-          className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-lg border border-white/10 bg-base-300 px-2 py-1 font-mono text-[11px] whitespace-nowrap shadow-lg shadow-black/40"
+          className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-lg border border-line-strong bg-base-300 px-2 py-1 font-mono text-[11px] whitespace-nowrap shadow-overlay"
           style={{
             left: barX(tooltipIndex) + barWidth / 2,
             top: BASELINE - barHeight(tooltipEntry.count) - (showValues ? 22 : 6),

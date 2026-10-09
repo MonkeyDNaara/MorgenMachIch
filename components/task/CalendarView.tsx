@@ -79,7 +79,7 @@ export default function CalendarView() {
 
   const filterBar = (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 border-b border-white/5 px-6 py-3">
+      <div className="flex items-center gap-2 border-b border-line px-6 py-3">
         <PriorityFilterSelect value={priority} onChange={setPriority} />
       </div>
       <LabelFilterBar
@@ -128,7 +128,7 @@ export default function CalendarView() {
     return (
       <div className="flex flex-col">
         {filterBar}
-        <div className="flex items-center justify-between border-b border-white/5 px-6 py-3">
+        <div className="flex items-center justify-between border-b border-line px-6 py-3">
           <p className="text-sm text-base-content/70">Showing {label}</p>
           <button
             type="button"

@@ -39,7 +39,7 @@ export default function StreakHero({ streak, byDay, todayCount, now }: StreakHer
         : null;
 
   return (
-    <section className="flex flex-col justify-between gap-4 rounded-box bg-base-200 p-4 shadow-lg shadow-black/20">
+    <section className="flex flex-col justify-between gap-4 rounded-box bg-base-200 p-4 shadow-raised">
       <h2 className="text-xs text-base-content/60">Current streak</h2>
       <p className="text-6xl leading-none font-semibold tracking-tight text-primary tabular-nums">
         {streak.current}
@@ -58,7 +58,7 @@ export default function StreakHero({ streak, byDay, todayCount, now }: StreakHer
                 aria-hidden
                 className={`size-5 rounded-full border-2 ${
                   day.done
-                    ? "border-primary bg-primary shadow-[0_0_0_3px_rgba(77,209,224,0.15)]"
+                    ? "border-primary bg-primary shadow-glow"
                     : day.isToday
                       ? "border-dashed border-primary"
                       : "border-base-300"

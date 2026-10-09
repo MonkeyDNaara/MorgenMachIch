@@ -171,7 +171,7 @@ export default function TasksView() {
             />
           </div>
         </div>
-        <div className="hidden bg-white/5 md:block" />
+        <div className="hidden bg-line md:block" />
         <div className="p-6">
           <div className="mx-auto w-full max-w-xs">
             <p className="mb-3 font-mono text-xs text-base-content/40">Recurring</p>
@@ -190,8 +190,8 @@ export default function TasksView() {
         </div>
         {backlogVisible && (
           <>
-            <div className="hidden bg-white/5 lg:block" />
-            <div className="border-t border-white/5 p-6 md:col-span-3 lg:col-span-1 lg:border-t-0">
+            <div className="hidden bg-line lg:block" />
+            <div className="border-t border-line p-6 md:col-span-3 lg:col-span-1 lg:border-t-0">
               <div className="mx-auto w-full max-w-xs">
                 <p className="mb-3 font-mono text-xs text-base-content/40">
                   Backlog · {visibleBacklog.length}

@@ -46,7 +46,7 @@ export default function TaskListToolbar({
   hidePriority = false,
 }: TaskListToolbarProps) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/5 px-6 py-3">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-3">
       <div className="flex gap-1.5">
         {STATUS_OPTIONS.map((option) => {
           const active = status === option.value;

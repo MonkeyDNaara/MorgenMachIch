@@ -67,7 +67,7 @@ export default function RecurrenceRuleBuilder({ value, onChange }: RecurrenceRul
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-box border border-white/5 p-3">
+    <div className="flex flex-col gap-3 rounded-box border border-line p-3">
       <div className="flex flex-wrap gap-1.5">
         {FREQUENCY_OPTIONS.map((option) => (
           <button

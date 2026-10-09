@@ -11,13 +11,13 @@ const LEFT = 28; // room for the weekday labels
 const TOP = 16; // room for the month labels
 const WEEKDAY_LABELS = ["Mon", "", "Wed", "", "Fri", "", ""];
 
-/** Level 0 is the empty-cell gray; 1–4 are increasing shares of the cyan accent. */
+/** Level 0 is the empty-cell gray; 1–4 are the theme's data levels (shares of the accent). */
 const LEVEL_FILLS = [
   "var(--color-base-300)",
-  "rgba(77, 209, 224, 0.28)",
-  "rgba(77, 209, 224, 0.5)",
-  "rgba(77, 209, 224, 0.75)",
-  "var(--color-primary)",
+  "var(--mm-data-1)",
+  "var(--mm-data-2)",
+  "var(--mm-data-3)",
+  "var(--mm-data-4)",
 ];
 
 function describe(cell: HeatmapCell): string {
@@ -169,7 +169,7 @@ export default function YearHeatmap({ heatmap }: { heatmap: Heatmap }) {
       {tooltipCell && tooltipPos && (
         <div
           role="presentation"
-          className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-lg border border-white/10 bg-base-300 px-2 py-1 font-mono text-[11px] whitespace-nowrap shadow-lg shadow-black/40"
+          className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-lg border border-line-strong bg-base-300 px-2 py-1 font-mono text-[11px] whitespace-nowrap shadow-overlay"
           style={{ left: tooltipPos.x - scrollLeft + CELL / 2, top: tooltipPos.y - 6 }}
         >
           {describe(tooltipCell)}

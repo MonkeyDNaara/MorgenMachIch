@@ -184,7 +184,7 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
         role="dialog"
         aria-modal="true"
         aria-label="Edit series"
-        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col gap-6 border-l border-white/5 bg-base-100 p-6 shadow-2xl"
+        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col gap-6 border-l border-line bg-base-100 p-6 shadow-overlay"
       >
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Edit Series</h2>
@@ -310,7 +310,7 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
           </div>
         )}
 
-        <div className="flex flex-col gap-2 border-t border-white/5 pt-4">
+        <div className="flex flex-col gap-2 border-t border-line pt-4">
           {deleteCounts !== null && (
             <div className="flex flex-col gap-2 rounded-lg bg-base-200 p-3">
               <p className="text-xs text-base-content/60">Delete this series?</p>

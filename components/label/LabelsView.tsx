@@ -226,7 +226,7 @@ function LabelForm({
   error,
 }: LabelFormProps) {
   return (
-    <div className="flex flex-col gap-4 rounded-box border border-white/5 bg-base-200 p-4">
+    <div className="flex flex-col gap-4 rounded-box border border-line bg-base-200 p-4">
       <span className="text-xs font-medium text-base-content/60">{heading}</span>
       <input
         type="text"
