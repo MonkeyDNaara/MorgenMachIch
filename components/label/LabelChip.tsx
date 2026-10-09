@@ -23,7 +23,7 @@ const SIZE_CLASSES: Record<NonNullable<LabelChipProps["size"]>, string> = {
  * label picker, and task cards.
  *
  * The tint styling itself lives in lib/ui/colorChip.ts (tintChipStyle),
- * shared with PriorityChip (#138) since both are runtime hex colors
+ * shared with the quick-add chips since both are runtime colors
  * applied as inline styles rather than Tailwind classes.
  */
 export default function LabelChip({ name, color, size = "md", className = "" }: LabelChipProps) {

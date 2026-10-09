@@ -1,9 +1,14 @@
 "use client";
 
 import type { Priority } from "@/lib/types";
-import PriorityChip from "@/components/task/PriorityChip";
+import { PRIORITY_DOT_COLORS } from "@/lib/constants/priorityColors";
 
-const PRIORITY_LEVELS: Priority[] = ["none", "low", "medium", "high"];
+const PRIORITY_LEVELS: { value: Priority; label: string }[] = [
+  { value: "none", label: "None" },
+  { value: "low", label: "Low" },
+  { value: "medium", label: "Medium" },
+  { value: "high", label: "High" },
+];
 
 type PrioritySelectorProps = {
   value: Priority;
@@ -11,28 +16,43 @@ type PrioritySelectorProps = {
 };
 
 /**
- * Single-select priority chip row for the task drawer. Same
- * toggle-opacity interaction as the label picker (full opacity =
- * selected, dimmed = not) rather than a new selector style — the only
- * difference is exactly one is always selected here instead of
- * zero-or-more (#138).
+ * Single-select priority control for the task and series drawers. Since
+ * #240 a sunken segmented control (same pattern as the status filter)
+ * instead of a row of dimmed chips: exactly one value is always
+ * selected, which a segmented control says more clearly. Each option
+ * carries its priority dot.
  */
 export default function PrioritySelector({ value, onChange }: PrioritySelectorProps) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div
+      role="radiogroup"
+      aria-label="Priority"
+      className="grid grid-cols-4 gap-0.5 rounded-xl surface-sunken p-1"
+    >
       {PRIORITY_LEVELS.map((level) => {
-        const selected = value === level;
+        const selected = value === level.value;
+        const color = PRIORITY_DOT_COLORS[level.value];
         return (
           <button
-            key={level}
+            key={level.value}
             type="button"
-            onClick={() => onChange(level)}
-            aria-pressed={selected}
-            className={`cursor-pointer rounded-full outline-none! transition-opacity ${
-              selected ? "opacity-100" : "opacity-40 hover:opacity-70"
+            role="radio"
+            aria-checked={selected}
+            onClick={() => onChange(level.value)}
+            className={`flex cursor-pointer items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-sm outline-none! transition-colors focus-visible:shadow-focus ${
+              selected
+                ? "bg-base-300 text-base-content shadow-raised-sm"
+                : "text-base-content/60 hover:text-base-content"
             }`}
           >
-            <PriorityChip priority={level} />
+            {color && (
+              <span
+                aria-hidden
+                className="size-2 shrink-0 rounded-full"
+                style={{ backgroundColor: color }}
+              />
+            )}
+            {level.label}
           </button>
         );
       })}

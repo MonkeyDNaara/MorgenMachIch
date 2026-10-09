@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
+import { Upload } from "lucide-react";
 import { exportAll, getDataCounts, importAll, type DataCounts } from "@/lib/db/backup";
 import { backupFileName, buildBackup, parseBackup, serializeBackup, type BackupFile } from "@/lib/utils/backup";
 import { downloadTextFile } from "@/lib/ui/downloadFile";
@@ -125,14 +126,22 @@ export default function ImportSection() {
       ) : (
         <>
           {(stage.kind === "idle" || stage.kind === "rejected") && (
-            <input
-              key={inputKey}
-              type="file"
-              accept=".json,application/json"
-              onChange={handleFileChange}
-              className="file-input file-input-sm w-full max-w-sm"
-              aria-label="Choose a backup file"
-            />
+            // A styled label instead of the native file button, whose text
+            // follows the browser language ("Datei auswählen") (#240).
+            <div className="flex flex-wrap items-center gap-3">
+              <label className="btn btn-sm cursor-pointer gap-1.5 border-0 bg-base-300 shadow-raised-sm has-[:focus-visible]:shadow-focus">
+                <Upload size={14} />
+                Choose backup file…
+                <input
+                  key={inputKey}
+                  type="file"
+                  accept=".json,application/json"
+                  onChange={handleFileChange}
+                  className="sr-only"
+                />
+              </label>
+              <span className="font-mono text-meta text-base-content/50">.json from Export backup</span>
+            </div>
           )}
 
           {stage.kind === "rejected" && (
