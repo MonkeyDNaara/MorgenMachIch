@@ -220,7 +220,7 @@ function PaletteBody({ onClose }: { onClose: () => void }) {
             aria-autocomplete="list"
             autoComplete="off"
             spellCheck={false}
-            className="w-full bg-transparent font-mono text-sm text-transparent caret-primary outline-none! placeholder:text-base-content/30"
+            className="w-full bg-transparent font-mono text-sm text-transparent caret-accent outline-none! placeholder:text-base-content/30"
           />
           {/* Draws the query with quick-add tokens colored; the input's own text is transparent. */}
           <div
@@ -264,14 +264,14 @@ function PaletteBody({ onClose }: { onClose: () => void }) {
                         onMouseMove={() => selected || select(index)}
                         onClick={() => runItem(index)}
                         className={`relative flex cursor-pointer items-center gap-3 rounded-field px-3 py-2 text-sm before:absolute before:bottom-1.5 before:left-0 before:top-1.5 before:w-0.5 before:rounded-full ${
-                          selected ? "bg-primary/10 before:bg-primary" : "before:bg-transparent"
+                          selected ? "bg-accent/10 before:bg-accent" : "before:bg-transparent"
                         }`}
                       >
                         <Icon
                           size={16}
                           strokeWidth={1.8}
                           aria-hidden
-                          className={`flex-shrink-0 ${selected ? "text-primary" : "text-base-content/50"}`}
+                          className={`flex-shrink-0 ${selected ? "text-accent" : "text-base-content/50"}`}
                         />
                         <span
                           className={`flex min-w-0 flex-1 items-center gap-1.5 ${

@@ -58,7 +58,7 @@ export default function TaskListToolbar({
               aria-pressed={active}
               className={`cursor-pointer rounded-full px-3 py-1 text-xs font-medium outline-none! transition-colors ${
                 active
-                  ? "bg-primary text-primary-content"
+                  ? "bg-base-300 text-base-content shadow-raised-sm"
                   : "bg-base-300 text-base-content/60 hover:text-base-content"
               }`}
             >

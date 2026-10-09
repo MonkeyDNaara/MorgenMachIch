@@ -144,7 +144,7 @@ export default function TasksView() {
           aria-pressed={backlogVisible}
           className={`mt-2 flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium outline-none! transition-colors ${
             backlogVisible
-              ? "bg-primary text-primary-content"
+              ? "bg-base-300 text-base-content shadow-raised-sm"
               : "bg-base-300 text-base-content/60 hover:text-base-content"
           }`}
         >

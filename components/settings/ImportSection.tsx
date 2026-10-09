@@ -114,7 +114,7 @@ export default function ImportSection() {
 
       {stage.kind === "done" ? (
         <div className="flex flex-col gap-3">
-          <p className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-xs text-base-content/70">
+          <p className="rounded-lg border border-accent/30 bg-accent/5 p-3 text-xs text-base-content/70">
             Import complete — {describe(stage.counts)} restored.
             {stage.savedSafetyBackup && " Your previous data was downloaded first as a safety backup."}
           </p>

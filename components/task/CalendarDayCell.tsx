@@ -45,13 +45,13 @@ export default function CalendarDayCell({
     <button
       type="button"
       onClick={() => onSelect(date)}
-      className={`flex min-h-[104px] cursor-pointer flex-col gap-1 rounded-box border border-transparent bg-base-200 p-2 text-left outline-none! transition-colors hover:border-primary/30 ${
+      className={`flex min-h-[104px] cursor-pointer flex-col gap-1 rounded-box border border-transparent bg-base-200 p-2 text-left outline-none! transition-colors hover:border-accent/30 ${
         isCurrentMonth ? "" : "opacity-40"
       }`}
     >
       <span
         className={`inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-xs font-medium ${
-          isToday ? "bg-primary text-primary-content" : "text-base-content/70"
+          isToday ? "bg-accent text-accent-content" : "text-base-content/70"
         }`}
       >
         {date.getDate()}

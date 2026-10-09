@@ -49,7 +49,7 @@ export default function TagSuggestionList({ autocomplete, variant }: TagSuggesti
           onMouseEnter={() => hover(index)}
           className={`flex cursor-pointer items-center gap-2 text-sm ${
             popover ? "rounded-lg px-2 py-1.5" : "rounded-field px-3 py-2"
-          } ${index === selected ? (popover ? "bg-base-300" : "bg-primary/10") : ""}`}
+          } ${index === selected ? (popover ? "bg-base-300" : "bg-accent/10") : ""}`}
         >
           <span
             className="size-2 shrink-0 rounded-full bg-base-content/30"

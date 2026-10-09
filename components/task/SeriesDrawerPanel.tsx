@@ -248,7 +248,7 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
               ) : labels.length === 0 ? (
                 <p className="text-sm text-base-content/40">
                   No labels yet —{" "}
-                  <Link href="/labels" className="text-primary hover:underline">
+                  <Link href="/labels" className="text-accent hover:underline">
                     create one
                   </Link>
                   .
@@ -290,7 +290,7 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
                     type="checkbox"
                     checked={allDay}
                     onChange={(event) => setAllDay(event.target.checked)}
-                    className="checkbox checkbox-sm checkbox-primary"
+                    className="checkbox checkbox-sm"
                   />
                   All day
                 </label>

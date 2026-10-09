@@ -25,7 +25,7 @@ export default function AboutCard() {
         href={REPO_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-1.5 self-start text-xs text-primary hover:underline"
+        className="inline-flex items-center gap-1.5 self-start text-xs text-accent hover:underline"
       >
         Source on GitHub
         <ExternalLink size={12} />

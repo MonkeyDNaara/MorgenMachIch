@@ -31,7 +31,7 @@ export default function StatusPage({
         fullScreen ? "min-h-screen" : "min-h-[70vh]"
       }`}
     >
-      <p className="font-mono text-7xl font-semibold tracking-tight text-primary">{code}</p>
+      <p className="font-mono text-7xl font-semibold tracking-tight text-accent">{code}</p>
       <h1 className="text-xl font-semibold">{title}</h1>
       <p className="max-w-md text-sm text-base-content/60">{description}</p>
       {children}

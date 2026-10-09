@@ -41,7 +41,7 @@ export default function StreakHero({ streak, byDay, todayCount, now }: StreakHer
   return (
     <section className="flex flex-col justify-between gap-4 rounded-box bg-base-200 p-4 shadow-raised">
       <h2 className="text-xs text-base-content/60">Current streak</h2>
-      <p className="text-6xl leading-none font-semibold tracking-tight text-primary tabular-nums">
+      <p className="text-6xl leading-none font-semibold tracking-tight text-accent tabular-nums">
         {streak.current}
         <span className="ml-2 text-base font-normal tracking-normal text-base-content/50">
           {streak.current === 1 ? "day" : "days"}
@@ -58,9 +58,9 @@ export default function StreakHero({ streak, byDay, todayCount, now }: StreakHer
                 aria-hidden
                 className={`size-5 rounded-full border-2 ${
                   day.done
-                    ? "border-primary bg-primary shadow-glow"
+                    ? "border-accent bg-accent shadow-glow"
                     : day.isToday
-                      ? "border-dashed border-primary"
+                      ? "border-dashed border-accent"
                       : "border-base-300"
                 }`}
               />
@@ -73,8 +73,8 @@ export default function StreakHero({ streak, byDay, todayCount, now }: StreakHer
         </ol>
         {hint &&
           (hint.accent ? (
-            <p className="flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs text-primary">
-              <span aria-hidden className="size-1.5 rounded-full bg-primary" />
+            <p className="flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2.5 py-0.5 text-xs text-accent">
+              <span aria-hidden className="size-1.5 rounded-full bg-accent" />
               {hint.text}
             </p>
           ) : (

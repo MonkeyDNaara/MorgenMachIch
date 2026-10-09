@@ -38,7 +38,7 @@ function navItemClasses(active: boolean): string {
   const base =
     "flex h-[34px] w-[34px] items-center justify-center rounded-xl transition-colors";
   return active
-    ? `${base} bg-primary text-primary-content shadow-lg shadow-primary/30`
+    ? `${base} bg-base-300 text-primary shadow-raised-sm`
     : `${base} bg-base-300 text-base-content/60 shadow-sunken hover:text-base-content`;
 }
 
@@ -54,7 +54,7 @@ export default function NavRail() {
       <Link
         href="/today"
         aria-label="MorgenMachIch — go to Today"
-        className="flex h-8 w-8 items-center justify-center rounded-[11px] bg-primary font-mono text-sm font-bold text-primary-content shadow-lg shadow-primary/40"
+        className="flex h-8 w-8 items-center justify-center rounded-[11px] bg-primary font-mono text-sm font-bold text-primary-content shadow-gloss"
       >
         m
       </Link>

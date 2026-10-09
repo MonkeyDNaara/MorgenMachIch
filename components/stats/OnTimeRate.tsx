@@ -28,7 +28,7 @@ export default function OnTimeRate({ onTime, total, rate }: OnTimeRateProps) {
             pathLength={100}
             strokeDasharray={`${percent} 100`}
             transform="rotate(-90 18 18)"
-            className="stroke-primary"
+            className="stroke-accent"
           />
         )}
       </svg>

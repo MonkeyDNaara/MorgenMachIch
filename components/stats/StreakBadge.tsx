@@ -34,13 +34,13 @@ export default function StreakBadge() {
           </>
         ),
         label: `${days} — complete a task today to keep it. Open stats`,
-        className: "border-dashed border-primary/60 text-primary",
+        className: "border-dashed border-accent/60 text-accent",
       }
     : streak.current > 0
       ? {
           text: days,
           label: `${days}. Open stats`,
-          className: "border-primary/40 bg-primary/10 text-primary",
+          className: "border-accent/40 bg-accent/10 text-accent",
         }
       : {
           text: "Start a streak",

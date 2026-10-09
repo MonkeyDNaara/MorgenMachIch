@@ -25,7 +25,7 @@ export default function AddTaskFab() {
       type="button"
       onClick={() => openTaskDrawer()}
       aria-label="Add task"
-      className="fixed bottom-6 right-6 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-content shadow-lg shadow-primary/40 transition-transform hover:scale-105"
+      className="fixed bottom-6 right-6 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-content shadow-gloss transition-transform hover:scale-105"
     >
       <Plus size={22} strokeWidth={2.4} />
     </button>
