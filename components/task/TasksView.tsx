@@ -2,7 +2,7 @@
 
 import { useState, useSyncExternalStore } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Inbox } from "lucide-react";
+import { CalendarDays, Inbox, ListTodo, Repeat, SlidersHorizontal } from "lucide-react";
 import type { Task } from "@/lib/types";
 import { getTasks } from "@/lib/db/tasks";
 import { getLabels } from "@/lib/db/labels";
@@ -24,6 +24,7 @@ import FilterPopover from "@/components/task/FilterPopover";
 import TaskCardList from "@/components/task/TaskCardList";
 import TaskQuickAdd, { type QuickAddVisibility } from "@/components/task/TaskQuickAdd";
 import SeriesRow from "@/components/task/SeriesRow";
+import EmptyState from "@/components/layout/EmptyState";
 import PageHeader from "@/components/layout/PageHeader";
 
 function excludeSeriesOccurrences(tasks: Task[]): Task[] {
@@ -181,12 +182,29 @@ export default function TasksView() {
       >
         <div className="p-6">
           <div className="mx-auto w-full max-w-md">
-            <p className="mb-3 font-mono text-xs text-base-content/40">Tasks</p>
+            <p className="mb-3 font-mono text-eyebrow text-base-content/50 uppercase">Tasks</p>
             <TaskCardList
               tasks={visibleTasks}
               labels={labels ?? []}
-              emptyMessage={
-                isEmpty ? "No tasks yet — add one above." : "No tasks match the selected filters."
+              compactEmpty
+              empty={
+                isEmpty
+                  ? {
+                      icon: ListTodo,
+                      title: "No tasks yet.",
+                      hint: "Type one above — try “Call mom fri 3pm #family”.",
+                    }
+                  : datedTasks.length === 0
+                    ? {
+                        icon: CalendarDays,
+                        title: "Nothing scheduled.",
+                        hint: "Plan a backlog task, or add one with a date.",
+                      }
+                    : {
+                        icon: SlidersHorizontal,
+                        title: "No tasks match these filters.",
+                        hint: "Change or clear the filters to see more.",
+                      }
               }
             />
           </div>
@@ -194,11 +212,23 @@ export default function TasksView() {
         <div className="hidden bg-line md:block" />
         <div className="p-6">
           <div className="mx-auto w-full max-w-xs">
-            <p className="mb-3 font-mono text-xs text-base-content/40">Recurring</p>
+            <p className="mb-3 font-mono text-eyebrow text-base-content/50 uppercase">Recurring</p>
             {visibleSeries.length === 0 ? (
-              <p className="p-8 text-center text-base-content/40">
-                No recurring tasks match the selected filters.
-              </p>
+              series.length === 0 ? (
+                <EmptyState
+                  compact
+                  icon={Repeat}
+                  title="No recurring tasks."
+                  hint="Turn on Repeat when creating a task."
+                />
+              ) : (
+                <EmptyState
+                  compact
+                  icon={SlidersHorizontal}
+                  title="No recurring tasks match."
+                  hint="Change or clear the filters."
+                />
+              )
             ) : (
               <div className="flex flex-col gap-2">
                 {visibleSeries.map((s) => (
@@ -213,7 +243,7 @@ export default function TasksView() {
             <div className="hidden bg-line lg:block" />
             <div className="border-t border-line p-6 md:col-span-3 lg:col-span-1 lg:border-t-0">
               <div className="mx-auto w-full max-w-xs">
-                <p className="mb-3 font-mono text-xs text-base-content/40">
+                <p className="mb-3 font-mono text-eyebrow text-base-content/50 uppercase">
                   Backlog · {visibleBacklog.length}
                 </p>
                 <TaskCardList
@@ -221,10 +251,19 @@ export default function TasksView() {
                   labels={labels ?? []}
                   showAge
                   showPlan
-                  emptyMessage={
+                  compactEmpty
+                  empty={
                     backlogTasks.length === 0
-                      ? "Nothing in the backlog. Tasks without a due date show up here."
-                      : "No backlog tasks match the selected filters."
+                      ? {
+                          icon: Inbox,
+                          title: "Backlog is empty — everything has a day.",
+                          hint: "Tasks without a due date land here.",
+                        }
+                      : {
+                          icon: SlidersHorizontal,
+                          title: "No backlog tasks match.",
+                          hint: "Change or clear the filters.",
+                        }
                   }
                 />
               </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Tag, Trash2 } from "lucide-react";
 import { countTasksWithLabel, createLabel, deleteLabel, getLabels, updateLabel } from "@/lib/db/labels";
 import { getTasks } from "@/lib/db/tasks";
 import { DEFAULT_LABEL_COLOR, type LabelColorHex } from "@/lib/constants/labelColors";
@@ -10,6 +10,7 @@ import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
 import type { Label } from "@/lib/types";
 import LabelChip from "@/components/label/LabelChip";
 import PageHeader from "@/components/layout/PageHeader";
+import EmptyState from "@/components/layout/EmptyState";
 import ColorSwatchPicker from "@/components/label/ColorSwatchPicker";
 
 type FormMode = { kind: "none" } | { kind: "create" } | { kind: "edit"; label: Label };
@@ -155,9 +156,11 @@ export default function LabelsView() {
       {labels === undefined && <p className="text-sm text-base-content/40">Loading…</p>}
 
       {labels !== undefined && labels.length === 0 && form.kind !== "create" && (
-        <p className="text-sm text-base-content/40">
-          No labels yet — create one to start tagging tasks.
-        </p>
+        <EmptyState
+          icon={Tag}
+          title="No labels yet."
+          hint="Create one to group tasks by context — Work, Home, Health…"
+        />
       )}
 
       <div className="flex flex-col gap-2">

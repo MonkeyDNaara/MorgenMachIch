@@ -12,6 +12,19 @@ import { sortTasks, type TaskSortBy } from "@/lib/utils/sortTasks";
 import TaskCardList from "@/components/task/TaskCardList";
 import FilterPopover from "@/components/task/FilterPopover";
 import TaskListToolbar from "@/components/task/TaskListToolbar";
+import EmptyState, { type EmptyCopy } from "@/components/layout/EmptyState";
+import { ListTodo, SlidersHorizontal } from "lucide-react";
+
+const NO_TASKS_YET: EmptyCopy = {
+  icon: ListTodo,
+  title: "No tasks yet.",
+  hint: "Type one above — try “Call mom fri 3pm #family”.",
+};
+const FILTERED: EmptyCopy = {
+  icon: SlidersHorizontal,
+  title: "No tasks match these filters.",
+  hint: "Change or clear the filters to see more.",
+};
 import type { QuickAddVisibility } from "@/components/task/TaskQuickAdd";
 
 type TaskListProps = {
@@ -23,7 +36,7 @@ type TaskListProps = {
   baseFilter?: (tasks: Task[]) => Task[];
   /** Shown instead of the generic "no matches" message when baseFilter
    * (plus the toolbar filters) leaves nothing to show. */
-  emptyMessage?: string;
+  empty?: EmptyCopy;
   /** Hides this list's own label bar and priority dropdown when the
    * surrounding view applies those filters itself through `baseFilter`
    * (/calendar's day view, #171). Status and sort stay. */
@@ -60,7 +73,7 @@ type TaskListProps = {
  */
 export default function TaskList({
   baseFilter,
-  emptyMessage,
+  empty,
   hideLabelAndPriorityFilters = false,
   header,
 }: TaskListProps = {}) {
@@ -96,11 +109,13 @@ export default function TaskList({
   // is added.
   if (tasks.length === 0 && !header) {
     return (
-      <p className="p-8 text-center text-base-content/40">No tasks yet — hit the + button.</p>
+      <EmptyState {...NO_TASKS_YET} hint="Hit the + button to add your first one." />
     );
   }
 
   const scopedTasks = baseFilter ? baseFilter(tasks) : tasks;
+  // With filters on, an empty list means "filtered out", not "free day".
+  const filtersActive = status !== "all" || priority !== "all" || activeLabelIds.length > 0;
   const visibleTasks = sortTasks(applyFilters(scopedTasks), sortBy);
 
   return (
@@ -132,10 +147,12 @@ export default function TaskList({
         <TaskCardList
           tasks={visibleTasks}
           labels={labels ?? []}
-          emptyMessage={
+          empty={
             tasks.length === 0
-              ? "No tasks yet — add one above."
-              : (emptyMessage ?? "No tasks match the selected filters.")
+              ? NO_TASKS_YET
+              : filtersActive
+                ? FILTERED
+                : (empty ?? FILTERED)
           }
         />
       </div>

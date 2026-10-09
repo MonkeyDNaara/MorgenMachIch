@@ -12,6 +12,8 @@ import TaskQuickAdd from "@/components/task/TaskQuickAdd";
 import StreakBadge from "@/components/stats/StreakBadge";
 import PageHeader from "@/components/layout/PageHeader";
 import DayProgress from "@/components/task/DayProgress";
+import { CalendarDays, Sunrise } from "lucide-react";
+import type { EmptyCopy } from "@/components/layout/EmptyState";
 import { APP_LOCALE } from "@/lib/constants/locale";
 
 function scopeToTodayOrOverdue(tasks: Task[]): Task[] {
@@ -44,13 +46,21 @@ export default function TodayView() {
         tasks.filter((task) => task.dueDate !== null && isSameLocalDay(task.dueDate, selectedDay))
     : scopeToTodayOrOverdue;
 
-  const emptyMessage = selectedDay
-    ? `Nothing due ${selectedDay.toLocaleDateString(APP_LOCALE, {
-        weekday: "long",
-        month: "short",
-        day: "numeric",
-      })}.`
-    : "Nothing due today or overdue — you're all caught up!";
+  const empty: EmptyCopy = selectedDay
+    ? {
+        icon: CalendarDays,
+        title: `Nothing due ${selectedDay.toLocaleDateString(APP_LOCALE, {
+          weekday: "long",
+          month: "short",
+          day: "numeric",
+        })}.`,
+        hint: "Add something above, or pick another day below.",
+      }
+    : {
+        icon: Sunrise,
+        title: "Nothing left for today.",
+        hint: "Morgen can wait. Add something above if you're still in the mood.",
+      };
 
   return (
     <div className="flex flex-col">
@@ -98,7 +108,7 @@ export default function TodayView() {
       )}
       <TaskList
         baseFilter={baseFilter}
-        emptyMessage={emptyMessage}
+        empty={empty}
         header={(visibilityOf) => (
           <TaskQuickAdd defaultDate={selectedDay ?? new Date()} visibilityOf={visibilityOf} />
         )}
