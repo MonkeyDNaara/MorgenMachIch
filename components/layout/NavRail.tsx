@@ -2,7 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Sun, LayoutList, Calendar, Tag, Search, Settings, type LucideIcon } from "lucide-react";
+import {
+  Sun,
+  LayoutList,
+  Calendar,
+  Tag,
+  TrendingUp,
+  Search,
+  Settings,
+  type LucideIcon,
+} from "lucide-react";
 import { useCommandPalette } from "@/components/palette/CommandPaletteProvider";
 
 type NavItem = {
@@ -16,6 +25,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/tasks", label: "Tasks", icon: LayoutList },
   { href: "/calendar", label: "Calendar", icon: Calendar },
   { href: "/labels", label: "Labels", icon: Tag },
+  { href: "/stats", label: "Stats", icon: TrendingUp },
 ];
 
 const SETTINGS_ITEM: NavItem = { href: "/settings", label: "Settings", icon: Settings };
