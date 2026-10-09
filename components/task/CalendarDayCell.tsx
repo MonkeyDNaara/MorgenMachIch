@@ -2,6 +2,7 @@
 
 import { Repeat } from "lucide-react";
 import type { CalendarEntry } from "@/lib/utils/calendarEntries";
+import { APP_LOCALE } from "@/lib/constants/locale";
 import PriorityDot from "@/components/task/PriorityDot";
 
 const MAX_VISIBLE_TASKS = 3;
@@ -39,19 +40,25 @@ export default function CalendarDayCell({
   onSelect,
 }: CalendarDayCellProps) {
   const visible = entries.slice(0, MAX_VISIBLE_TASKS);
+  const weekend = date.getDay() === 0 || date.getDay() === 6;
+  const label = `${date.toLocaleDateString(APP_LOCALE, { weekday: "long", day: "numeric", month: "long" })}${
+    isToday ? ", today" : ""
+  }, ${entries.length === 0 ? "nothing due" : `${entries.length} ${entries.length === 1 ? "task" : "tasks"}`}`;
   const overflow = entries.length - visible.length;
 
   return (
     <button
       type="button"
       onClick={() => onSelect(date)}
-      className={`flex min-h-[104px] cursor-pointer flex-col gap-1 surface-panel p-2 text-left outline-none! transition-colors hover:border-accent/30 ${
-        isCurrentMonth ? "" : "opacity-40"
-      }`}
+      aria-label={label}
+      className={`flex min-h-[104px] cursor-pointer flex-col gap-1 rounded-box border p-2 text-left outline-none! transition-colors hover:border-accent/40 focus-visible:shadow-focus ${
+        isToday ? "border-accent/40" : "border-line"
+      } ${weekend ? "bg-transparent" : "bg-base-200"} ${isCurrentMonth ? "" : "opacity-40"}`}
     >
       <span
-        className={`inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-xs font-medium ${
-          isToday ? "bg-accent text-accent-content" : "text-base-content/70"
+        aria-hidden
+        className={`inline-flex h-5 min-w-5 flex-shrink-0 items-center justify-center self-start rounded-full px-1 font-mono text-meta ${
+          isToday ? "bg-accent font-semibold text-accent-content" : "text-base-content/60"
         }`}
       >
         {date.getDate()}
