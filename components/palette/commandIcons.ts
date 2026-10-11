@@ -1,9 +1,12 @@
 import {
   Calendar,
   LayoutList,
+  Monitor,
+  Moon,
   Plus,
   Settings,
   Sun,
+  SunDim,
   Tag,
   Terminal,
   TrendingUp,
@@ -20,6 +23,9 @@ const COMMAND_ICONS: Record<string, LucideIcon> = {
   "go-stats": TrendingUp,
   "go-settings": Settings,
   "new-task": Plus,
+  "theme-system": Monitor,
+  "theme-light": SunDim,
+  "theme-dark": Moon,
 };
 
 export function commandIcon(id: string): LucideIcon {

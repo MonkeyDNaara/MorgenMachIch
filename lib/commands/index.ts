@@ -1,4 +1,5 @@
 import type { Command } from "@/lib/commands/types";
+import type { ThemePreference } from "@/lib/ui/themePreference";
 
 export type { Command, CommandContext } from "@/lib/commands/types";
 
@@ -10,6 +11,16 @@ function goTo(id: string, label: string, path: string, keywords: string[]): Comm
     keywords,
     hint: path,
     run: ({ navigate }) => navigate(path),
+  };
+}
+
+function setTheme(preference: ThemePreference, label: string, keywords: string[]): Command {
+  return {
+    id: `theme-${preference}`,
+    label: `Theme: ${label}`,
+    group: "Actions",
+    keywords: ["appearance", "color scheme", "mode", ...keywords],
+    run: (context) => context.setTheme(preference),
   };
 }
 
@@ -39,4 +50,7 @@ export const COMMANDS: readonly Command[] = [
     keywords: ["add", "create", "todo"],
     run: ({ openNewTask }) => openNewTask(),
   },
+  setTheme("system", "System", ["auto", "os", "device"]),
+  setTheme("light", "Light", ["light mode", "bright", "day"]),
+  setTheme("dark", "Dark", ["dark mode", "night"]),
 ];

@@ -9,6 +9,7 @@ import { isTodayOrOverdue } from "@/lib/utils/isDueToday";
 import { useModKey } from "@/lib/ui/useModKey";
 import { useCommandPalette } from "@/components/palette/CommandPaletteProvider";
 import LogoMark from "@/components/layout/LogoMark";
+import ThemeToggle from "@/components/layout/ThemeToggle";
 import { MAIN_NAV, NAV_ITEMS, isActive, type NavItem } from "@/components/layout/navItems";
 
 function itemClasses(active: boolean): string {
@@ -96,6 +97,7 @@ export default function AppNav() {
           <span className="hidden flex-1 text-left lg:inline">Search</span>
           <kbd className="hidden font-mono text-meta lg:inline">{modKey}K</kbd>
         </button>
+        <ThemeToggle labelFromLg className={`${itemClasses(false)} cursor-pointer`} />
         <NavLink item={NAV_ITEMS.settings} active={isActive(pathname, NAV_ITEMS.settings.href)} />
       </div>
     </nav>

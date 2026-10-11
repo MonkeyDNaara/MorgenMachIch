@@ -7,6 +7,7 @@ import { Ellipsis, Search } from "lucide-react";
 import { useDismiss } from "@/lib/ui/useDismiss";
 import { useCommandPalette } from "@/components/palette/CommandPaletteProvider";
 import { NAV_ITEMS, isActive, type NavItem } from "@/components/layout/navItems";
+import ThemeToggle from "@/components/layout/ThemeToggle";
 
 const TABS: NavItem[] = [NAV_ITEMS.today, NAV_ITEMS.tasks, NAV_ITEMS.calendar, NAV_ITEMS.stats];
 const MORE_ITEMS: NavItem[] = [NAV_ITEMS.labels, NAV_ITEMS.settings];
@@ -20,9 +21,9 @@ const menuItemClasses =
 /**
  * Mobile navigation below md (#235): a bar fixed to the bottom with
  * Today, Tasks, Calendar, Stats and More. More opens a small menu above
- * the bar with Labels, Search and Settings — plain React state with
- * useDismiss (Escape or an outside click closes it, focus returns to
- * the More button). More counts as active on /labels and /settings.
+ * the bar with Labels, Settings, Search and the theme toggle (#266) —
+ * plain React state with useDismiss (Escape or an outside click closes
+ * it, focus returns to the More button). More counts as active on /labels and /settings.
  */
 export default function BottomTabBar() {
   const pathname = usePathname();
@@ -68,6 +69,7 @@ export default function BottomTabBar() {
             <Search size={16} strokeWidth={1.8} />
             Search
           </button>
+          <ThemeToggle onToggle={() => setMenuOpen(false)} className={menuItemClasses} />
         </div>
       )}
 

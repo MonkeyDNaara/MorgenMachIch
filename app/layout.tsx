@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import AppNav from "@/components/layout/AppNav";
 import BottomTabBar from "@/components/layout/BottomTabBar";
@@ -7,6 +7,8 @@ import { ToastProvider } from "@/components/layout/ToastProvider";
 import TaskDrawer from "@/components/task/TaskDrawer";
 import SeriesDrawer from "@/components/task/SeriesDrawer";
 import OccurrenceSync from "@/components/task/OccurrenceSync";
+import ThemeSync from "@/components/layout/ThemeSync";
+import { THEME_COLORS, THEME_INIT_SCRIPT } from "@/lib/ui/themePreference";
 import { TaskDrawerProvider } from "@/components/task/TaskDrawerProvider";
 import { SeriesDrawerProvider } from "@/components/task/SeriesDrawerProvider";
 import { CommandPaletteProvider } from "@/components/palette/CommandPaletteProvider";
@@ -28,13 +30,28 @@ export const metadata: Metadata = {
   description: "A to-do app with labels, a calendar view, and recurring tasks.",
 };
 
+// Mobile browser bar per OS scheme; an explicit theme choice overrides both (#266).
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: THEME_COLORS.light },
+    { media: "(prefers-color-scheme: dark)", color: THEME_COLORS.dark },
+  ],
+};
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
+    // suppressHydrationWarning: the head script may set data-theme before React hydrates (#266).
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
+      <head>
+        {/* Applies a stored light/dark choice before the first paint (#266). */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="min-h-full flex bg-base-100 text-base-content">
+        <ThemeSync />
         <OccurrenceSync />
         <ToastProvider>
           <TaskDrawerProvider>

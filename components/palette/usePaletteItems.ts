@@ -14,6 +14,7 @@ import { tokenColor, tokenLabel } from "@/components/quickadd/tokenDisplay";
 import { useTaskDrawer } from "@/components/task/TaskDrawerProvider";
 import { commandIcon } from "@/components/palette/commandIcons";
 import { useToast } from "@/components/layout/ToastProvider";
+import { writeThemePreference } from "@/lib/ui/themePreference";
 import type { PaletteItem } from "@/components/palette/types";
 
 /** Done tasks still show up, but below every open match. */
@@ -47,6 +48,7 @@ export function usePaletteItems(
     const context: CommandContext = {
       navigate: (path) => router.push(path),
       openNewTask: () => openTaskDrawer(),
+      setTheme: writeThemePreference,
     };
     const items: PaletteItem[] = COMMANDS.map((command) => ({
       id: command.id,

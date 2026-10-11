@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import StatusPage from "@/components/layout/StatusPage";
+import ThemeSync from "@/components/layout/ThemeSync";
 import "./globals.css";
 
 /**
@@ -10,7 +11,8 @@ import "./globals.css";
  * is what failed. It replaces the root layout, so it must render its own
  * <html>/<body> and import the global styles itself. Plain <a> instead
  * of next/link on purpose: if routing is what broke, a full page load is
- * the safest way out.
+ * the safest way out. ThemeSync applies the stored light/dark choice
+ * (#266); the root layout's head script doesn't run here.
  */
 export default function GlobalError({
   error,
@@ -26,6 +28,7 @@ export default function GlobalError({
   return (
     <html lang="en">
       <body className="bg-base-100 text-base-content">
+        <ThemeSync />
         <StatusPage
           fullScreen
           code="Oops"
