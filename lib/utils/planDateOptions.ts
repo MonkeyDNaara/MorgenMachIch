@@ -17,26 +17,30 @@ export function toLocalDateKey(date: Date): string {
 
 /**
  * The quick choices for "Plan for…" on a backlog task (#183): Today,
- * Tomorrow, then every remaining day up to this week's Sunday (reusing
- * upcomingWeekDays so "the rest of the week" means the same thing as in
- * the week-ahead strip). On Saturday that is just Today + Tomorrow, on
- * Sunday only Today — "Pick date" covers anything further out. Weekday
- * names come from APP_LOCALE like every other date in the app (#191).
+ * Tomorrow, then every day of upcomingWeekDays — so it offers the same
+ * days as the week-ahead strip, which on the weekend means all of next
+ * week (#282). A weekday that already appeared (today's or tomorrow's) is
+ * labelled "Next …" ("Next Saturday" on a Saturday). "Pick date" covers
+ * anything further out. Weekday names come from APP_LOCALE (#191).
  */
 export function planDateOptions(from: Date = new Date()): PlanDateOption[] {
   const today = new Date(from.getFullYear(), from.getMonth(), from.getDate());
   const [tomorrow, ...restOfWeek] = upcomingWeekDays(from);
 
   const options: PlanDateOption[] = [{ key: toLocalDateKey(today), label: "Today", date: today }];
+  const seenWeekdays = new Set([today.getDay()]);
   if (tomorrow) {
     options.push({ key: toLocalDateKey(tomorrow), label: "Tomorrow", date: tomorrow });
+    seenWeekdays.add(tomorrow.getDay());
   }
   for (const day of restOfWeek) {
+    const weekday = day.toLocaleDateString(APP_LOCALE, { weekday: "long" });
     options.push({
       key: toLocalDateKey(day),
-      label: day.toLocaleDateString(APP_LOCALE, { weekday: "long" }),
+      label: seenWeekdays.has(day.getDay()) ? `Next ${weekday}` : weekday,
       date: day,
     });
+    seenWeekdays.add(day.getDay());
   }
   return options;
 }
