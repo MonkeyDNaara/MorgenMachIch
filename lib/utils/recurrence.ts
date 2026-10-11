@@ -1,4 +1,5 @@
 import type { RecurrenceRule, TaskSeries } from "@/lib/types";
+import { parseDateOnly } from "@/lib/utils/parseDateOnly";
 
 function startOfDay(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -71,7 +72,7 @@ function matchesRule(date: Date, startDate: Date, rule: RecurrenceRule): boolean
  * than interval arithmetic, and just as fast at this scale.
  */
 export function occurrencesBetween(rule: RecurrenceRule, startDate: Date, from: Date, horizon: Date): Date[] {
-  const cutoff = rule.endDate ? startOfDay(new Date(rule.endDate)) : null;
+  const cutoff = rule.endDate ? startOfDay(parseDateOnly(rule.endDate)) : null;
   const effectiveHorizon = cutoff && cutoff < horizon ? cutoff : horizon;
   const fromDay = startOfDay(from);
 
