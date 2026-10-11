@@ -24,7 +24,7 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <html lang="en" data-theme="morgen">
+    <html lang="en">
       <body className="bg-base-100 text-base-content">
         <StatusPage
           fullScreen

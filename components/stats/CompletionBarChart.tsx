@@ -93,7 +93,7 @@ export default function CompletionBarChart({ series, unit }: CompletionBarChartP
             x2={width}
             y1={BASELINE + 0.5}
             y2={BASELINE + 0.5}
-            className="stroke-white/10"
+            className="stroke-line-strong"
             aria-hidden
           />
           {series.map((entry, index) => {

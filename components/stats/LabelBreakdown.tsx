@@ -1,4 +1,5 @@
 import type { Label } from "@/lib/types";
+import { inkColor } from "@/lib/ui/colorChip";
 
 /** Color for tasks without a label: the theme's neutral gray-teal. */
 const NO_LABEL_COLOR = "var(--color-neutral)";
@@ -42,7 +43,7 @@ export default function LabelBreakdown({ rows, labels }: LabelBreakdownProps) {
           >
             <span
               className={`truncate ${row.labelId === null ? "text-base-content/50" : ""}`}
-              style={row.labelId === null ? undefined : { color: row.color }}
+              style={row.labelId === null ? undefined : { color: inkColor(row.color) }}
             >
               {row.name}
             </span>

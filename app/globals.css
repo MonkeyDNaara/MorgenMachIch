@@ -2,7 +2,7 @@
 @plugin "daisyui";
 @plugin "daisyui/theme" {
   name: "morgen";
-  default: true;
+  default: false;
   prefersdark: true;
   color-scheme: dark;
 
@@ -51,8 +51,75 @@
   --mm-data-2: color-mix(in oklab, var(--color-accent) 50%, transparent);
   --mm-data-3: color-mix(in oklab, var(--color-accent) 75%, transparent);
   --mm-data-4: var(--color-accent);
+  /* Label text strength (#265): label swatches are stored data tuned for dark
+     surfaces; the light theme mixes them with base-content (see inkColor). */
+  --mm-chip-ink: 100%;
+  /* Mobile tab bar: hairline on top plus a soft shadow upwards. */
+  --mm-shadow-bar: inset 0 1px 0 var(--mm-line), 0 -6px 16px rgb(0 0 0 / 0.35);
 
   /* Selector stays 1.25rem so checkboxes keep their circular look. */
+  --radius-selector: 1.25rem;
+  --radius-field: 0.875rem;
+  --radius-box: 0.875rem;
+
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+/* Light theme "Dawn Paper" (#265): same color names and --mm-* variables as
+   "morgen". It is the default theme, and "morgen" takes over through
+   prefersdark, so without a data-theme attribute the app follows the OS. */
+@plugin "daisyui/theme" {
+  name: "morgen-light";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+
+  /* Surfaces: warm cream page, lighter panel, white raised cards. */
+  --color-base-100: #f6f2ec;
+  --color-base-200: #fbf8f4;
+  --color-base-300: #ffffff;
+  --color-base-content: #1f1a16;
+
+  --color-neutral: #4f7176;
+  --color-neutral-content: #ffffff;
+
+  /* Burnt amber: readable as a fill (white ink) and as small text. */
+  --color-primary: #bf5516;
+  --color-primary-content: #ffffff;
+
+  --color-accent: #08798a;
+  --color-accent-content: #ffffff;
+
+  --color-success: #357a2b;
+  --color-success-content: #ffffff;
+  --color-warning: #8a6f00;
+  --color-warning-content: #ffffff;
+  --color-error: #b83a25;
+  --color-error-content: #ffffff;
+
+  --mm-sunken: #ece6dd;
+  --mm-line: rgb(60 40 20 / 0.08);
+  --mm-line-strong: rgb(60 40 20 / 0.14);
+  --mm-scrim: rgb(40 28 16 / 0.35);
+  --mm-shadow-raised:
+    inset 0 1px 0 rgb(255 255 255 / 0.9), 0 1px 2px rgb(60 40 20 / 0.08),
+    0 4px 12px rgb(60 40 20 / 0.07);
+  --mm-shadow-raised-sm: 0 1px 2px rgb(60 40 20 / 0.1);
+  --mm-shadow-sunken: inset 0 1px 2px rgb(60 40 20 / 0.12), 0 1px 0 rgb(255 255 255 / 0.8);
+  --mm-shadow-overlay: 0 1px 2px rgb(60 40 20 / 0.06), 0 12px 32px rgb(60 40 20 / 0.16);
+  --mm-shadow-gloss:
+    inset 0 1px 0 rgb(255 255 255 / 0.45), inset 0 -2px 0 rgb(0 0 0 / 0.1),
+    0 4px 14px color-mix(in oklab, var(--color-primary) 30%, transparent),
+    0 2px 4px rgb(60 40 20 / 0.18);
+  --mm-data-1: color-mix(in oklab, var(--color-accent) 28%, transparent);
+  --mm-data-2: color-mix(in oklab, var(--color-accent) 50%, transparent);
+  --mm-data-3: color-mix(in oklab, var(--color-accent) 75%, transparent);
+  --mm-data-4: var(--color-accent);
+  --mm-chip-ink: 55%;
+  --mm-shadow-bar: inset 0 1px 0 var(--mm-line), 0 -6px 16px rgb(60 40 20 / 0.08);
+
   --radius-selector: 1.25rem;
   --radius-field: 0.875rem;
   --radius-box: 0.875rem;
@@ -78,6 +145,7 @@
   --shadow-sunken: var(--mm-shadow-sunken);
   --shadow-overlay: var(--mm-shadow-overlay);
   --shadow-gloss: var(--mm-shadow-gloss);
+  --shadow-bar: var(--mm-shadow-bar);
   --shadow-focus: 0 0 0 3px color-mix(in oklab, var(--color-accent) 35%, transparent);
   --shadow-glow: 0 0 0 3px color-mix(in oklab, var(--color-accent) 15%, transparent);
 
