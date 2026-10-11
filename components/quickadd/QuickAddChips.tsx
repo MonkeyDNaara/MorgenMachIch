@@ -1,4 +1,14 @@
-import { CalendarClock, Flag, Repeat, RotateCcw, Tag, X } from "lucide-react";
+import {
+  CalendarCheck,
+  CalendarClock,
+  Clock,
+  Flag,
+  Repeat,
+  RotateCcw,
+  Tag,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import type { Label } from "@/lib/types";
 import type { QuickAddToken } from "@/lib/utils/parseQuickAdd";
 import { tintChipStyle } from "@/lib/ui/colorChip";
@@ -22,6 +32,19 @@ const KIND_NAMES = {
   priority: "priority",
   recurrence: "repeat",
 } as const;
+
+/** Next to a recurrence, date chips are the start (clock for a time) or the end (#275). */
+function chipIcon(token: QuickAddToken): LucideIcon {
+  if (token.kind === "date" && token.role === "end") return CalendarCheck;
+  if (token.kind === "date" && token.role === "start" && token.timeOnly) return Clock;
+  return ICONS[token.kind];
+}
+
+function kindName(token: QuickAddToken): string {
+  if (token.kind === "date" && token.role === "end") return "end date";
+  if (token.kind === "date" && token.role === "start") return "start";
+  return KIND_NAMES[token.kind];
+}
 
 /**
  * Preview of what a quick-add field will set (#203): one soft-tint chip per
@@ -48,7 +71,7 @@ export default function QuickAddChips({
       {all.map((token) => {
         const ignored = ignoredIds.has(token.id);
         const text = tokenLabel(token, labels, now);
-        const Icon = ICONS[token.kind];
+        const Icon = chipIcon(token);
         const Action = ignored ? RotateCcw : X;
         return (
           <button
@@ -56,7 +79,7 @@ export default function QuickAddChips({
             type="button"
             onClick={() => onToggle(token.id)}
             aria-pressed={ignored}
-            aria-label={`${ignored ? "Use" : "Ignore"} ${KIND_NAMES[token.kind]} ${text}`}
+            aria-label={`${ignored ? "Use" : "Ignore"} ${kindName(token)} ${text}`}
             title={ignored ? "Use this again" : "Ignore — keep it as text"}
             className={`inline-flex items-center gap-1.5 rounded-full py-0.5 pr-1.5 pl-2.5 text-xs font-medium transition-opacity ${
               ignored ? "line-through opacity-45 hover:opacity-70" : "hover:opacity-90"

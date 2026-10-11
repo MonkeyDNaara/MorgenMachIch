@@ -5,8 +5,7 @@ import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
 import { X } from "lucide-react";
 import { createTask, deleteTask, getTask, updateTask } from "@/lib/db/tasks";
-import { createTaskSeries } from "@/lib/db/taskSeries";
-import { generateOccurrences } from "@/lib/db/occurrences";
+import { createTaskSeriesWithOccurrences } from "@/lib/db/taskSeries";
 import { getLabels } from "@/lib/db/labels";
 import { buildDueDateIso, splitDueDateIso } from "@/lib/utils/dueDate";
 import { computeMonthlyDefaults } from "@/lib/utils/recurrence";
@@ -181,10 +180,8 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
           allDay,
         });
       } else if (repeatEnabled) {
-        // Recurring: create the TaskSeries template, then generate its
-        // occurrences immediately so they're visible right away rather
-        // than waiting for the next app load (OccurrenceSync, #60).
-        await createTaskSeries({
+        // Recurring: create the TaskSeries template and its occurrences.
+        await createTaskSeriesWithOccurrences({
           title: title.trim(),
           ...(notes.trim() ? { notes: notes.trim() } : {}),
           priority,
@@ -195,7 +192,6 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
           allDay,
           active: true,
         });
-        await generateOccurrences();
       } else {
         await createTask({
           title: title.trim(),

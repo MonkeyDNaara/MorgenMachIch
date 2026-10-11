@@ -7,6 +7,7 @@ import type { Label } from "@/lib/types";
 import { getLabels } from "@/lib/db/labels";
 import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
 import type { QuickAddResult } from "@/lib/utils/parseQuickAdd";
+import { formatQuickAddDue } from "@/lib/utils/formatQuickAddDue";
 import { useQuickAdd } from "@/components/quickadd/useQuickAdd";
 import QuickAddHighlight from "@/components/quickadd/QuickAddHighlight";
 import QuickAddChips from "@/components/quickadd/QuickAddChips";
@@ -27,6 +28,9 @@ type QuickAddInputProps = {
   size?: "sm" | "md";
   /** Called on every edit, e.g. to clear a status message. */
   onEdit?: () => void;
+  /** Understand "every mon" phrases (#274); the caller must handle
+   * `result.recurrence` by creating a series. */
+  recurrence?: boolean;
 };
 
 const SIZE_CLASSES = { sm: "input-sm", md: "input-md" } as const;
@@ -54,9 +58,10 @@ export default function QuickAddInput({
   ariaLabel,
   size = "md",
   onEdit,
+  recurrence = false,
 }: QuickAddInputProps) {
   const labels = useLiveQuery(() => getLabels(), []) ?? NO_LABELS;
-  const { text, setText, result, toggleIgnore, reset } = useQuickAdd(labels);
+  const { text, setText, result, toggleIgnore, reset } = useQuickAdd(labels, { recurrence });
   const [submitting, setSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const layerRef = useRef<HTMLDivElement>(null);
@@ -64,6 +69,17 @@ export default function QuickAddInput({
   const autocomplete = useTagAutocomplete({ text, setText, labels, inputRef });
 
   const hasDate = result.tokens.some((token) => token.kind === "date");
+  // Right-side hint: where a dateless task lands ("→ Today"), or — for a
+  // series — its first occurrence (#275). Short on the field, with the time
+  // in the line below on small screens.
+  const now = new Date();
+  const firstShort =
+    result.recurrence && result.dueDate ? formatQuickAddDue(result.dueDate, true, now) : null;
+  const firstLong =
+    result.recurrence && result.dueDate
+      ? formatQuickAddDue(result.dueDate, result.allDay, now)
+      : null;
+  const hint = firstShort ? `↻ ${firstShort}` : hasDate ? null : `→ ${defaultHint}`;
 
   // Keep the highlight layer scrolled like the input (before paint).
   useLayoutEffect(() => {
@@ -166,12 +182,14 @@ export default function QuickAddInput({
           strokeWidth={2.2}
           className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-primary"
         />
-        {!hasDate && (
+        {hint && (
           <span
             aria-hidden
-            className="pointer-events-none absolute top-1/2 right-3 hidden -translate-y-1/2 font-mono text-xs text-faint sm:block"
+            className={`pointer-events-none absolute top-1/2 right-3 hidden -translate-y-1/2 font-mono text-xs sm:block ${
+              firstShort ? "text-accent" : "text-faint"
+            }`}
           >
-            → {defaultHint}
+            {hint}
           </span>
         )}
 
@@ -179,10 +197,16 @@ export default function QuickAddInput({
       </div>
 
       {/* Below sm the hint moves under the field so it can never overlap the text. */}
-      {!hasDate && (
-        <p aria-hidden className="mt-1.5 font-mono text-meta text-subtle sm:hidden">
-          → {defaultHint} · try “gym tue 7am #health”
+      {firstLong ? (
+        <p aria-hidden className="mt-1.5 font-mono text-meta text-accent sm:hidden">
+          ↻ first {firstLong}
         </p>
+      ) : (
+        !hasDate && (
+          <p aria-hidden className="mt-1.5 font-mono text-meta text-subtle sm:hidden">
+            → {defaultHint} · try “gym tue 7am #health”
+          </p>
+        )
       )}
 
       <QuickAddChips

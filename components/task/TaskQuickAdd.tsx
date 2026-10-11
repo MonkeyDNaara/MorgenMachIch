@@ -6,6 +6,7 @@ import { createTask } from "@/lib/db/tasks";
 import { formatQuickAddDue } from "@/lib/utils/formatQuickAddDue";
 import type { QuickAddResult } from "@/lib/utils/parseQuickAdd";
 import QuickAddInput from "@/components/quickadd/QuickAddInput";
+import { useAddSeries } from "@/components/quickadd/useAddSeries";
 
 /** Why a just-added task can't be seen where it was added. */
 export type QuickAddVisibility = "visible" | "out-of-scope" | "filtered";
@@ -28,6 +29,10 @@ type TaskQuickAddProps = {
  * doesn't (another day, the hidden Backlog column, or the current
  * filters), a short note says where it went so it never looks like the
  * add failed. The note clears on the next edit.
+ *
+ * Text with a recurrence ("Gym every mon 7am", #275) creates a series
+ * instead, confirmed by a toast with Undo (useAddSeries); the note rule is
+ * the same, checked against the series' first occurrence.
  */
 export default function TaskQuickAdd({
   defaultDate,
@@ -35,6 +40,7 @@ export default function TaskQuickAdd({
   placeholder = "Add a task… e.g. “Call mom fri 3pm #family !high”",
 }: TaskQuickAddProps) {
   const [message, setMessage] = useState<{ kind: "error" | "info"; text: string } | null>(null);
+  const addSeries = useAddSeries();
 
   const defaultIso = defaultDate
     ? new Date(
@@ -45,8 +51,45 @@ export default function TaskQuickAdd({
     : null;
   const defaultHint = defaultIso ? formatQuickAddDue(defaultIso, true, new Date()) : "Backlog";
 
+  async function handleSeries(result: QuickAddResult) {
+    try {
+      const series = await addSeries(result);
+      if (!series) return;
+      // Would the first occurrence (on /today) or the series row (on /tasks,
+      // a task with a seriesId) show up here? Same check as for tasks.
+      const first: Task = {
+        id: "",
+        title: series.title,
+        status: "open",
+        priority: series.priority,
+        dueDate: series.startDate,
+        allDay: series.allDay,
+        labelIds: series.labelIds,
+        subtasks: [],
+        seriesId: series.id,
+        createdAt: series.createdAt,
+        updatedAt: series.updatedAt,
+        completedAt: null,
+      };
+      const visibility = visibilityOf(first);
+      if (visibility === "visible") return;
+      const when = formatQuickAddDue(series.startDate, series.allDay, new Date());
+      setMessage({
+        kind: "info",
+        text:
+          visibility === "filtered"
+            ? `Series added — hidden by the current filters.`
+            : `Series added — first on ${when}, not shown here.`,
+      });
+    } catch (error) {
+      setMessage({ kind: "error", text: "Couldn't add this series — try again." });
+      throw error; // keeps the typed text in the field
+    }
+  }
+
   async function handleSubmit(result: QuickAddResult) {
     setMessage(null);
+    if (result.recurrence) return handleSeries(result);
     const dueDate = result.dueDate ?? defaultIso;
     let task: Task;
     try {
@@ -86,6 +129,7 @@ export default function TaskQuickAdd({
         placeholder={placeholder}
         ariaLabel="Quick add a task"
         onEdit={() => setMessage(null)}
+        recurrence
       />
       {message && (
         <p

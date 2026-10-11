@@ -105,6 +105,9 @@ export default function TasksView() {
 
   function visibilityOf(task: Task): QuickAddVisibility {
     const narrowed = filterTasksByLabels(filterTasksByPriority([task], priority), activeLabelIds);
+    // A new series (#275) shows as a row in the Recurring column, which
+    // only label and priority filters narrow.
+    if (task.seriesId !== null) return narrowed.length === 0 ? "filtered" : "visible";
     if (isBacklogTask(task)) {
       if (!backlogVisible) return "out-of-scope";
       return narrowed.length === 0 ? "filtered" : "visible";
