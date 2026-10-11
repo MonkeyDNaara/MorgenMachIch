@@ -9,10 +9,10 @@ conventions used throughout, so new code has an obvious home.
 app/
   today/ tasks/ calendar/ labels/ stats/ settings/   # one page.tsx per route
   layout.tsx               # root layout — providers, AppNav, BottomTabBar, FAB, drawers, palette
-  globals.css              # DaisyUI theme "morgen" + --mm-* tokens, surfaces, type scale
+  globals.css              # DaisyUI themes "morgen" (dark) + "morgen-light", --mm-* tokens, surfaces, type scale
   error.tsx, global-error.tsx, not-found.tsx
 components/
-  layout/                  # app shell: AppNav, BottomTabBar, PageHeader, EmptyState, ToastProvider, ...
+  layout/                  # app shell: AppNav, BottomTabBar, PageHeader, EmptyState, ToastProvider, ThemeToggle, ...
   task/                    # tasks & series: TaskCard, TaskList, drawers, toolbar, FilterPopover, ...
   label/                   # LabelChip, LabelsView, ColorSwatchPicker
   quickadd/                # natural-language input: QuickAddInput, highlight layer, chips, autocomplete
@@ -24,7 +24,7 @@ lib/
   db/                      # Dexie schema + repository functions (getTasks, createTask, ...)
   types/                   # Zod schemas + inferred types (Task, TaskSeries, Label, AppSettings)
   utils/                   # pure helpers: dates, filters, parser, stats, recurrence, ...
-  ui/                      # small UI helpers/hooks: FIELD_FOCUS, FIELD_LABEL, useDismiss, useModKey, ...
+  ui/                      # small UI helpers/hooks: FIELD_FOCUS, FIELD_LABEL, useDismiss, useModKey, theme preference, ...
   constants/               # label palette, priority colors, APP_LOCALE
   commands/                # framework-free command registry for the palette
 ```

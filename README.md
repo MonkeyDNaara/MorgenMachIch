@@ -107,6 +107,11 @@ actions and cyan for data, a clear sunken / raised / flat depth rule, a type
 scale with an editorial /today header ("Friday." plus a day-progress bar),
 a sidebar on desktop and a tab bar on phones, one-row filters, designed empty
 states and a "→ Morgen" button that moves a task to tomorrow (with undo).
-Every color and shadow comes from theme tokens, so a light theme is next.
-Planned after that: recurring tasks from the quick-add input, a hosted
-database (Neon) and more.
+A light theme ("Dawn Paper": warm cream with burnt-amber actions) followed:
+Settings → Appearance offers System / Light / Dark (System follows the
+device live), the navigation has a one-click light/dark switch, the command
+palette has theme commands, and the page never flashes the wrong theme on
+load. Text greys are theme tokens tuned per theme, so secondary text keeps
+the same contrast in light and dark.
+Planned next: recurring tasks from the quick-add input, a hosted database
+(Neon) and more.
