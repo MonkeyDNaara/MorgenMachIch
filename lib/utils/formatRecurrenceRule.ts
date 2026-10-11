@@ -1,5 +1,6 @@
 import type { RecurrenceRule } from "@/lib/types";
 import { APP_LOCALE } from "@/lib/constants/locale";
+import { parseDateOnly } from "@/lib/utils/parseDateOnly";
 
 const WEEKDAY_ABBR = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -49,7 +50,7 @@ export function formatRecurrenceRule(rule: RecurrenceRule): string {
   }
 
   if (rule.endDate) {
-    const endLabel = new Date(rule.endDate).toLocaleDateString(APP_LOCALE, {
+    const endLabel = parseDateOnly(rule.endDate).toLocaleDateString(APP_LOCALE, {
       month: "short",
       day: "numeric",
       year: "numeric",

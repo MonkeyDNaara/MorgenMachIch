@@ -1,6 +1,7 @@
 import * as chrono from "chrono-node";
 import { RecurrenceRuleSchema, type Label, type Priority, type RecurrenceRule } from "@/lib/types";
 import { occurrencesBetween } from "@/lib/utils/recurrence";
+import { parseDateOnly } from "@/lib/utils/parseDateOnly";
 import { findRecurrencePhrase, type RecurrencePhrase } from "@/lib/utils/parseRecurrence";
 
 /**
@@ -239,7 +240,7 @@ function firstOccurrence(
     addDays(anchorDay, -1),
     addDays(anchorDay, 400),
   );
-  const last = rule.endDate ? new Date(`${rule.endDate}T00:00`) : null;
+  const last = rule.endDate ? parseDateOnly(rule.endDate) : null;
   for (const day of dates) {
     if (last && day > last) return null; // the series would end before it starts
     if (!time) return { dueDate: day.toISOString(), allDay: true };
