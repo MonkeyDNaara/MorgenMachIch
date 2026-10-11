@@ -173,7 +173,7 @@ function PaletteBody({ onClose }: { onClose: () => void }) {
   return (
     <div className="flex flex-col">
       <div className="flex items-center gap-3 border-b border-line px-4 py-3">
-        <Search size={16} className="flex-shrink-0 text-base-content/40" aria-hidden />
+        <Search size={16} className="flex-shrink-0 text-faint" aria-hidden />
         <div className="relative min-w-0 flex-1">
           <input
             ref={inputRef}
@@ -236,9 +236,7 @@ function PaletteBody({ onClose }: { onClose: () => void }) {
             const start = groupStarts[groupIndex];
             return (
               <li key={group.group} role="presentation">
-                <p className="px-3 pb-1 pt-2 font-mono text-[11px] text-base-content/40">
-                  {group.group}
-                </p>
+                <p className="px-3 pb-1 pt-2 font-mono text-[11px] text-faint">{group.group}</p>
                 <ul role="group" aria-label={group.group}>
                   {group.entries.map((entry, i) => {
                     const index = start + i;
@@ -261,11 +259,11 @@ function PaletteBody({ onClose }: { onClose: () => void }) {
                           size={16}
                           strokeWidth={1.8}
                           aria-hidden
-                          className={`flex-shrink-0 ${selected ? "text-accent" : "text-base-content/50"}`}
+                          className={`flex-shrink-0 ${selected ? "text-accent" : "text-subtle"}`}
                         />
                         <span
                           className={`flex min-w-0 flex-1 items-center gap-1.5 ${
-                            item.muted ? "text-base-content/50 line-through" : ""
+                            item.muted ? "text-subtle line-through" : ""
                           }`}
                         >
                           {item.priority && <PriorityDot priority={item.priority} />}
@@ -283,7 +281,7 @@ function PaletteBody({ onClose }: { onClose: () => void }) {
                           ))}
                         </span>
                         {item.hint && (
-                          <span className="flex-shrink-0 font-mono text-xs text-base-content/40">
+                          <span className="flex-shrink-0 font-mono text-xs text-faint">
                             {item.hint}
                           </span>
                         )}
@@ -296,14 +294,12 @@ function PaletteBody({ onClose }: { onClose: () => void }) {
           })}
         </ul>
       ) : (
-        <p className="px-4 py-8 text-center text-sm text-base-content/40">
-          No results for “{query.trim()}”
-        </p>
+        <p className="px-4 py-8 text-center text-sm text-faint">No results for “{query.trim()}”</p>
       )}
 
       <div
         aria-hidden
-        className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-line px-4 py-2 font-mono text-[11px] text-base-content/40"
+        className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-line px-4 py-2 font-mono text-[11px] text-faint"
       >
         <span>
           <Kbd>↑</Kbd>
@@ -352,7 +348,7 @@ function bestMatchIndex(entries: { score: number }[]): number {
 
 function Kbd({ children }: { children: React.ReactNode }) {
   return (
-    <kbd className="mr-1 rounded border border-line-strong bg-base-300 px-1.5 py-0.5 font-mono text-[10px] text-base-content/60">
+    <kbd className="mr-1 rounded border border-line-strong bg-base-300 px-1.5 py-0.5 font-mono text-[10px] text-muted">
       {children}
     </kbd>
   );

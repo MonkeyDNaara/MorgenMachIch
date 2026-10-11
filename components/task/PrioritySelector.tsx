@@ -42,7 +42,7 @@ export default function PrioritySelector({ value, onChange }: PrioritySelectorPr
             className={`flex cursor-pointer items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-sm outline-none! transition-colors focus-visible:shadow-focus ${
               selected
                 ? "bg-base-300 text-base-content shadow-raised-sm"
-                : "text-base-content/60 hover:text-base-content"
+                : "text-muted hover:text-base-content"
             }`}
           >
             {color && (

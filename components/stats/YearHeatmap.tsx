@@ -13,9 +13,9 @@ const TOP = 16; // room for the month labels
 const RIGHT = 16; // room so the last month label is never clipped
 const WEEKDAY_LABELS = ["Mon", "", "Wed", "", "Fri", "", ""];
 
-/** Level 0 is the empty-cell gray; 1–4 are the theme's data levels (shares of the accent). */
+/** Level 0 is the empty-cell track (#267); 1–4 are the theme's data levels (shares of the accent). */
 const LEVEL_FILLS = [
-  "var(--color-base-300)",
+  "var(--mm-track)",
   "var(--mm-data-1)",
   "var(--mm-data-2)",
   "var(--mm-data-3)",
@@ -197,7 +197,7 @@ export default function YearHeatmap({ heatmap }: { heatmap: Heatmap }) {
 
       <div
         aria-hidden
-        className="mt-2 flex items-center justify-end gap-1 font-mono text-[10px] text-base-content/40"
+        className="mt-2 flex items-center justify-end gap-1 font-mono text-[10px] text-faint"
       >
         Less
         {LEVEL_FILLS.map((fill) => (

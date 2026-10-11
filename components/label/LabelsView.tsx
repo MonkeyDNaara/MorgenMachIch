@@ -153,7 +153,7 @@ export default function LabelsView() {
         />
       )}
 
-      {labels === undefined && <p className="text-sm text-base-content/40">Loading…</p>}
+      {labels === undefined && <p className="text-sm text-faint">Loading…</p>}
 
       {labels !== undefined && labels.length === 0 && form.kind !== "create" && (
         <EmptyState
@@ -185,7 +185,7 @@ export default function LabelsView() {
               className="flex items-center gap-3 surface-raised p-3"
             >
               <LabelChip name={label.name} color={label.color} />
-              <span className="ml-auto font-mono text-meta text-base-content/50">
+              <span className="ml-auto font-mono text-meta text-subtle">
                 {taskCounts?.get(label.id) ?? 0}{" "}
                 {(taskCounts?.get(label.id) ?? 0) === 1 ? "task" : "tasks"}
               </span>
@@ -195,7 +195,7 @@ export default function LabelsView() {
                   onClick={() => openEdit(label)}
                   disabled={form.kind !== "none" || deletingId !== null}
                   aria-label={`Edit ${label.name}`}
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-base-content/60 transition-colors outline-none! hover:bg-line-strong hover:text-base-content focus-visible:shadow-focus disabled:cursor-default disabled:opacity-40"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-muted transition-colors outline-none! hover:bg-line-strong hover:text-base-content focus-visible:shadow-focus disabled:cursor-default disabled:opacity-40"
                 >
                   <Pencil size={14} />
                 </button>
@@ -212,7 +212,7 @@ export default function LabelsView() {
                   className={
                     confirmingDeleteId === label.id
                       ? "btn btn-error btn-xs focus-visible:shadow-focus"
-                      : "flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-base-content/50 transition-colors outline-none! hover:bg-error/10 hover:text-error focus-visible:shadow-focus disabled:cursor-default disabled:opacity-40"
+                      : "flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-subtle transition-colors outline-none! hover:bg-error/10 hover:text-error focus-visible:shadow-focus disabled:cursor-default disabled:opacity-40"
                   }
                 >
                   {deletingId === label.id ? (
@@ -267,7 +267,7 @@ function LabelForm({
 }: LabelFormProps) {
   return (
     <div className="flex flex-col gap-4 surface-panel p-4">
-      <span className="text-xs font-medium text-base-content/60">{heading}</span>
+      <span className="text-xs font-medium text-muted">{heading}</span>
       <input
         type="text"
         value={name}

@@ -52,13 +52,10 @@ export default function AppearanceSection() {
   return (
     <section className="flex flex-col gap-4 surface-panel p-4">
       <div className="flex flex-col gap-1">
-        <h2
-          id="appearance-heading"
-          className="font-mono text-eyebrow text-base-content/60 uppercase"
-        >
+        <h2 id="appearance-heading" className="font-mono text-eyebrow text-muted uppercase">
           Appearance
         </h2>
-        <p className="text-xs text-base-content/50">
+        <p className="text-xs text-subtle">
           System follows your device. Stored in this browser only, not in backups.
         </p>
       </div>
@@ -85,7 +82,7 @@ export default function AppearanceSection() {
               className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm outline-none! transition-colors focus-visible:shadow-focus ${
                 active
                   ? "bg-base-300 text-base-content shadow-raised-sm"
-                  : "text-base-content/60 hover:text-base-content"
+                  : "text-muted hover:text-base-content"
               }`}
             >
               <Icon size={14} strokeWidth={1.8} aria-hidden />

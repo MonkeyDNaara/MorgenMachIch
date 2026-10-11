@@ -32,11 +32,11 @@ export default function DayProgress({ done, total }: Progress) {
           Array.from({ length: total }, (_, index) => (
             <span
               key={index}
-              className={`h-1.5 w-6 rounded-full ${index < done ? "bg-accent" : "bg-base-300"}`}
+              className={`h-1.5 w-6 rounded-full ${index < done ? "bg-accent" : "bg-track"}`}
             />
           ))
         ) : (
-          <span className="h-1.5 w-48 overflow-hidden rounded-full bg-base-300">
+          <span className="h-1.5 w-48 overflow-hidden rounded-full bg-track">
             <span
               className="block h-full rounded-full bg-accent"
               style={{ width: `${(done / total) * 100}%` }}

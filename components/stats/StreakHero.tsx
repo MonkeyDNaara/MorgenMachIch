@@ -40,10 +40,10 @@ export default function StreakHero({ streak, byDay, todayCount, now }: StreakHer
 
   return (
     <section className="flex flex-col justify-between gap-4 surface-panel p-4">
-      <h2 className="text-xs text-base-content/60">Current streak</h2>
+      <h2 className="text-xs text-muted">Current streak</h2>
       <p className="text-6xl leading-none font-semibold tracking-tight text-accent tabular-nums">
         {streak.current}
-        <span className="ml-2 text-base font-normal tracking-normal text-base-content/50">
+        <span className="ml-2 text-base font-normal tracking-normal text-subtle">
           {streak.current === 1 ? "day" : "days"}
         </span>
       </p>
@@ -52,7 +52,7 @@ export default function StreakHero({ streak, byDay, todayCount, now }: StreakHer
           {week.map((day) => (
             <li
               key={day.key}
-              className="flex flex-col items-center gap-1 font-mono text-[10px] text-base-content/40"
+              className="flex flex-col items-center gap-1 font-mono text-[10px] text-faint"
             >
               <span
                 aria-hidden
@@ -78,7 +78,7 @@ export default function StreakHero({ streak, byDay, todayCount, now }: StreakHer
               {hint.text}
             </p>
           ) : (
-            <p className="text-xs text-base-content/40">{hint.text}</p>
+            <p className="text-xs text-faint">{hint.text}</p>
           ))}
       </div>
     </section>

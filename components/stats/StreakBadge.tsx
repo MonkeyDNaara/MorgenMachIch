@@ -30,7 +30,7 @@ export default function StreakBadge() {
         text: (
           <>
             {days}
-            <span className="text-base-content/50"> · do one today</span>
+            <span className="text-subtle"> · do one today</span>
           </>
         ),
         label: `${days} — complete a task today to keep it. Open stats`,
@@ -45,7 +45,7 @@ export default function StreakBadge() {
       : {
           text: "Start a streak",
           label: "No streak yet — complete a task to start one. Open stats",
-          className: "border-base-300 text-base-content/50 hover:text-base-content",
+          className: "border-base-300 text-subtle hover:text-base-content",
         };
 
   return (

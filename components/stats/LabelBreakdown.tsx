@@ -27,7 +27,7 @@ export default function LabelBreakdown({ rows, labels }: LabelBreakdownProps) {
     .filter((row) => row !== null);
 
   if (named.length === 0) {
-    return <p className="text-xs text-base-content/40">Nothing completed in this period.</p>;
+    return <p className="text-xs text-faint">Nothing completed in this period.</p>;
   }
 
   const shown = named.slice(0, MAX_ROWS);
@@ -42,18 +42,18 @@ export default function LabelBreakdown({ rows, labels }: LabelBreakdownProps) {
             className="grid grid-cols-[minmax(0,6rem)_1fr_2rem] items-center gap-2 text-xs"
           >
             <span
-              className={`truncate ${row.labelId === null ? "text-base-content/50" : ""}`}
+              className={`truncate ${row.labelId === null ? "text-subtle" : ""}`}
               style={row.labelId === null ? undefined : { color: inkColor(row.color) }}
             >
               {row.name}
             </span>
-            <span aria-hidden className="h-2 overflow-hidden rounded-full bg-base-300">
+            <span aria-hidden className="h-2 overflow-hidden rounded-full bg-track">
               <span
                 className="block h-full rounded-full"
                 style={{ width: `${(row.count / max) * 100}%`, background: row.color }}
               />
             </span>
-            <span className="text-right font-mono text-base-content/50 tabular-nums">
+            <span className="text-right font-mono text-subtle tabular-nums">
               {row.count}
               <span className="sr-only"> completed</span>
             </span>
@@ -61,7 +61,7 @@ export default function LabelBreakdown({ rows, labels }: LabelBreakdownProps) {
         ))}
       </ul>
       {named.length > MAX_ROWS && (
-        <p className="mt-2 text-xs text-base-content/40">
+        <p className="mt-2 text-xs text-faint">
           + {named.length - MAX_ROWS} more {named.length - MAX_ROWS === 1 ? "label" : "labels"}
         </p>
       )}

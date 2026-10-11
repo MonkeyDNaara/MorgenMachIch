@@ -17,7 +17,7 @@ function itemClasses(active: boolean): string {
     "flex h-10 w-10 items-center justify-center gap-3 rounded-xl text-sm outline-none! transition-colors focus-visible:shadow-focus lg:w-full lg:justify-start lg:px-3";
   return active
     ? `${base} bg-base-300 text-base-content shadow-raised-sm`
-    : `${base} text-base-content/60 hover:bg-line hover:text-base-content`;
+    : `${base} text-muted hover:bg-line hover:text-base-content`;
 }
 
 function NavLink({ item, active, count }: { item: NavItem; active: boolean; count?: number }) {
@@ -33,7 +33,7 @@ function NavLink({ item, active, count }: { item: NavItem; active: boolean; coun
       <Icon size={18} strokeWidth={1.8} className={active ? "shrink-0 text-primary" : "shrink-0"} />
       <span className="hidden flex-1 lg:inline">{item.label}</span>
       {count !== undefined && count > 0 && (
-        <span className="hidden font-mono text-meta text-base-content/50 lg:inline">{count}</span>
+        <span className="hidden font-mono text-meta text-subtle lg:inline">{count}</span>
       )}
     </Link>
   );
@@ -91,7 +91,7 @@ export default function AppNav() {
           aria-haspopup="dialog"
           aria-keyshortcuts="Meta+K Control+K"
           title={`Search — ${modKey}K`}
-          className="flex h-10 w-10 cursor-pointer items-center justify-center gap-2.5 rounded-xl text-sm text-base-content/50 outline-none! surface-sunken transition-colors hover:text-base-content focus-visible:shadow-focus lg:w-full lg:justify-start lg:px-3"
+          className="flex h-10 w-10 cursor-pointer items-center justify-center gap-2.5 rounded-xl text-sm text-subtle outline-none! surface-sunken transition-colors hover:text-base-content focus-visible:shadow-focus lg:w-full lg:justify-start lg:px-3"
         >
           <Search size={16} strokeWidth={1.8} className="shrink-0" />
           <span className="hidden flex-1 text-left lg:inline">Search</span>

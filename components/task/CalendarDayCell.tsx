@@ -58,7 +58,7 @@ export default function CalendarDayCell({
       <span
         aria-hidden
         className={`inline-flex h-5 min-w-5 flex-shrink-0 items-center justify-center self-start rounded-full px-1 font-mono text-meta ${
-          isToday ? "bg-accent font-semibold text-accent-content" : "text-base-content/60"
+          isToday ? "bg-accent font-semibold text-accent-content" : "text-muted"
         }`}
       >
         {date.getDate()}
@@ -70,10 +70,10 @@ export default function CalendarDayCell({
             className={`flex items-center gap-1 text-xs text-base-content/80 ${entry.isGhost ? "opacity-50" : ""}`}
           >
             <PriorityDot priority={entry.priority} />
-            {entry.isRecurring && <Repeat size={10} className="flex-shrink-0 text-base-content/50" aria-hidden="true" />}
+            {entry.isRecurring && <Repeat size={10} className="flex-shrink-0 text-subtle" aria-hidden="true" />}
             <span
               className={`min-w-0 flex-1 truncate ${
-                entry.status === "done" ? "text-base-content/40 line-through" : ""
+                entry.status === "done" ? "text-faint line-through" : ""
               }`}
             >
               {entry.title}
@@ -81,7 +81,7 @@ export default function CalendarDayCell({
           </div>
         ))}
         {overflow > 0 && (
-          <span className="text-[10px] font-medium text-base-content/40">+{overflow} more</span>
+          <span className="text-[10px] font-medium text-faint">+{overflow} more</span>
         )}
       </div>
     </button>

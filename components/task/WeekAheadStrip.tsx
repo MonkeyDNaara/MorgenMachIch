@@ -38,7 +38,7 @@ export default function WeekAheadStrip({ selectedDay, onSelectDay }: WeekAheadSt
 
   return (
     <div className="border-t border-line px-6 py-4">
-      <p className="mb-3 font-mono text-xs text-base-content/40">Coming up</p>
+      <p className="mb-3 font-mono text-xs text-faint">Coming up</p>
       <div className="flex flex-wrap gap-3">
         {dayColumns.map(({ day, tasks: dayTasks }) => {
           const visible = dayTasks.slice(0, MAX_VISIBLE_TASKS);
@@ -57,7 +57,7 @@ export default function WeekAheadStrip({ selectedDay, onSelectDay }: WeekAheadSt
             >
               <p className="text-xs font-semibold text-base-content/70">
                 {day.toLocaleDateString(APP_LOCALE, { weekday: "short" })}{" "}
-                <span className="font-normal text-base-content/40">
+                <span className="font-normal text-faint">
                   {day.toLocaleDateString(APP_LOCALE, { month: "short", day: "numeric" })}
                 </span>
               </p>
@@ -67,14 +67,14 @@ export default function WeekAheadStrip({ selectedDay, onSelectDay }: WeekAheadSt
                     <PriorityDot priority={task.priority} />
                     <span className="min-w-0 flex-1 truncate">{task.title}</span>
                     {!task.allDay && task.dueDate && (
-                      <span className="flex-shrink-0 text-[10px] text-base-content/40">
+                      <span className="flex-shrink-0 text-[10px] text-faint">
                         {formatTime(task.dueDate)}
                       </span>
                     )}
                   </div>
                 ))}
                 {overflow > 0 && (
-                  <span className="text-[10px] font-medium text-base-content/40">+{overflow} more</span>
+                  <span className="text-[10px] font-medium text-faint">+{overflow} more</span>
                 )}
               </div>
             </button>

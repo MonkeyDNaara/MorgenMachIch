@@ -69,7 +69,7 @@ export default function TaskListToolbar({
               className={`shrink-0 cursor-pointer rounded-lg px-3 py-1.5 text-sm outline-none! transition-colors focus-visible:shadow-focus ${
                 active
                   ? "bg-base-300 text-base-content shadow-raised-sm"
-                  : "text-base-content/60 hover:text-base-content"
+                  : "text-muted hover:text-base-content"
               }`}
             >
               {option.label}
@@ -84,7 +84,7 @@ export default function TaskListToolbar({
           onClick={() => onSortByChange(nextSort)}
           aria-label={`Sorted by ${SORT_LABELS[sortBy].long}. Switch to ${SORT_LABELS[nextSort].long}`}
           title={`Sort by ${SORT_LABELS[nextSort].long}`}
-          className="flex h-9 cursor-pointer items-center gap-1.5 rounded-field px-2 font-mono text-meta text-base-content/60 outline-none! transition-colors hover:bg-line hover:text-base-content focus-visible:shadow-focus"
+          className="flex h-9 cursor-pointer items-center gap-1.5 rounded-field px-2 font-mono text-meta text-muted outline-none! transition-colors hover:bg-line hover:text-base-content focus-visible:shadow-focus"
         >
           <ArrowDownUp size={13} />
           {SORT_LABELS[sortBy].short}

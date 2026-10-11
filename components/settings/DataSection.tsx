@@ -50,14 +50,14 @@ export default function DataSection() {
   return (
     <section className="flex flex-col gap-4 surface-panel p-4">
       <div className="flex flex-col gap-1">
-        <h2 className="font-mono text-eyebrow text-base-content/60 uppercase">Data</h2>
-        <p className="text-xs text-base-content/50">
+        <h2 className="font-mono text-eyebrow text-muted uppercase">Data</h2>
+        <p className="text-xs text-subtle">
           Everything lives in this browser only. Export a backup so it can be restored if the browser data is ever
           cleared.
         </p>
       </div>
 
-      <p className="font-mono text-xs text-base-content/60">
+      <p className="font-mono text-xs text-muted">
         {counts === undefined
           ? "Loading…"
           : `${counts.tasks} ${counts.tasks === 1 ? "task" : "tasks"} · ${counts.taskSeries} recurring series · ${counts.labels} ${counts.labels === 1 ? "label" : "labels"}`}
@@ -76,7 +76,7 @@ export default function DataSection() {
           <Download size={14} />
           {exporting ? "Exporting…" : "Export backup"}
         </button>
-        <span className="text-xs text-base-content/50">
+        <span className="text-xs text-subtle">
           {lastExportedAt === undefined
             ? ""
             : lastExportedAt === null

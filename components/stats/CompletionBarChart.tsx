@@ -117,7 +117,7 @@ export default function CompletionBarChart({ series, unit }: CompletionBarChartP
                       ? "var(--mm-data-4)"
                       : entry.count > 0
                         ? "var(--mm-data-2)"
-                        : "var(--color-base-300)"
+                        : "var(--mm-track)"
                   }
                   role="listitem"
                   aria-label={describe(entry, unit)}

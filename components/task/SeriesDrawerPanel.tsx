@@ -194,16 +194,16 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
             onClick={onClose}
             disabled={busy}
             aria-label="Close"
-            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl bg-base-300 text-base-content/60 shadow-raised-sm outline-none! transition-colors hover:text-base-content focus-visible:shadow-focus disabled:opacity-40"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl bg-base-300 text-muted shadow-raised-sm outline-none! transition-colors hover:text-base-content focus-visible:shadow-focus disabled:opacity-40"
           >
             <X size={16} />
           </button>
         </div>
 
-        {loadState === "loading" && <p className="flex-1 text-sm text-base-content/40">Loading series…</p>}
+        {loadState === "loading" && <p className="flex-1 text-sm text-faint">Loading series…</p>}
 
         {loadState === "not-found" && (
-          <p className="flex-1 text-sm text-base-content/40">
+          <p className="flex-1 text-sm text-faint">
             This series couldn&apos;t be found — it may have been deleted.
           </p>
         )}
@@ -245,9 +245,9 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
             <div className="flex flex-col gap-1.5">
               <span className={FIELD_LABEL}>Labels</span>
               {labels === undefined ? (
-                <p className="text-sm text-base-content/40">Loading…</p>
+                <p className="text-sm text-faint">Loading…</p>
               ) : labels.length === 0 ? (
-                <p className="text-sm text-base-content/40">
+                <p className="text-sm text-faint">
                   No labels yet —{" "}
                   <Link href="/labels" className="text-accent hover:underline">
                     create one
@@ -298,7 +298,7 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
                   />
                 </label>
               </div>
-              <p className="text-xs text-base-content/40">Series started {anchorLabel} — the start date can&apos;t be changed.</p>
+              <p className="text-xs text-faint">Series started {anchorLabel} — the start date can&apos;t be changed.</p>
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -306,7 +306,7 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
               <RecurrenceRuleBuilder value={recurrence} onChange={handleRecurrenceChange} />
             </div>
 
-            <p className="rounded-lg surface-sunken p-3 text-xs text-base-content/50">
+            <p className="rounded-lg surface-sunken p-3 text-xs text-subtle">
               Saving updates every upcoming open occurrence of this series. Completed and skipped ones stay as they
               are.
             </p>
@@ -316,7 +316,7 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
         <div className="flex flex-col gap-2 border-t border-line pt-4">
           {deleteCounts !== null && (
             <div className="flex flex-col gap-2 rounded-lg bg-base-300 p-3 shadow-raised-sm">
-              <p className="text-xs text-base-content/60">Delete this series?</p>
+              <p className="text-xs text-muted">Delete this series?</p>
               <button
                 type="button"
                 onClick={() => handleDelete("upcoming")}
@@ -347,7 +347,7 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
                 Delete series + all {deleteCounts.total} {deleteCounts.total === 1 ? "task" : "tasks"}, including
                 completed history
               </button>
-              <p className="text-xs text-base-content/40">
+              <p className="text-xs text-faint">
                 Unless you delete everything, completed, skipped and overdue tasks are kept as standalone tasks.
                 Deleting everything can&apos;t be undone.
               </p>

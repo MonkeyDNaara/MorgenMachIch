@@ -35,7 +35,7 @@ export default function QuickAddHighlight({
   anchorIndex = null,
   anchorRef,
 }: QuickAddHighlightProps) {
-  if (!text) return <span className="text-base-content/40">{placeholder}</span>;
+  if (!text) return <span className="text-faint">{placeholder}</span>;
 
   // Split points: every token edge plus the anchor, so the anchor can sit
   // inside plain text or right before a token.

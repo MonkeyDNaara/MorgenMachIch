@@ -56,6 +56,13 @@
   --mm-chip-ink: 100%;
   /* Mobile tab bar: hairline on top plus a soft shadow upwards. */
   --mm-shadow-bar: inset 0 1px 0 var(--mm-line), 0 -6px 16px rgb(0 0 0 / 0.35);
+  /* Text greys (#267): semantic steps instead of raw opacity, so each theme
+     can tune them — the same opacity reads much fainter on a light page. */
+  --mm-text-faint: color-mix(in oklab, var(--color-base-content) 40%, transparent);
+  --mm-text-subtle: color-mix(in oklab, var(--color-base-content) 50%, transparent);
+  --mm-text-muted: color-mix(in oklab, var(--color-base-content) 60%, transparent);
+  /* Empty parts of tracks and charts (heatmap level 0, progress tracks). */
+  --mm-track: var(--color-base-300);
 
   /* Selector stays 1.25rem so checkboxes keep their circular look. */
   --radius-selector: 1.25rem;
@@ -119,6 +126,11 @@
   --mm-data-4: var(--color-accent);
   --mm-chip-ink: 55%;
   --mm-shadow-bar: inset 0 1px 0 var(--mm-line), 0 -6px 16px rgb(60 40 20 / 0.08);
+  /* Higher shares than dark so each step keeps about the same contrast. */
+  --mm-text-faint: color-mix(in oklab, var(--color-base-content) 52%, transparent);
+  --mm-text-subtle: color-mix(in oklab, var(--color-base-content) 64%, transparent);
+  --mm-text-muted: color-mix(in oklab, var(--color-base-content) 72%, transparent);
+  --mm-track: #e8e1d6;
 
   --radius-selector: 1.25rem;
   --radius-field: 0.875rem;
@@ -138,6 +150,11 @@
   --color-line: var(--mm-line);
   --color-line-strong: var(--mm-line-strong);
   --color-scrim: var(--mm-scrim);
+  --color-track: var(--mm-track);
+  /* text-faint / text-subtle / text-muted (#267) */
+  --color-faint: var(--mm-text-faint);
+  --color-subtle: var(--mm-text-subtle);
+  --color-muted: var(--mm-text-muted);
 
   /* shadow-raised, shadow-sunken, shadow-overlay, shadow-gloss, shadow-focus … */
   --shadow-raised: var(--mm-shadow-raised);

@@ -59,7 +59,7 @@ export default function SubtaskEditor({ subtasks, onChange }: SubtaskEditorProps
             value={subtask.title}
             onChange={(event) => updateSubtask(subtask.id, { title: event.target.value })}
             className={`input input-sm min-w-0 flex-1 ${FIELD_FOCUS} ${
-              subtask.done ? "text-base-content/40 line-through" : ""
+              subtask.done ? "text-faint line-through" : ""
             }`}
           />
           <button
@@ -67,7 +67,7 @@ export default function SubtaskEditor({ subtasks, onChange }: SubtaskEditorProps
             onClick={() => moveSubtask(index, -1)}
             disabled={index === 0}
             aria-label="Move up"
-            className="flex h-6 w-6 cursor-pointer items-center justify-center rounded text-base-content/40 outline-none! hover:text-base-content disabled:cursor-not-allowed disabled:opacity-20"
+            className="flex h-6 w-6 cursor-pointer items-center justify-center rounded text-faint outline-none! hover:text-base-content disabled:cursor-not-allowed disabled:opacity-20"
           >
             <ChevronUp size={14} />
           </button>
@@ -76,7 +76,7 @@ export default function SubtaskEditor({ subtasks, onChange }: SubtaskEditorProps
             onClick={() => moveSubtask(index, 1)}
             disabled={index === subtasks.length - 1}
             aria-label="Move down"
-            className="flex h-6 w-6 cursor-pointer items-center justify-center rounded text-base-content/40 outline-none! hover:text-base-content disabled:cursor-not-allowed disabled:opacity-20"
+            className="flex h-6 w-6 cursor-pointer items-center justify-center rounded text-faint outline-none! hover:text-base-content disabled:cursor-not-allowed disabled:opacity-20"
           >
             <ChevronDown size={14} />
           </button>
@@ -84,7 +84,7 @@ export default function SubtaskEditor({ subtasks, onChange }: SubtaskEditorProps
             type="button"
             onClick={() => removeSubtask(subtask.id)}
             aria-label="Remove subtask"
-            className="flex h-6 w-6 cursor-pointer items-center justify-center rounded text-base-content/40 outline-none! hover:text-error"
+            className="flex h-6 w-6 cursor-pointer items-center justify-center rounded text-faint outline-none! hover:text-error"
           >
             <X size={14} />
           </button>

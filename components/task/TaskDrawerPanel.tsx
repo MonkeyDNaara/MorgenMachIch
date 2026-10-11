@@ -249,18 +249,18 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
             onClick={onClose}
             disabled={busy}
             aria-label="Close"
-            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl bg-base-300 text-base-content/60 shadow-raised-sm outline-none! transition-colors hover:text-base-content focus-visible:shadow-focus disabled:opacity-40"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl bg-base-300 text-muted shadow-raised-sm outline-none! transition-colors hover:text-base-content focus-visible:shadow-focus disabled:opacity-40"
           >
             <X size={16} />
           </button>
         </div>
 
         {loadState === "loading" && (
-          <p className="flex-1 text-sm text-base-content/40">Loading task…</p>
+          <p className="flex-1 text-sm text-faint">Loading task…</p>
         )}
 
         {loadState === "not-found" && (
-          <p className="flex-1 text-sm text-base-content/40">
+          <p className="flex-1 text-sm text-faint">
             This task couldn&apos;t be found — it may have been deleted.
           </p>
         )}
@@ -317,9 +317,9 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
             <div className="flex flex-col gap-1.5">
               <span className={FIELD_LABEL}>Labels</span>
               {labels === undefined ? (
-                <p className="text-sm text-base-content/40">Loading…</p>
+                <p className="text-sm text-faint">Loading…</p>
               ) : labels.length === 0 ? (
-                <p className="text-sm text-base-content/40">
+                <p className="text-sm text-faint">
                   No labels yet —{" "}
                   <Link href="/labels" className="text-accent hover:underline">
                     create one
@@ -399,7 +399,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
                   (dueDate ? (
                     <RecurrenceRuleBuilder value={recurrence} onChange={handleRecurrenceChange} />
                   ) : (
-                    <p className="text-xs text-base-content/40">
+                    <p className="text-xs text-faint">
                       Pick a due date above to set a repeat schedule.
                     </p>
                   ))}
@@ -412,7 +412,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
           <div className="flex items-center justify-between gap-2">
             <div>
               {isEditing && loadState === "ready" && seriesId !== null && (
-                <p className="max-w-[16rem] text-xs text-base-content/40">
+                <p className="max-w-[16rem] text-xs text-faint">
                   Recurring occurrences can&apos;t be deleted one by one — use Skip to drop this one, or delete the
                   whole series from /tasks.
                 </p>

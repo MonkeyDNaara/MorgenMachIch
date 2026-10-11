@@ -66,7 +66,7 @@ export default function PlanForMenu({ task }: PlanForMenuProps) {
         title="Plan for…"
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-base-content/40 outline-none! transition-colors hover:bg-line-strong hover:text-base-content/70"
+        className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-faint outline-none! transition-colors hover:bg-line-strong hover:text-base-content/70"
       >
         <CalendarPlus size={14} />
       </button>
@@ -84,7 +84,7 @@ export default function PlanForMenu({ task }: PlanForMenuProps) {
               className="flex w-full cursor-pointer items-center justify-between gap-2 rounded-field px-2 py-1.5 text-left text-sm outline-none! transition-colors hover:bg-base-100/60 focus-visible:bg-base-100/60"
             >
               <span>{option.label}</span>
-              <span className="font-mono text-xs text-base-content/40">
+              <span className="font-mono text-xs text-faint">
                 {option.date.toLocaleDateString(APP_LOCALE, { month: "short", day: "numeric" })}
               </span>
             </button>
