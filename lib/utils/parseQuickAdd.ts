@@ -1,5 +1,7 @@
 import * as chrono from "chrono-node";
-import type { Label, Priority } from "@/lib/types";
+import { RecurrenceRuleSchema, type Label, type Priority, type RecurrenceRule } from "@/lib/types";
+import { occurrencesBetween } from "@/lib/utils/recurrence";
+import { findRecurrencePhrase, type RecurrencePhrase } from "@/lib/utils/parseRecurrence";
 
 /**
  * Natural-language quick-add (#202): turns free text such as
@@ -11,13 +13,21 @@ import type { Label, Priority } from "@/lib/types";
  * - a date/time, English (en-GB, day before month) or German, via chrono-node
  * - `#label` for existing labels (unknown tags stay in the title)
  * - `!priority`: !high/!medium/!med/!low or !1/!2/!3 (1 = high)
+ * - a recurrence ("every mon 7am", "jeden 1. bis 31.12."), only when the
+ *   caller opts in with `recurrence: true` (#274) — see parseRecurrence.ts
  *
  * Every matched token is reported with its position so the UI can
  * highlight it, and any token can be ignored by passing its id back in
  * `ignored` — its text then stays in the title.
  */
 
-export type QuickAddTokenKind = "date" | "label" | "priority";
+export type QuickAddTokenKind = "date" | "label" | "priority" | "recurrence";
+
+/**
+ * What a date token means: the due date of a task, or — next to a
+ * recurrence — the series' start (and time of day) or its end date.
+ */
+export type QuickAddDateRole = "due" | "start" | "end";
 
 type QuickAddTokenBase = {
   /** Stable while the token's text is unchanged — pass it back via `ignored`. */
@@ -32,20 +42,33 @@ type QuickAddTokenBase = {
 /** A matched token plus the value it stands for, so the UI can render a
  * preview chip without parsing again (#203). */
 export type QuickAddToken =
-  | (QuickAddTokenBase & { kind: "date"; dueDate: string; allDay: boolean })
+  | (QuickAddTokenBase & {
+      kind: "date";
+      role: QuickAddDateRole;
+      /** The date this token names (for "start" with only a time: today at that time). */
+      dueDate: string;
+      /** No time given. */
+      allDay: boolean;
+    })
+  | (QuickAddTokenBase & { kind: "recurrence"; recurrence: RecurrenceRule })
   | (QuickAddTokenBase & { kind: "label"; labelId: string })
   | (QuickAddTokenBase & { kind: "priority"; priority: Priority });
 
 export type QuickAddResult = {
   /** Input without the matched tokens, whitespace collapsed. May be empty. */
   title: string;
-  /** ISO datetime, or null when no date was found. */
+  /** ISO datetime, or null when no date was found. With a recurrence this
+   * is the series' first occurrence (its `startDate`). */
   dueDate: string | null;
   /** True when the date has no explicit time ("fri", "morgen"). */
   allDay: boolean;
   labelIds: string[];
   /** null = no priority token, so the caller keeps its own default. */
   priority: Priority | null;
+  /** The complete rule (days/monthly mode filled in, `endDate` as a local
+   * "YYYY-MM-DD" like the rule builder) when the text describes a series;
+   * null otherwise. Only with `recurrence: true`. */
+  recurrence: RecurrenceRule | null;
   /** Matched (not ignored) tokens, sorted by position. */
   tokens: QuickAddToken[];
   /** Tokens that matched but were skipped because their id is in
@@ -59,6 +82,9 @@ export type QuickAddOptions = {
   now: Date;
   labels: Pick<Label, "id" | "name">[];
   ignored?: ReadonlySet<string>;
+  /** Look for recurrence phrases (#274). Off by default, so entry points
+   * that can't create a series yet keep the plain task behaviour. */
+  recurrence?: boolean;
 };
 
 // --- dates ------------------------------------------------------------------
@@ -171,6 +197,71 @@ function normalizeLabelName(name: string): string {
   return name.toLowerCase().replace(/[\s_-]+/g, "");
 }
 
+// --- recurrence ---------------------------------------------------------------
+
+// Next to a recurrence, "until 31 Dec" / "bis 31.12." is the end date and
+// "from 1.11." / "ab Montag" the start. Checked on the text before the date.
+const END_PREPOSITION =
+  /(?:^|\s)((?:until|till|thru|through|ending|bis(?:\s+(?:zum|zur|einschließlich))?)\s+)$/i;
+const START_PREPOSITION =
+  /(?:^|\s)((?:from|starting(?:\s+(?:on|from))?|beginning(?:\s+on)?|ab(?:\s+dem)?|beginnend(?:\s+(?:am|mit))?)\s+)$/i;
+
+const START_WORDS = /\b(?:from|starting|beginning)\b(?=\s)/gi;
+
+function addDays(date: Date, days: number): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
+}
+
+function localDateKey(date: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+type SeriesStart = { dueDate: string; allDay: boolean };
+
+/**
+ * The first occurrence of `rule` on or after `anchorDay` (ignoring the
+ * interval: "every 2 weeks on Mon" started on a Wednesday begins next
+ * Monday, and that Monday becomes the series' week zero). With a time
+ * that has already passed today, the next occurrence instead — the same
+ * idea as "3pm" meaning tomorrow when it's 5pm.
+ */
+function firstOccurrence(
+  rule: RecurrenceRule,
+  anchorDay: Date,
+  time: { hours: number; minutes: number } | null,
+  now: Date,
+): SeriesStart | null {
+  const search: RecurrenceRule = { ...rule, interval: 1, endDate: null };
+  const dates = occurrencesBetween(
+    search,
+    anchorDay,
+    addDays(anchorDay, -1),
+    addDays(anchorDay, 400),
+  );
+  const last = rule.endDate ? new Date(`${rule.endDate}T00:00`) : null;
+  for (const day of dates) {
+    if (last && day > last) return null; // the series would end before it starts
+    if (!time) return { dueDate: day.toISOString(), allDay: true };
+    const at = new Date(day.getFullYear(), day.getMonth(), day.getDate(), time.hours, time.minutes);
+    if (at >= now) return { dueDate: at.toISOString(), allDay: false };
+  }
+  return null;
+}
+
+/** Fills what the phrase left open from the start day: "weekly" → that
+ * weekday, "monthly" → that day of the month. */
+function completeRule(phrase: RecurrencePhrase, anchorDay: Date): RecurrenceRule {
+  const rule: RecurrenceRule = { ...phrase.pattern, endDate: null };
+  if (rule.frequency === "weekly" && !rule.daysOfWeek?.length)
+    rule.daysOfWeek = [anchorDay.getDay()];
+  if (rule.frequency === "monthly" && !rule.monthlyMode) {
+    rule.monthlyMode = "dayOfMonth";
+    rule.dayOfMonth = anchorDay.getDate();
+  }
+  return rule;
+}
+
 // --- main -------------------------------------------------------------------
 
 export function parseQuickAdd(text: string, options: QuickAddOptions): QuickAddResult {
@@ -232,32 +323,133 @@ export function parseQuickAdd(text: string, options: QuickAddOptions): QuickAddR
   // for dates, so "#monday-standup" can't produce a date. Replacing with
   // spaces of the same length keeps every index valid.
   const blank = (match: string) => " ".repeat(match.length);
-  const masked = text.replace(LABEL_TAG, blank).replace(PRIORITY_TAG, blank);
+  let masked = text.replace(LABEL_TAG, blank).replace(PRIORITY_TAG, blank);
+
+  // Recurrence phrase (#274): blanked out before date detection — even when
+  // ignored — so "every monday" never also becomes "due Monday".
+  const phrase = options.recurrence ? findRecurrencePhrase(masked) : null;
+  let recurrenceToken: (QuickAddToken & { kind: "recurrence" }) | null = null;
+  if (phrase) {
+    const phraseText = text.slice(phrase.start, phrase.end);
+    masked = masked.slice(0, phrase.start) + blank(phraseText) + masked.slice(phrase.end);
+    recurrenceToken = {
+      id: `recurrence:${phraseText.trim().toLowerCase()}`,
+      kind: "recurrence",
+      start: phrase.start,
+      end: phrase.end,
+      text: phraseText,
+      recurrence: completeRule(phrase, startOfDay(now)), // refined below
+    };
+    if (ignored.has(recurrenceToken.id)) {
+      ignoredTokens.push(recurrenceToken);
+      recurrenceToken = null;
+    }
+  }
 
   let dueDate: string | null = null;
   let allDay = false;
-  for (const candidate of findDateCandidates(masked, now)) {
-    const tokenText = text.slice(candidate.start, candidate.end);
-    const id = `date:${tokenText.trim().toLowerCase()}`;
-    const date = resolveDate(candidate.result, now);
-    const candidateAllDay = !candidate.result.start.isCertain("hour");
-    const token: QuickAddToken = {
-      id,
-      kind: "date",
-      start: candidate.start,
-      end: candidate.end,
-      text: tokenText,
-      dueDate: (candidateAllDay ? startOfDay(date) : new Date(date.setSeconds(0, 0))).toISOString(),
-      allDay: candidateAllDay,
-    };
-    if (ignored.has(id)) {
-      ignoredTokens.push(token);
-      continue; // ignored: try the next date in the text
+  let recurrence: RecurrenceRule | null = null;
+
+  if (phrase && recurrenceToken) {
+    // Dates next to a recurrence: the first one is the start (day and/or
+    // time), one after "until"/"bis" is the end; a range gives both.
+    let start: { token: QuickAddToken & { kind: "date" }; result: chrono.ParsedResult } | null =
+      null;
+    let end: Date | null = null;
+    // chrono reads "from 14 Oct" as the time "from 14" (14:00); without the
+    // word it finds the date. The words still count as start prepositions.
+    const dateText = masked.replace(START_WORDS, (match) => " ".repeat(match.length));
+    for (const candidate of findDateCandidates(dateText, now)) {
+      const before = text.slice(0, candidate.result.index);
+      const endPrep = END_PREPOSITION.exec(before);
+      const startPrep = START_PREPOSITION.exec(before);
+      const role: QuickAddDateRole = endPrep ? "end" : "start";
+      if ((role === "end" && end) || (role === "start" && start)) continue; // later ones stay text
+      const prepLength = (endPrep ?? startPrep)?.[1].length ?? 0;
+      const tokenStart = Math.min(candidate.start, candidate.result.index - prepLength);
+      const tokenText = text.slice(tokenStart, candidate.end);
+      const id = `date:${tokenText.trim().toLowerCase()}`;
+      const date = resolveDate(candidate.result, now);
+      const candidateAllDay = !candidate.result.start.isCertain("hour");
+      const token: QuickAddToken & { kind: "date" } = {
+        id,
+        kind: "date",
+        role,
+        start: tokenStart,
+        end: candidate.end,
+        text: tokenText,
+        dueDate: (candidateAllDay
+          ? startOfDay(date)
+          : new Date(date.setSeconds(0, 0))
+        ).toISOString(),
+        allDay: candidateAllDay,
+      };
+      if (ignored.has(id)) {
+        ignoredTokens.push(token);
+        continue;
+      }
+      tokens.push(token);
+      if (role === "end") {
+        end = startOfDay(date);
+      } else {
+        start = { token, result: candidate.result };
+        if (candidate.result.end && !end) end = startOfDay(candidate.result.end.date());
+      }
     }
-    dueDate = token.dueDate;
-    allDay = token.allDay;
-    tokens.push(token);
-    break; // only the first date counts; later ones stay in the title
+
+    const startResult = start?.result;
+    const dated =
+      startResult !== undefined &&
+      (startResult.start.isCertain("day") || startResult.start.isCertain("weekday"));
+    const anchorDay = dated ? startOfDay(new Date(start!.token.dueDate)) : startOfDay(now);
+    const time = startResult?.start.isCertain("hour")
+      ? { hours: startResult.start.get("hour") ?? 0, minutes: startResult.start.get("minute") ?? 0 }
+      : null;
+    const rule = completeRule(phrase, anchorDay);
+    rule.endDate = end ? localDateKey(end) : null;
+    const first = RecurrenceRuleSchema.safeParse(rule).success
+      ? firstOccurrence(rule, anchorDay, time, now)
+      : null;
+    if (first) {
+      recurrence = rule;
+      recurrenceToken.recurrence = rule;
+      tokens.push(recurrenceToken);
+      dueDate = first.dueDate;
+      allDay = first.allDay;
+    } else {
+      // No valid series (e.g. the start is after the end): drop the date
+      // tokens again and keep the text as typed.
+      for (let i = tokens.length - 1; i >= 0; i--)
+        if (tokens[i].kind === "date") tokens.splice(i, 1);
+    }
+  } else {
+    for (const candidate of findDateCandidates(masked, now)) {
+      const tokenText = text.slice(candidate.start, candidate.end);
+      const id = `date:${tokenText.trim().toLowerCase()}`;
+      const date = resolveDate(candidate.result, now);
+      const candidateAllDay = !candidate.result.start.isCertain("hour");
+      const token: QuickAddToken = {
+        id,
+        kind: "date",
+        role: "due",
+        start: candidate.start,
+        end: candidate.end,
+        text: tokenText,
+        dueDate: (candidateAllDay
+          ? startOfDay(date)
+          : new Date(date.setSeconds(0, 0))
+        ).toISOString(),
+        allDay: candidateAllDay,
+      };
+      if (ignored.has(id)) {
+        ignoredTokens.push(token);
+        continue; // ignored: try the next date in the text
+      }
+      dueDate = token.dueDate;
+      allDay = token.allDay;
+      tokens.push(token);
+      break; // only the first date counts; later ones stay in the title
+    }
   }
 
   tokens.sort((a, b) => a.start - b.start);
@@ -271,5 +463,5 @@ export function parseQuickAdd(text: string, options: QuickAddOptions): QuickAddR
   }
   title = (title + text.slice(cursor)).replace(/\s+/g, " ").trim();
 
-  return { title, dueDate, allDay, labelIds, priority, tokens, ignoredTokens };
+  return { title, dueDate, allDay, labelIds, priority, recurrence, tokens, ignoredTokens };
 }
