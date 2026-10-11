@@ -118,5 +118,8 @@ Quick-add now understands recurrence too: "Gym every mon and thu 6pm until
 series straight from the quick-add bars, the command palette or the task
 drawer — with a chip for the rule, the start and the end, a preview of the
 first date, and an Undo.
-Planned next: a weekend-aware week preview, creating labels straight from
-an unknown #tag, a hosted database (Neon) and more.
+On the weekend the week preview on /today already shows the whole next
+week, so Saturday and Sunday are for planning. And a #tag that matches no
+label can create it on the spot: the chip shows the new label in the colour
+it will get, and ignoring the chip keeps a typo from becoming a label.
+Planned next: hiding long-finished tasks, a hosted database (Neon) and more.
