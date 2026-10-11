@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef, type KeyboardEvent } from "react";
 import { Monitor, Moon, SunDim, type LucideIcon } from "lucide-react";
 import { writeThemePreference, type ThemePreference } from "@/lib/ui/themePreference";
 import { useThemePreference } from "@/lib/ui/useTheme";
+import { useRadioGroupKeys } from "@/lib/ui/useRadioGroupKeys";
 
 const OPTIONS: { value: ThemePreference; label: string; icon: LucideIcon }[] = [
   { value: "system", label: "System", icon: Monitor },
@@ -15,39 +15,17 @@ const OPTIONS: { value: ThemePreference; label: string; icon: LucideIcon }[] = [
  * "Appearance" on /settings (#266): System / Light / Dark as a sunken
  * segmented control, the same look as the status filter. It is a real
  * radiogroup: only the checked option is a tab stop, and the arrow keys
- * (plus Home/End) move the choice and the focus together. The choice is
+ * (plus Home/End) move the choice and the focus together (shared
+ * `useRadioGroupKeys`, #272). The choice is
  * stored per device (localStorage), so it is not part of backups.
  */
 export default function AppearanceSection() {
   const preference = useThemePreference();
-  const buttons = useRef<(HTMLButtonElement | null)[]>([]);
-
-  function choose(index: number) {
-    writeThemePreference(OPTIONS[index].value);
-    buttons.current[index]?.focus();
-  }
-
-  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-    const current = OPTIONS.findIndex((option) => option.value === preference);
-    const last = OPTIONS.length - 1;
-    const next =
-      event.key === "ArrowRight" || event.key === "ArrowDown"
-        ? current === last
-          ? 0
-          : current + 1
-        : event.key === "ArrowLeft" || event.key === "ArrowUp"
-          ? current === 0
-            ? last
-            : current - 1
-          : event.key === "Home"
-            ? 0
-            : event.key === "End"
-              ? last
-              : null;
-    if (next === null) return;
-    event.preventDefault();
-    choose(next);
-  }
+  const radios = useRadioGroupKeys({
+    count: OPTIONS.length,
+    selectedIndex: OPTIONS.findIndex((option) => option.value === preference),
+    onSelect: (index) => writeThemePreference(OPTIONS[index].value),
+  });
 
   return (
     <section className="flex flex-col gap-4 surface-panel p-4">
@@ -62,7 +40,7 @@ export default function AppearanceSection() {
       <div
         role="radiogroup"
         aria-labelledby="appearance-heading"
-        onKeyDown={handleKeyDown}
+        {...radios.groupProps}
         className="flex w-fit gap-0.5 rounded-xl surface-sunken p-1"
       >
         {OPTIONS.map((option, index) => {
@@ -71,14 +49,11 @@ export default function AppearanceSection() {
           return (
             <button
               key={option.value}
-              ref={(element) => {
-                buttons.current[index] = element;
-              }}
+              {...radios.itemProps(index)}
               type="button"
               role="radio"
               aria-checked={active}
-              tabIndex={active ? 0 : -1}
-              onClick={() => choose(index)}
+              onClick={() => writeThemePreference(option.value)}
               className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm outline-none! transition-colors focus-visible:shadow-focus ${
                 active
                   ? "bg-base-300 text-base-content shadow-raised-sm"

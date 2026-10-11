@@ -1,4 +1,7 @@
+"use client";
+
 import type { StatsPeriod } from "@/lib/utils/stats";
+import { useRadioGroupKeys } from "@/lib/ui/useRadioGroupKeys";
 
 const OPTIONS: { value: StatsPeriod; label: string }[] = [
   { value: "7d", label: "7 days" },
@@ -13,18 +16,27 @@ type PeriodSelectProps = {
 
 /**
  * Segmented 7 days / 30 days / All switch (#217). One instance on /stats
- * drives both the bar chart and the label breakdown (#218).
+ * drives both the bar chart and the label breakdown (#218). Keyboard: one
+ * tab stop, arrow keys and Home/End change the period (#272).
  */
 export default function PeriodSelect({ value, onChange }: PeriodSelectProps) {
+  const radios = useRadioGroupKeys({
+    count: OPTIONS.length,
+    selectedIndex: OPTIONS.findIndex((option) => option.value === value),
+    onSelect: (index) => onChange(OPTIONS[index].value),
+  });
+
   return (
     <div
       role="radiogroup"
       aria-label="Period"
+      {...radios.groupProps}
       className="inline-flex rounded-full surface-sunken p-0.5"
     >
-      {OPTIONS.map((option) => (
+      {OPTIONS.map((option, index) => (
         <button
           key={option.value}
+          {...radios.itemProps(index)}
           type="button"
           role="radio"
           aria-checked={value === option.value}

@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { ArrowDownUp } from "lucide-react";
 import type { StatusFilter } from "@/lib/utils/filterTasksByStatus";
 import type { TaskSortBy } from "@/lib/utils/sortTasks";
+import { useRadioGroupKeys } from "@/lib/ui/useRadioGroupKeys";
 
 const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: "all", label: "All" },
@@ -38,7 +39,8 @@ type TaskListToolbarProps = {
  * the Filter popover for labels and priority and a compact sort toggle
  * (there are only two sort orders). On narrow screens the segmented
  * control scrolls sideways instead of clipping. Plain state owned by the
- * parent view, resets on reload.
+ * parent view, resets on reload. Keyboard: one tab stop, arrow keys and
+ * Home/End change the status (#272).
  */
 export default function TaskListToolbar({
   status,
@@ -49,19 +51,26 @@ export default function TaskListToolbar({
   className = "",
 }: TaskListToolbarProps) {
   const nextSort: TaskSortBy = sortBy === "dueDate" ? "createdAt" : "dueDate";
+  const radios = useRadioGroupKeys({
+    count: STATUS_OPTIONS.length,
+    selectedIndex: STATUS_OPTIONS.findIndex((option) => option.value === status),
+    onSelect: (index) => onStatusChange(STATUS_OPTIONS[index].value),
+  });
 
   return (
     <div className={`flex flex-wrap items-center gap-2 ${className}`}>
       <div
         role="radiogroup"
         aria-label="Status"
+        {...radios.groupProps}
         className="flex max-w-full min-w-0 gap-0.5 overflow-x-auto rounded-xl surface-sunken p-1"
       >
-        {STATUS_OPTIONS.map((option) => {
+        {STATUS_OPTIONS.map((option, index) => {
           const active = status === option.value;
           return (
             <button
               key={option.value}
+              {...radios.itemProps(index)}
               type="button"
               role="radio"
               aria-checked={active}
