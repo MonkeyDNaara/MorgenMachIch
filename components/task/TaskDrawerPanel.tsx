@@ -18,6 +18,8 @@ import SubtaskEditor from "@/components/task/SubtaskEditor";
 import PrioritySelector from "@/components/task/PrioritySelector";
 import RecurrenceRuleBuilder from "@/components/task/RecurrenceRuleBuilder";
 import QuickAddTitleField from "@/components/quickadd/QuickAddTitleField";
+import { withNewLabels } from "@/components/quickadd/newLabels";
+import { useToast } from "@/components/layout/ToastProvider";
 
 const NO_LABELS: Label[] = [];
 
@@ -102,13 +104,16 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
   }, [isEditing, taskId]);
 
   const labels = useLiveQuery(() => getLabels(), []);
+  const { notify } = useToast();
 
   // Apply on the create-mode title field (#206): copy what quick-add
   // parsed into the form. Labels are added to any already picked; date,
   // time and priority only change when the text contained them. A
   // recurrence (#276) turns on Repeat and fills the rule builder; the due
   // date then holds the series' first occurrence, the start the builder
-  // and the save path (startDate) already use.
+  // and the save path (startDate) already use. Unknown #tags (#283) are
+  // created as labels right here — Apply is the explicit step — and then
+  // picked like any other label.
   function applyQuickAdd(result: QuickAddResult) {
     setTitle(result.title);
     if (result.dueDate) {
@@ -124,6 +129,21 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
     if (result.recurrence) {
       setRepeatEnabled(true);
       setRecurrence(result.recurrence);
+    }
+    if (result.newLabels.length > 0) {
+      withNewLabels(result).then(
+        ({ result: resolved, created }) => {
+          setLabelIds((prev) => [
+            ...prev,
+            ...resolved.labelIds.filter((id) => !prev.includes(id)),
+          ]);
+          if (created.length > 0) {
+            const names = created.map((label) => `“${label.name}”`).join(", ");
+            notify(`New label${created.length > 1 ? "s" : ""} ${names}`);
+          }
+        },
+        () => notify("Couldn't create the new label — try again"),
+      );
     }
   }
 
@@ -294,6 +314,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
                   onApply={applyQuickAdd}
                   placeholder="What needs to be done? e.g. “Call mom fri 3pm #family”"
                   recurrence
+                  newLabels
                 />
               )}
             </div>

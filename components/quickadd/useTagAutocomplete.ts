@@ -33,8 +33,11 @@ export function useTagAutocomplete({ text, setText, labels, inputRef }: Options)
 
   const found = getQuickAddSuggestions(text.slice(0, caret), labels);
   const tagStart = found ? found.start : null;
-  const suggestions = found && found.start !== dismissedAt ? found.items : [];
+  const visible = found !== null && found.start !== dismissedAt;
+  const suggestions = visible ? found.items : [];
   const open = suggestions.length > 0;
+  // "New label “Fam” on Enter" (#283): shown with or without options, never selectable.
+  const newLabel = visible ? found.newLabel : null;
   const selected = Math.max(0, Math.min(activeIndex, suggestions.length - 1));
 
   // A popover list follows the "#" horizontally. Pure layout, so it is
@@ -74,7 +77,16 @@ export function useTagAutocomplete({ text, setText, labels, inputRef }: Options)
 
   /** Handles the key if the list is open; returns true when it did. */
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>): boolean {
-    if (!open || event.nativeEvent.isComposing) return false;
+    if (event.nativeEvent.isComposing) return false;
+    // Only the new-label hint is showing: Escape hides it, every other key
+    // (Enter included) behaves as if there were no list.
+    if (!open && newLabel && event.key === "Escape") {
+      event.stopPropagation();
+      event.preventDefault();
+      setDismissedAt(tagStart);
+      return true;
+    }
+    if (!open) return false;
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
       const step = event.key === "ArrowDown" ? 1 : -1;
       setActiveIndex((selected + step + suggestions.length) % suggestions.length);
@@ -94,10 +106,11 @@ export function useTagAutocomplete({ text, setText, labels, inputRef }: Options)
     open,
     kind: found?.kind ?? "label",
     suggestions,
+    newLabel,
     selected,
     listId,
     optionId: (index: number) => `${listId}-${index}`,
-    anchorIndex: open ? tagStart : null,
+    anchorIndex: open || newLabel ? tagStart : null,
     anchorRef,
     listRef,
     pick,

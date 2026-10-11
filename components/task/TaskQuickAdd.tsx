@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import type { Task } from "@/lib/types";
+import type { Label, Task } from "@/lib/types";
 import { createTask } from "@/lib/db/tasks";
 import { formatQuickAddDue } from "@/lib/utils/formatQuickAddDue";
 import type { QuickAddResult } from "@/lib/utils/parseQuickAdd";
 import QuickAddInput from "@/components/quickadd/QuickAddInput";
 import { useAddSeries } from "@/components/quickadd/useAddSeries";
+import { newLabelsNote, withNewLabels } from "@/components/quickadd/newLabels";
+import { useToast } from "@/components/layout/ToastProvider";
 
 /** Why a just-added task can't be seen where it was added. */
 export type QuickAddVisibility = "visible" | "out-of-scope" | "filtered";
@@ -41,6 +43,7 @@ export default function TaskQuickAdd({
 }: TaskQuickAddProps) {
   const [message, setMessage] = useState<{ kind: "error" | "info"; text: string } | null>(null);
   const addSeries = useAddSeries();
+  const { notify } = useToast();
 
   const defaultIso = defaultDate
     ? new Date(
@@ -92,13 +95,17 @@ export default function TaskQuickAdd({
     if (result.recurrence) return handleSeries(result);
     const dueDate = result.dueDate ?? defaultIso;
     let task: Task;
+    let created: Label[];
     try {
+      // Unknown #tags become labels first (#283).
+      const resolved = await withNewLabels(result);
+      created = resolved.created;
       task = await createTask({
         title: result.title,
         priority: result.priority ?? "none",
         dueDate,
         allDay: result.dueDate ? result.allDay : dueDate !== null,
-        labelIds: result.labelIds,
+        labelIds: resolved.result.labelIds,
         subtasks: [],
         seriesId: null,
       });
@@ -106,6 +113,8 @@ export default function TaskQuickAdd({
       setMessage({ kind: "error", text: "Couldn't add this task — try again." });
       throw error; // keeps the typed text in the field
     }
+    // Normal adds stay silent; a created label is worth a toast (typos!).
+    if (created.length > 0) notify(`Added “${task.title}”${newLabelsNote(created)}`);
 
     const visibility = visibilityOf(task);
     if (visibility === "visible") return;
@@ -130,6 +139,7 @@ export default function TaskQuickAdd({
         ariaLabel="Quick add a task"
         onEdit={() => setMessage(null)}
         recurrence
+        newLabels
       />
       {message && (
         <p

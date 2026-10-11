@@ -81,7 +81,7 @@ function PaletteBody({ onClose }: { onClose: () => void }) {
   // colors, and once it finds tokens, search uses the title without them
   // so "Call mom fri 3pm" still lists an existing "Call mom".
   const quickAdd = useMemo(
-    () => parseQuickAdd(query, { now: new Date(), labels, recurrence: true }),
+    () => parseQuickAdd(query, { now: new Date(), labels, recurrence: true, newLabels: true }),
     [query, labels],
   );
   // Only tokens and no title ("today", "tomorrow") stays a plain search,
