@@ -113,5 +113,10 @@ device live), the navigation has a one-click light/dark switch, the command
 palette has theme commands, and the page never flashes the wrong theme on
 load. Text greys are theme tokens tuned per theme, so secondary text keeps
 the same contrast in light and dark.
-Planned next: recurring tasks from the quick-add input, a hosted database
-(Neon) and more.
+Quick-add now understands recurrence too: "Gym every mon and thu 6pm until
+31 Dec" or "Miete monatlich am 1." (English or German) creates a recurring
+series straight from the quick-add bars, the command palette or the task
+drawer — with a chip for the rule, the start and the end, a preview of the
+first date, and an Undo.
+Planned next: a weekend-aware week preview, creating labels straight from
+an unknown #tag, a hosted database (Neon) and more.
