@@ -125,4 +125,6 @@ it will get, and ignoring the chip keeps a typo from becoming a label.
 On /tasks, done tasks finished more than a week ago step aside: a quiet
 "12 done tasks older than 7 days hidden · Show" row under the list brings
 them back whenever you want them.
+Every option group (status filter, priority, stats period, label colours,
+theme) works fully from the keyboard: one Tab stop, arrow keys to choose.
 Planned next: a hosted database (Neon), installable PWA and more.
