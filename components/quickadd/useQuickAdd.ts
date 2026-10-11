@@ -18,15 +18,16 @@ const NO_IGNORED: ReadonlySet<string> = new Set();
  * typing it again later would bring the old ignore back.
  *
  * `recurrence: true` lets the parse find "every mon" phrases (#274) — only
- * for fields whose caller can create a series (bars and palette, #275).
+ * for fields whose caller can create a series (bars and palette, #275);
+ * `newLabels: true` reports unknown `#tags` as labels to create (#283).
  */
-export function useQuickAdd(labels: Label[], { recurrence = false } = {}) {
+export function useQuickAdd(labels: Label[], { recurrence = false, newLabels = false } = {}) {
   const [text, setTextState] = useState("");
   const [ignored, setIgnored] = useState<ReadonlySet<string>>(NO_IGNORED);
 
   const result = useMemo(
-    () => parseQuickAdd(text, { now: new Date(), labels, ignored, recurrence }),
-    [text, labels, ignored, recurrence],
+    () => parseQuickAdd(text, { now: new Date(), labels, ignored, recurrence, newLabels }),
+    [text, labels, ignored, recurrence, newLabels],
   );
 
   function setText(next: string) {
@@ -37,6 +38,7 @@ export function useQuickAdd(labels: Label[], { recurrence = false } = {}) {
       labels,
       ignored,
       recurrence,
+      newLabels,
     }).ignoredTokens;
     setIgnored(new Set(stillMatching.map((token) => token.id)));
   }

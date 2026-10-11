@@ -15,6 +15,7 @@ import { useTaskDrawer } from "@/components/task/TaskDrawerProvider";
 import { commandIcon } from "@/components/palette/commandIcons";
 import { useToast } from "@/components/layout/ToastProvider";
 import { useAddSeries } from "@/components/quickadd/useAddSeries";
+import { newLabelsNote, withNewLabels } from "@/components/quickadd/newLabels";
 import { writeThemePreference } from "@/lib/ui/themePreference";
 import type { PaletteItem } from "@/components/palette/types";
 
@@ -67,9 +68,9 @@ export function usePaletteItems(
     if (!query.trim()) return items;
 
     // Only tokens and no title ("fri #family") can't become a task.
-    const { title, dueDate, allDay, labelIds, priority, tokens, recurrence } = quickAdd;
+    const { title, dueDate, allDay, priority, tokens, recurrence } = quickAdd;
     const chips = tokens.map((token) => ({
-      key: token.id,
+      key: `${token.id}@${token.start}`,
       text: tokenLabel(token, labels, new Date()),
       color: tokenColor(token, labels),
     }));
@@ -100,19 +101,23 @@ export function usePaletteItems(
         pinned: true,
         preferred: tokens.length > 0,
         chips,
-        run: () => {
-          createTask({
-            title,
-            priority: priority ?? "none",
-            dueDate,
-            allDay: dueDate ? allDay : false,
-            labelIds,
-            subtasks: [],
-            seriesId: null,
-          }).then(
-            () => notify(`Added “${title}” ${where}`),
-            () => notify(`Couldn't add “${title}” — try again`),
-          );
+        run: async () => {
+          try {
+            // Unknown #tags become labels first (#283).
+            const { result: resolved, created } = await withNewLabels(quickAdd);
+            await createTask({
+              title,
+              priority: priority ?? "none",
+              dueDate,
+              allDay: dueDate ? allDay : false,
+              labelIds: resolved.labelIds,
+              subtasks: [],
+              seriesId: null,
+            });
+            notify(`Added “${title}” ${where}${newLabelsNote(created)}`);
+          } catch {
+            notify(`Couldn't add “${title}” — try again`);
+          }
         },
       });
     }

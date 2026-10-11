@@ -31,6 +31,9 @@ type QuickAddInputProps = {
   /** Understand "every mon" phrases (#274); the caller must handle
    * `result.recurrence` by creating a series. */
   recurrence?: boolean;
+  /** Offer unknown `#tags` as new labels (#283); the caller must create
+   * `result.newLabels` (see withNewLabels). */
+  newLabels?: boolean;
 };
 
 const SIZE_CLASSES = { sm: "input-sm", md: "input-md" } as const;
@@ -59,9 +62,13 @@ export default function QuickAddInput({
   size = "md",
   onEdit,
   recurrence = false,
+  newLabels = false,
 }: QuickAddInputProps) {
   const labels = useLiveQuery(() => getLabels(), []) ?? NO_LABELS;
-  const { text, setText, result, toggleIgnore, reset } = useQuickAdd(labels, { recurrence });
+  const { text, setText, result, toggleIgnore, reset } = useQuickAdd(labels, {
+    recurrence,
+    newLabels,
+  });
   const [submitting, setSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const layerRef = useRef<HTMLDivElement>(null);

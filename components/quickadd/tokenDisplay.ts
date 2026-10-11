@@ -4,6 +4,7 @@ import { PRIORITY_DOT_COLORS } from "@/lib/constants/priorityColors";
 import { formatQuickAddDue } from "@/lib/utils/formatQuickAddDue";
 import { formatRecurrenceRule } from "@/lib/utils/formatRecurrenceRule";
 import { APP_LOCALE } from "@/lib/constants/locale";
+import { pickLabelColors } from "@/lib/utils/labelNames";
 
 /** The theme's accent; tintChipStyle mixes it with color-mix, so a CSS variable works. */
 export const DATE_TOKEN_COLOR = "var(--color-accent)";
@@ -11,10 +12,12 @@ export const DATE_TOKEN_COLOR = "var(--color-accent)";
 /**
  * One color per token, shared by the in-input highlight and the preview
  * chip so a token looks like the chip it becomes: dates in the accent
- * color, labels in their own color, priorities in their dot color.
+ * color, labels in their own color, priorities in their dot color. A new
+ * label (#283) shows the color it will get when created.
  */
 export function tokenColor(token: QuickAddToken, labels: Label[]): string {
   if (token.kind === "date" || token.kind === "recurrence") return DATE_TOKEN_COLOR;
+  if (token.kind === "newLabel") return newLabelColor(token.index, labels);
   if (token.kind === "priority") return PRIORITY_DOT_COLORS[token.priority] ?? DATE_TOKEN_COLOR;
   return labels.find((label) => label.id === token.labelId)?.color ?? DATE_TOKEN_COLOR;
 }
@@ -33,7 +36,19 @@ export function tokenLabel(token: QuickAddToken, labels: Label[], now: Date): st
   // The end date has its own "until …" chip (#275), so the rule leaves it out.
   if (token.kind === "recurrence")
     return formatRecurrenceRule({ ...token.recurrence, endDate: null });
+  if (token.kind === "newLabel") return `New label: ${token.name}`;
   return labels.find((label) => label.id === token.labelId)?.name ?? token.text;
+}
+
+/**
+ * The color the `index`-th new label of a text will get (#283) — the same
+ * pick `ensureLabels` makes when it creates them in that order.
+ */
+export function newLabelColor(index: number, labels: Label[]): string {
+  return pickLabelColors(
+    labels.map((label) => label.color),
+    index + 1,
+  )[index];
 }
 
 const TIME = new Intl.DateTimeFormat(APP_LOCALE, { hour: "2-digit", minute: "2-digit" });

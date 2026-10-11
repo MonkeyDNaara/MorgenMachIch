@@ -1,5 +1,6 @@
 import { db } from "@/lib/db/db";
 import { LabelSchema, type Label, type NewLabel } from "@/lib/types";
+import { normalizeLabelName, pickLabelColors } from "@/lib/utils/labelNames";
 
 export type LabelPatch = Partial<Omit<Label, "id" | "createdAt">>;
 
@@ -31,6 +32,42 @@ export async function createLabel(input: NewLabel): Promise<Label> {
   const validated = LabelSchema.parse(label);
   await db.labels.add(validated);
   return validated;
+}
+
+/**
+ * Labels for these names (#283), creating the ones that don't exist yet
+ * — matched like a `#tag` (normalizeLabelName), so "Deep work" reuses an
+ * existing "deep-work". New labels get the next unused palette colors in
+ * the given order, the same pick the quick-add chip previewed. One
+ * transaction, so two quick adds can't create the same label twice.
+ * Returns the labels in name order and which of them are new.
+ */
+export async function ensureLabels(
+  names: string[],
+): Promise<{ labels: Label[]; created: Label[] }> {
+  return db.transaction("rw", db.labels, async () => {
+    const existing = await getLabels();
+    const labels: Label[] = [];
+    const created: Label[] = [];
+    for (const name of names) {
+      const key = normalizeLabelName(name);
+      const found = [...existing, ...created].find(
+        (label) => normalizeLabelName(label.name) === key,
+      );
+      if (found) {
+        if (!labels.includes(found)) labels.push(found);
+        continue;
+      }
+      const [color] = pickLabelColors(
+        [...existing, ...created].map((label) => label.color),
+        1,
+      );
+      const label = await createLabel({ name, color });
+      created.push(label);
+      labels.push(label);
+    }
+    return { labels, created };
+  });
 }
 
 export async function updateLabel(id: string, patch: LabelPatch): Promise<Label> {

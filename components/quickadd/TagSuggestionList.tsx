@@ -8,11 +8,18 @@ type TagSuggestionListProps = {
   variant: "popover" | "inline";
 };
 
-/** The listbox of "#" label / "!" priority suggestions (see useTagAutocomplete). */
+/**
+ * The listbox of "#" label / "!" priority suggestions (see
+ * useTagAutocomplete). Under the options — or alone — a passive line says
+ * which label an unknown tag will create (#283); it is not an option, so
+ * Enter still submits. The palette's inline variant leaves that line out
+ * (its Add row already shows the "New label" chip) so the results stay.
+ */
 export default function TagSuggestionList({ autocomplete, variant }: TagSuggestionListProps) {
-  const { open, kind, suggestions, selected, listId, optionId, listRef, pick, hover } =
+  const { open, kind, suggestions, newLabel, selected, listId, optionId, listRef, pick, hover } =
     autocomplete;
   const popover = variant === "popover";
+  const hint = popover ? newLabel : null;
 
   return (
     <ul
@@ -20,7 +27,7 @@ export default function TagSuggestionList({ autocomplete, variant }: TagSuggesti
       id={listId}
       role="listbox"
       aria-label={kind === "priority" ? "Priorities" : "Labels"}
-      hidden={!open}
+      hidden={!open && !hint}
       data-variant={variant}
       className={
         popover
@@ -59,6 +66,24 @@ export default function TagSuggestionList({ autocomplete, variant }: TagSuggesti
           </span>
         </li>
       ))}
+      {hint && (
+        <>
+          {open && <li role="presentation" className="mx-1.5 my-1 h-px bg-line-strong" />}
+          <li
+            role="presentation"
+            className="flex items-center gap-2 px-2 py-1.5 text-xs text-subtle"
+          >
+            <span
+              className="size-2 shrink-0 rounded-full border-[1.5px] border-dashed"
+              style={{ borderColor: hint.color }}
+              aria-hidden
+            />
+            <span className="truncate">
+              {open ? "…or a new label" : "New label"} “{hint.name}”{open ? "" : " on Enter"}
+            </span>
+          </li>
+        </>
+      )}
     </ul>
   );
 }

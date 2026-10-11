@@ -1,8 +1,10 @@
+import type { CSSProperties } from "react";
 import {
   CalendarCheck,
   CalendarClock,
   Clock,
   Flag,
+  Plus,
   Repeat,
   RotateCcw,
   Tag,
@@ -25,10 +27,17 @@ type QuickAddChipsProps = {
   className?: string;
 };
 
-const ICONS = { date: CalendarClock, label: Tag, priority: Flag, recurrence: Repeat } as const;
+const ICONS = {
+  date: CalendarClock,
+  label: Tag,
+  newLabel: Plus,
+  priority: Flag,
+  recurrence: Repeat,
+} as const;
 const KIND_NAMES = {
   date: "due date",
   label: "label",
+  newLabel: "", // the chip text already says "New label: …"
   priority: "priority",
   recurrence: "repeat",
 } as const;
@@ -38,6 +47,14 @@ function chipIcon(token: QuickAddToken): LucideIcon {
   if (token.kind === "date" && token.role === "end") return CalendarCheck;
   if (token.kind === "date" && token.role === "start" && token.timeOnly) return Clock;
   return ICONS[token.kind];
+}
+
+/** A label that doesn't exist yet (#283) gets a dashed outline, no fill. */
+function chipStyle(token: QuickAddToken, labels: Label[]): CSSProperties {
+  const style = tintChipStyle(tokenColor(token, labels));
+  return token.kind === "newLabel"
+    ? { ...style, backgroundColor: "transparent", borderStyle: "dashed" }
+    : style;
 }
 
 function kindName(token: QuickAddToken): string {
@@ -75,16 +92,18 @@ export default function QuickAddChips({
         const Action = ignored ? RotateCcw : X;
         return (
           <button
-            key={token.id}
+            key={`${token.id}@${token.start}`}
             type="button"
             onClick={() => onToggle(token.id)}
             aria-pressed={ignored}
-            aria-label={`${ignored ? "Use" : "Ignore"} ${kindName(token)} ${text}`}
+            aria-label={[ignored ? "Use" : "Ignore", kindName(token), text]
+              .filter(Boolean)
+              .join(" ")}
             title={ignored ? "Use this again" : "Ignore — keep it as text"}
             className={`inline-flex items-center gap-1.5 rounded-full py-0.5 pr-1.5 pl-2.5 text-xs font-medium transition-opacity ${
               ignored ? "line-through opacity-45 hover:opacity-70" : "hover:opacity-90"
             }`}
-            style={tintChipStyle(tokenColor(token, labels))}
+            style={chipStyle(token, labels)}
           >
             <Icon size={12} aria-hidden />
             {text}

@@ -2,6 +2,7 @@ import * as chrono from "chrono-node";
 import { RecurrenceRuleSchema, type Label, type Priority, type RecurrenceRule } from "@/lib/types";
 import { occurrencesBetween } from "@/lib/utils/recurrence";
 import { parseDateOnly } from "@/lib/utils/parseDateOnly";
+import { canBeLabelTag, normalizeLabelName, tagToLabelName } from "@/lib/utils/labelNames";
 import { findRecurrencePhrase, type RecurrencePhrase } from "@/lib/utils/parseRecurrence";
 
 /**
@@ -12,7 +13,8 @@ import { findRecurrencePhrase, type RecurrencePhrase } from "@/lib/utils/parseRe
  *
  * Understands three kinds of tokens:
  * - a date/time, English (en-GB, day before month) or German, via chrono-node
- * - `#label` for existing labels (unknown tags stay in the title)
+ * - `#label` for existing labels; unknown tags stay in the title, or — with
+ *   `newLabels: true` (#283) — become "new label" tokens the caller creates
  * - `!priority`: !high/!medium/!med/!low or !1/!2/!3 (1 = high)
  * - a recurrence ("every mon 7am", "jeden 1. bis 31.12."), only when the
  *   caller opts in with `recurrence: true` (#274) — see parseRecurrence.ts
@@ -22,7 +24,7 @@ import { findRecurrencePhrase, type RecurrencePhrase } from "@/lib/utils/parseRe
  * `ignored` — its text then stays in the title.
  */
 
-export type QuickAddTokenKind = "date" | "label" | "priority" | "recurrence";
+export type QuickAddTokenKind = "date" | "label" | "newLabel" | "priority" | "recurrence";
 
 /**
  * What a date token means: the due date of a task, or — next to a
@@ -56,6 +58,14 @@ export type QuickAddToken =
     })
   | (QuickAddTokenBase & { kind: "recurrence"; recurrence: RecurrenceRule })
   | (QuickAddTokenBase & { kind: "label"; labelId: string })
+  | (QuickAddTokenBase & {
+      kind: "newLabel";
+      /** Name the label will get ("Deep work" for `#deep-work`). */
+      name: string;
+      /** Position among the distinct new labels in this text (0, 1, …) —
+       * which unused palette color it will get (see pickLabelColors). */
+      index: number;
+    })
   | (QuickAddTokenBase & { kind: "priority"; priority: Priority });
 
 export type QuickAddResult = {
@@ -67,6 +77,9 @@ export type QuickAddResult = {
   /** True when the date has no explicit time ("fri", "morgen"). */
   allDay: boolean;
   labelIds: string[];
+  /** Names of labels to create for unknown `#tags` (#283), distinct, in
+   * text order; empty unless `newLabels: true`. */
+  newLabels: string[];
   /** null = no priority token, so the caller keeps its own default. */
   priority: Priority | null;
   /** The complete rule (days/monthly mode filled in, `endDate` as a local
@@ -89,6 +102,8 @@ export type QuickAddOptions = {
   /** Look for recurrence phrases (#274). Off by default, so entry points
    * that can't create a series yet keep the plain task behaviour. */
   recurrence?: boolean;
+  /** Report unknown `#tags` (with a letter) as "new label" tokens (#283). */
+  newLabels?: boolean;
 };
 
 // --- dates ------------------------------------------------------------------
@@ -196,11 +211,6 @@ const PRIORITY_BY_WORD: Record<string, Priority> = {
   "3": "low",
 };
 
-/** "Deep work", "deep-work" and "#DeepWork" all become "deepwork". */
-function normalizeLabelName(name: string): string {
-  return name.toLowerCase().replace(/[\s_-]+/g, "");
-}
-
 // --- recurrence ---------------------------------------------------------------
 
 // Next to a recurrence, "until 31 Dec" / "bis 31.12." is the end date and
@@ -290,9 +300,33 @@ export function parseQuickAdd(text: string, options: QuickAddOptions): QuickAddR
   }
 
   const labelIds: string[] = [];
+  const newLabels: string[] = [];
+  const newLabelKeys: string[] = []; // every distinct new tag, ignored or not — fixes the colors
   for (const match of text.matchAll(LABEL_TAG)) {
-    const labelId = labelsByName.get(normalizeLabelName(match[2]));
-    if (!labelId) continue; // unknown tag: stays in the title, nothing is created
+    const key = normalizeLabelName(match[2]);
+    const labelId = labelsByName.get(key);
+    if (!labelId) {
+      // Unknown tag: stays in the title, unless the caller can create it (#283).
+      if (!options.newLabels || !canBeLabelTag(match[2])) continue;
+      if (!newLabelKeys.includes(key)) newLabelKeys.push(key);
+      const start = (match.index ?? 0) + match[1].length;
+      const token: QuickAddToken = {
+        id: `newLabel:${key}`,
+        kind: "newLabel",
+        start,
+        end: start + 1 + match[2].length,
+        text: `#${match[2]}`,
+        name: tagToLabelName(match[2]),
+        index: newLabelKeys.indexOf(key),
+      };
+      if (ignored.has(token.id)) {
+        ignoredTokens.push(token);
+        continue;
+      }
+      tokens.push(token);
+      if (!newLabels.some((name) => normalizeLabelName(name) === key)) newLabels.push(token.name);
+      continue;
+    }
     const id = `label:${labelId}`;
     const start = (match.index ?? 0) + match[1].length;
     const token: QuickAddToken = {
@@ -476,5 +510,15 @@ export function parseQuickAdd(text: string, options: QuickAddOptions): QuickAddR
   }
   title = (title + text.slice(cursor)).replace(/\s+/g, " ").trim();
 
-  return { title, dueDate, allDay, labelIds, priority, recurrence, tokens, ignoredTokens };
+  return {
+    title,
+    dueDate,
+    allDay,
+    labelIds,
+    newLabels,
+    priority,
+    recurrence,
+    tokens,
+    ignoredTokens,
+  };
 }
