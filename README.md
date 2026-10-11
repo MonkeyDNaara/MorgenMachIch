@@ -122,4 +122,7 @@ On the weekend the week preview on /today already shows the whole next
 week, so Saturday and Sunday are for planning. And a #tag that matches no
 label can create it on the spot: the chip shows the new label in the colour
 it will get, and ignoring the chip keeps a typo from becoming a label.
-Planned next: hiding long-finished tasks, a hosted database (Neon) and more.
+On /tasks, done tasks finished more than a week ago step aside: a quiet
+"12 done tasks older than 7 days hidden · Show" row under the list brings
+them back whenever you want them.
+Planned next: a hosted database (Neon), installable PWA and more.
