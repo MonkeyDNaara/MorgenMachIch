@@ -1,4 +1,4 @@
-import { CalendarClock, Flag, RotateCcw, Tag, X } from "lucide-react";
+import { CalendarClock, Flag, Repeat, RotateCcw, Tag, X } from "lucide-react";
 import type { Label } from "@/lib/types";
 import type { QuickAddToken } from "@/lib/utils/parseQuickAdd";
 import { tintChipStyle } from "@/lib/ui/colorChip";
@@ -15,8 +15,13 @@ type QuickAddChipsProps = {
   className?: string;
 };
 
-const ICONS = { date: CalendarClock, label: Tag, priority: Flag } as const;
-const KIND_NAMES = { date: "due date", label: "label", priority: "priority" } as const;
+const ICONS = { date: CalendarClock, label: Tag, priority: Flag, recurrence: Repeat } as const;
+const KIND_NAMES = {
+  date: "due date",
+  label: "label",
+  priority: "priority",
+  recurrence: "repeat",
+} as const;
 
 /**
  * Preview of what a quick-add field will set (#203): one soft-tint chip per
