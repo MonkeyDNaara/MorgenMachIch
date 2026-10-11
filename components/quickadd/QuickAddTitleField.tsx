@@ -22,6 +22,9 @@ type QuickAddTitleFieldProps = {
    * version (`result.title`). */
   onApply: (result: QuickAddResult) => void;
   placeholder?: string;
+  /** Detect "every mon" phrases (#276); the caller's Apply must handle
+   * `result.recurrence` (the drawer turns on Repeat). */
+  recurrence?: boolean;
 };
 
 /**
@@ -40,6 +43,7 @@ export default function QuickAddTitleField({
   labels,
   onApply,
   placeholder,
+  recurrence = false,
 }: QuickAddTitleFieldProps) {
   const [ignored, setIgnored] = useState<ReadonlySet<string>>(NO_IGNORED);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -47,8 +51,8 @@ export default function QuickAddTitleField({
   const autocomplete = useTagAutocomplete({ text: value, setText: onChange, labels, inputRef });
 
   const result = useMemo(
-    () => parseQuickAdd(value, { now: new Date(), labels, ignored }),
-    [value, labels, ignored],
+    () => parseQuickAdd(value, { now: new Date(), labels, ignored, recurrence }),
+    [value, labels, ignored, recurrence],
   );
   const hasSuggestions = result.tokens.length > 0 || result.ignoredTokens.length > 0;
 
@@ -87,7 +91,7 @@ export default function QuickAddTitleField({
             autocomplete.onInputChange(event.target);
             // Drop ignores whose token no longer matches (see useQuickAdd).
             if (ignored.size > 0) {
-              const still = parseQuickAdd(next, { now: new Date(), labels, ignored });
+              const still = parseQuickAdd(next, { now: new Date(), labels, ignored, recurrence });
               setIgnored(new Set(still.ignoredTokens.map((token) => token.id)));
             }
           }}

@@ -105,7 +105,10 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
 
   // Apply on the create-mode title field (#206): copy what quick-add
   // parsed into the form. Labels are added to any already picked; date,
-  // time and priority only change when the text contained them.
+  // time and priority only change when the text contained them. A
+  // recurrence (#276) turns on Repeat and fills the rule builder; the due
+  // date then holds the series' first occurrence, the start the builder
+  // and the save path (startDate) already use.
   function applyQuickAdd(result: QuickAddResult) {
     setTitle(result.title);
     if (result.dueDate) {
@@ -118,6 +121,10 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
       setLabelIds((prev) => [...prev, ...result.labelIds.filter((id) => !prev.includes(id))]);
     }
     if (result.priority) setPriority(result.priority);
+    if (result.recurrence) {
+      setRepeatEnabled(true);
+      setRecurrence(result.recurrence);
+    }
   }
 
   function toggleLabel(id: string) {
@@ -277,7 +284,8 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
                   className={`input w-full ${FIELD_FOCUS}`}
                 />
               ) : (
-                // Create mode parses the title like the quick-add bars (#206).
+                // Create mode parses the title like the quick-add bars (#206),
+                // recurrences included (#276).
                 <QuickAddTitleField
                   id={titleId}
                   value={title}
@@ -285,6 +293,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
                   labels={labels ?? NO_LABELS}
                   onApply={applyQuickAdd}
                   placeholder="What needs to be done? e.g. “Call mom fri 3pm #family”"
+                  recurrence
                 />
               )}
             </div>
