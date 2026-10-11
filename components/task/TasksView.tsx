@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useId, useState, useSyncExternalStore } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { CalendarDays, Inbox, ListTodo, Repeat, SlidersHorizontal } from "lucide-react";
+import { CalendarDays, CheckCheck, Inbox, ListTodo, Repeat, SlidersHorizontal } from "lucide-react";
 import type { Task } from "@/lib/types";
 import { getTasks } from "@/lib/db/tasks";
 import { getLabels } from "@/lib/db/labels";
@@ -14,6 +14,7 @@ import { filterSeriesByPriority } from "@/lib/utils/filterSeriesByPriority";
 import { filterSeriesByLabels } from "@/lib/utils/filterSeriesByLabels";
 import { sortTasks, type TaskSortBy } from "@/lib/utils/sortTasks";
 import { isBacklogTask, sortBacklogTasks } from "@/lib/utils/backlog";
+import { OLD_DONE_DAYS, splitOldDone } from "@/lib/utils/oldDone";
 import {
   readBacklogVisible,
   subscribeBacklogVisible,
@@ -57,6 +58,13 @@ function excludeSeriesOccurrences(tasks: Task[]): Task[] {
  * it to the Tasks column. It stays usable while the Backlog is hidden and
  * says so when a new task ends up somewhere not currently visible.
  *
+ * Done tasks completed more than 7 days ago (#289) are hidden from the
+ * Tasks column by default — after all other filters, in "All" and "Done"
+ * alike — behind a quiet "N done tasks older than 7 days hidden · Show"
+ * row under the last card. Plain state like the other filters, so it is
+ * hidden again on every visit. Nothing else (Today, calendar, stats,
+ * palette) is affected.
+ *
  * Card rendering is shared with TaskList via TaskCardList; the toolbar
  * and label filter bar are the same components TaskList itself uses,
  * just rendered here directly since this view owns the filter state
@@ -71,6 +79,8 @@ export default function TasksView() {
   const [status, setStatus] = useState<StatusFilter>("all");
   const [priority, setPriority] = useState<PriorityFilter>("all");
   const [sortBy, setSortBy] = useState<TaskSortBy>("dueDate");
+  const [showOldDone, setShowOldDone] = useState(false);
+  const tasksListId = useId();
   const backlogVisible = useSyncExternalStore(
     subscribeBacklogVisible,
     readBacklogVisible,
@@ -92,13 +102,12 @@ export default function TasksView() {
   const standaloneTasks = excludeSeriesOccurrences(tasks);
   const backlogTasks = standaloneTasks.filter(isBacklogTask);
   const datedTasks = standaloneTasks.filter((task) => !isBacklogTask(task));
-  const visibleTasks = sortTasks(
-    filterTasksByLabels(
-      filterTasksByPriority(filterTasksByStatus(datedTasks, status), priority),
-      activeLabelIds,
-    ),
-    sortBy,
+  const filteredTasks = filterTasksByLabels(
+    filterTasksByPriority(filterTasksByStatus(datedTasks, status), priority),
+    activeLabelIds,
   );
+  const { recent: recentTasks, old: oldDoneTasks } = splitOldDone(filteredTasks, new Date());
+  const visibleTasks = sortTasks(showOldDone ? filteredTasks : recentTasks, sortBy);
   const visibleBacklog = sortBacklogTasks(
     filterTasksByLabels(filterTasksByPriority(backlogTasks, priority), activeLabelIds),
   );
@@ -186,30 +195,56 @@ export default function TasksView() {
         <div className="p-6">
           <div className="mx-auto w-full max-w-md">
             <p className="mb-3 font-mono text-eyebrow text-subtle uppercase">Tasks</p>
-            <TaskCardList
-              tasks={visibleTasks}
-              labels={labels ?? []}
-              compactEmpty
-              empty={
-                isEmpty
-                  ? {
-                      icon: ListTodo,
-                      title: "No tasks yet.",
-                      hint: "Type one above — try “Call mom fri 3pm #family”.",
-                    }
-                  : datedTasks.length === 0
+            <div id={tasksListId}>
+              <TaskCardList
+                tasks={visibleTasks}
+                labels={labels ?? []}
+                compactEmpty
+                empty={
+                  isEmpty
                     ? {
-                        icon: CalendarDays,
-                        title: "Nothing scheduled.",
-                        hint: "Plan a backlog task, or add one with a date.",
+                        icon: ListTodo,
+                        title: "No tasks yet.",
+                        hint: "Type one above — try “Call mom fri 3pm #family”.",
                       }
-                    : {
-                        icon: SlidersHorizontal,
-                        title: "No tasks match these filters.",
-                        hint: "Change or clear the filters to see more.",
-                      }
-              }
-            />
+                    : datedTasks.length === 0
+                      ? {
+                          icon: CalendarDays,
+                          title: "Nothing scheduled.",
+                          hint: "Plan a backlog task, or add one with a date.",
+                        }
+                      : oldDoneTasks.length > 0
+                        ? {
+                            icon: CheckCheck,
+                            title: "Only older done tasks here.",
+                            hint: `Finished more than ${OLD_DONE_DAYS} days ago — show them below.`,
+                          }
+                        : {
+                            icon: SlidersHorizontal,
+                            title: "No tasks match these filters.",
+                            hint: "Change or clear the filters to see more.",
+                          }
+                }
+              />
+            </div>
+            {oldDoneTasks.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowOldDone((shown) => !shown)}
+                aria-expanded={showOldDone}
+                aria-controls={tasksListId}
+                className="mt-3 w-full cursor-pointer rounded-lg px-2 py-1.5 text-center font-mono text-meta text-subtle outline-none! transition-colors hover:text-base-content focus-visible:shadow-focus"
+              >
+                {showOldDone ? (
+                  "Hide older done tasks"
+                ) : (
+                  <>
+                    {oldDoneTasks.length} done {oldDoneTasks.length === 1 ? "task" : "tasks"} older
+                    than {OLD_DONE_DAYS} days hidden · <span className="text-accent">Show</span>
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </div>
         <div className="hidden bg-line md:block" />
