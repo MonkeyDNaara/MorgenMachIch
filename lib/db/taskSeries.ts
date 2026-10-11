@@ -39,6 +39,17 @@ export async function createTaskSeries(input: NewTaskSeries): Promise<TaskSeries
   return validated;
 }
 
+/**
+ * Creates a series and generates its occurrences right away, so they show
+ * up without waiting for the next app load (OccurrenceSync, #60). Used by
+ * the task drawer and the quick-add entry points (#275).
+ */
+export async function createTaskSeriesWithOccurrences(input: NewTaskSeries): Promise<TaskSeries> {
+  const series = await createTaskSeries(input);
+  await generateOccurrences();
+  return series;
+}
+
 export async function updateTaskSeries(id: string, patch: TaskSeriesPatch): Promise<TaskSeries> {
   const existing = await db.taskSeries.get(id);
   if (!existing) throw new Error(`Task series not found: ${id}`);

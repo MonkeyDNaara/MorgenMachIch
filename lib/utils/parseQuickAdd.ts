@@ -50,6 +50,9 @@ export type QuickAddToken =
       dueDate: string;
       /** No time given. */
       allDay: boolean;
+      /** Only a time, no day ("7am", "18 Uhr") — for a start token this means
+       * "time of day", for a due token the date was filled in. */
+      timeOnly: boolean;
     })
   | (QuickAddTokenBase & { kind: "recurrence"; recurrence: RecurrenceRule })
   | (QuickAddTokenBase & { kind: "label"; labelId: string })
@@ -207,7 +210,17 @@ const END_PREPOSITION =
 const START_PREPOSITION =
   /(?:^|\s)((?:from|starting(?:\s+(?:on|from))?|beginning(?:\s+on)?|ab(?:\s+dem)?|beginnend(?:\s+(?:am|mit))?)\s+)$/i;
 
-const START_WORDS = /\b(?:from|starting|beginning)\b(?=\s)/gi;
+/** The text names a day ("fri", "12.10.", "tomorrow"), not just a time. */
+function isDated(result: chrono.ParsedResult): boolean {
+  return result.start.isCertain("day") || result.start.isCertain("weekday");
+}
+
+// Replaced by "|" before chrono when there is a recurrence: "from 14 Oct" would
+// otherwise read as the time "from 14", and "18 Uhr bis 31.12." would merge
+// into one range (or, with spaces, one datetime) — start and end should be
+// separate tokens (chips). chrono never joins dates across a "|".
+const START_END_WORDS =
+  /(?<![\p{L}\p{N}])(?:from|starting|beginning|until|till|thru|through|bis)(?![\p{L}\p{N}])(?=\s)/giu;
 
 function addDays(date: Date, days: number): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
@@ -357,9 +370,8 @@ export function parseQuickAdd(text: string, options: QuickAddOptions): QuickAddR
     let start: { token: QuickAddToken & { kind: "date" }; result: chrono.ParsedResult } | null =
       null;
     let end: Date | null = null;
-    // chrono reads "from 14 Oct" as the time "from 14" (14:00); without the
-    // word it finds the date. The words still count as start prepositions.
-    const dateText = masked.replace(START_WORDS, (match) => " ".repeat(match.length));
+    // The words still count as prepositions: they're checked on `text`.
+    const dateText = masked.replace(START_END_WORDS, (match) => "|".padEnd(match.length));
     for (const candidate of findDateCandidates(dateText, now)) {
       const before = text.slice(0, candidate.result.index);
       const endPrep = END_PREPOSITION.exec(before);
@@ -376,6 +388,7 @@ export function parseQuickAdd(text: string, options: QuickAddOptions): QuickAddR
         id,
         kind: "date",
         role,
+        timeOnly: !isDated(candidate.result),
         start: tokenStart,
         end: candidate.end,
         text: tokenText,
@@ -399,9 +412,7 @@ export function parseQuickAdd(text: string, options: QuickAddOptions): QuickAddR
     }
 
     const startResult = start?.result;
-    const dated =
-      startResult !== undefined &&
-      (startResult.start.isCertain("day") || startResult.start.isCertain("weekday"));
+    const dated = startResult !== undefined && isDated(startResult);
     const anchorDay = dated ? startOfDay(new Date(start!.token.dueDate)) : startOfDay(now);
     const time = startResult?.start.isCertain("hour")
       ? { hours: startResult.start.get("hour") ?? 0, minutes: startResult.start.get("minute") ?? 0 }
@@ -433,6 +444,7 @@ export function parseQuickAdd(text: string, options: QuickAddOptions): QuickAddR
         id,
         kind: "date",
         role: "due",
+        timeOnly: !isDated(candidate.result),
         start: candidate.start,
         end: candidate.end,
         text: tokenText,

@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
-import { CalendarPlus, Circle, CircleCheck, Inbox } from "lucide-react";
+import { CalendarPlus, Circle, CircleCheck, Inbox, Repeat } from "lucide-react";
 import { COMMANDS, type CommandContext } from "@/lib/commands";
 import { createTask, getTasks, updateTask } from "@/lib/db/tasks";
 import type { Label, Task } from "@/lib/types";
@@ -14,6 +14,7 @@ import { tokenColor, tokenLabel } from "@/components/quickadd/tokenDisplay";
 import { useTaskDrawer } from "@/components/task/TaskDrawerProvider";
 import { commandIcon } from "@/components/palette/commandIcons";
 import { useToast } from "@/components/layout/ToastProvider";
+import { useAddSeries } from "@/components/quickadd/useAddSeries";
 import { writeThemePreference } from "@/lib/ui/themePreference";
 import type { PaletteItem } from "@/components/palette/types";
 
@@ -26,7 +27,8 @@ const DONE_PENALTY = 20;
  * user's tasks and an Add action (#197). Since #204 the Add action uses
  * the quick-add parse of the query: "Call mom fri 3pm #family !high"
  * adds "Call mom" with that date, label and priority, and only a task
- * without a date lands in the backlog.
+ * without a date lands in the backlog. Since #275 a recurrence ("Gym every
+ * mon 7am") turns it into "Add series", created via useAddSeries.
  *
  * Tasks come from a live query, so completing one with Cmd/Ctrl+Enter
  * updates its row in place. Recurring occurrences are left out — a
@@ -42,6 +44,7 @@ export function usePaletteItems(
   const router = useRouter();
   const { openTaskDrawer } = useTaskDrawer();
   const { notify } = useToast();
+  const addSeries = useAddSeries();
   const tasks = useLiveQuery(getTasks, []);
 
   return useMemo(() => {
@@ -64,8 +67,28 @@ export function usePaletteItems(
     if (!query.trim()) return items;
 
     // Only tokens and no title ("fri #family") can't become a task.
-    const { title, dueDate, allDay, labelIds, priority, tokens } = quickAdd;
-    if (title) {
+    const { title, dueDate, allDay, labelIds, priority, tokens, recurrence } = quickAdd;
+    const chips = tokens.map((token) => ({
+      key: token.id,
+      text: tokenLabel(token, labels, new Date()),
+      color: tokenColor(token, labels),
+    }));
+    if (title && recurrence) {
+      // "Gym every mon 7am" (#275): a series, confirmed by useAddSeries' toast.
+      items.push({
+        id: "add-task",
+        kind: "command",
+        label: `Add series “${title}”`,
+        group: "Actions",
+        icon: Repeat,
+        pinned: true,
+        preferred: true,
+        chips,
+        run: () => {
+          addSeries(quickAdd).catch(() => notify(`Couldn't add “${title}” — try again`));
+        },
+      });
+    } else if (title) {
       const now = new Date();
       const where = dueDate ? `for ${formatQuickAddDue(dueDate, allDay, now)}` : "to the backlog";
       items.push({
@@ -76,11 +99,7 @@ export function usePaletteItems(
         icon: dueDate ? CalendarPlus : Inbox,
         pinned: true,
         preferred: tokens.length > 0,
-        chips: tokens.map((token) => ({
-          key: token.id,
-          text: tokenLabel(token, labels, now),
-          color: tokenColor(token, labels),
-        })),
+        chips,
         run: () => {
           createTask({
             title,
@@ -103,7 +122,7 @@ export function usePaletteItems(
       items.push(taskItem(task, openTaskDrawer));
     }
     return items;
-  }, [router, openTaskDrawer, notify, tasks, query, quickAdd, labels]);
+  }, [router, openTaskDrawer, notify, addSeries, tasks, query, quickAdd, labels]);
 }
 
 function taskItem(task: Task, openTaskDrawer: (taskId?: string) => void): PaletteItem {

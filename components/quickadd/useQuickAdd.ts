@@ -16,20 +16,28 @@ const NO_IGNORED: ReadonlySet<string> = new Set();
  * typing elsewhere in the field. Whenever the text changes, ignored ids
  * that no longer match anything are dropped — otherwise deleting "fri" and
  * typing it again later would bring the old ignore back.
+ *
+ * `recurrence: true` lets the parse find "every mon" phrases (#274) — only
+ * for fields whose caller can create a series (bars and palette, #275).
  */
-export function useQuickAdd(labels: Label[]) {
+export function useQuickAdd(labels: Label[], { recurrence = false } = {}) {
   const [text, setTextState] = useState("");
   const [ignored, setIgnored] = useState<ReadonlySet<string>>(NO_IGNORED);
 
   const result = useMemo(
-    () => parseQuickAdd(text, { now: new Date(), labels, ignored }),
-    [text, labels, ignored],
+    () => parseQuickAdd(text, { now: new Date(), labels, ignored, recurrence }),
+    [text, labels, ignored, recurrence],
   );
 
   function setText(next: string) {
     setTextState(next);
     if (ignored.size === 0) return;
-    const stillMatching = parseQuickAdd(next, { now: new Date(), labels, ignored }).ignoredTokens;
+    const stillMatching = parseQuickAdd(next, {
+      now: new Date(),
+      labels,
+      ignored,
+      recurrence,
+    }).ignoredTokens;
     setIgnored(new Set(stillMatching.map((token) => token.id)));
   }
 
