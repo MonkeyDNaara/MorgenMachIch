@@ -1,3 +1,5 @@
+import type { ThemePreference } from "@/lib/ui/themePreference";
+
 /**
  * What a command may do. Commands get these as plain functions instead of
  * importing the router or React contexts themselves, so the registry
@@ -8,6 +10,7 @@
 export type CommandContext = {
   navigate: (path: string) => void;
   openNewTask: () => void;
+  setTheme: (preference: ThemePreference) => void;
 };
 
 /** A user-facing command, as plain data (#196). */
