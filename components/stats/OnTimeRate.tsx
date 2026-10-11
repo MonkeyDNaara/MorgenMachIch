@@ -36,7 +36,7 @@ export default function OnTimeRate({ onTime, total, rate }: OnTimeRateProps) {
         <p className="text-xl font-semibold tabular-nums">
           {percent === null ? "—" : `${percent}%`}
         </p>
-        <p className="text-xs text-base-content/40">
+        <p className="text-xs text-faint">
           {percent === null
             ? "On time · no dated tasks completed yet"
             : `On time · ${onTime} of ${total} dated ${total === 1 ? "task" : "tasks"}`}

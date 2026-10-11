@@ -74,12 +74,12 @@ export default function FilterPopover({
           <LabelChip key={label.id} name={label.name} color={label.color} size="sm" />
         ))}
         {activeLabels.length > MAX_BUTTON_CHIPS && (
-          <span className="font-mono text-meta text-base-content/60">
+          <span className="font-mono text-meta text-muted">
             +{activeLabels.length - MAX_BUTTON_CHIPS}
           </span>
         )}
         {priority !== "all" && (
-          <span className="font-mono text-meta text-base-content/60">!{priorityLabel}</span>
+          <span className="font-mono text-meta text-muted">!{priorityLabel}</span>
         )}
       </button>
 
@@ -93,7 +93,7 @@ export default function FilterPopover({
         >
           {labels.length > 0 && (
             <>
-              <p className="px-2.5 pt-1 pb-1 font-mono text-eyebrow text-base-content/50 uppercase">
+              <p className="px-2.5 pt-1 pb-1 font-mono text-eyebrow text-subtle uppercase">
                 Labels
               </p>
               {labels.map((label) => {
@@ -119,9 +119,7 @@ export default function FilterPopover({
               <div className="my-1 border-t border-line" />
             </>
           )}
-          <p className="px-2.5 pt-1 pb-1 font-mono text-eyebrow text-base-content/50 uppercase">
-            Priority
-          </p>
+          <p className="px-2.5 pt-1 pb-1 font-mono text-eyebrow text-subtle uppercase">Priority</p>
           <div role="radiogroup" aria-label="Priority" className="flex flex-col gap-0.5">
             {PRIORITY_OPTIONS.map((option) => {
               const active = priority === option.value;
@@ -149,11 +147,7 @@ export default function FilterPopover({
           {activeCount > 0 && (
             <>
               <div className="my-1 border-t border-line" />
-              <button
-                type="button"
-                onClick={onClear}
-                className={`${rowClasses} text-base-content/60`}
-              >
+              <button type="button" onClick={onClear} className={`${rowClasses} text-muted`}>
                 Clear filters
               </button>
             </>

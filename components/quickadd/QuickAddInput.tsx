@@ -169,7 +169,7 @@ export default function QuickAddInput({
         {!hasDate && (
           <span
             aria-hidden
-            className="pointer-events-none absolute top-1/2 right-3 hidden -translate-y-1/2 font-mono text-xs text-base-content/40 sm:block"
+            className="pointer-events-none absolute top-1/2 right-3 hidden -translate-y-1/2 font-mono text-xs text-faint sm:block"
           >
             → {defaultHint}
           </span>
@@ -180,7 +180,7 @@ export default function QuickAddInput({
 
       {/* Below sm the hint moves under the field so it can never overlap the text. */}
       {!hasDate && (
-        <p aria-hidden className="mt-1.5 font-mono text-meta text-base-content/50 sm:hidden">
+        <p aria-hidden className="mt-1.5 font-mono text-meta text-subtle sm:hidden">
           → {defaultHint} · try “gym tue 7am #health”
         </p>
       )}

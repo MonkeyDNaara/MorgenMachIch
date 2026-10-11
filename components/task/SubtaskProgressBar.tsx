@@ -22,7 +22,7 @@ export default function SubtaskProgressBar({ subtasks }: SubtaskProgressBarProps
       <div className="h-1 flex-1 overflow-hidden rounded-full bg-sunken">
         <div className="h-full rounded-full bg-neutral transition-[width]" style={{ width: `${percent}%` }} />
       </div>
-      <span className="flex-shrink-0 font-mono text-[10px] text-base-content/50">
+      <span className="flex-shrink-0 font-mono text-[10px] text-subtle">
         {doneCount}/{subtasks.length}
       </span>
     </div>

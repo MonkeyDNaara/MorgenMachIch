@@ -24,15 +24,12 @@ export default function TagSuggestionList({ autocomplete, variant }: TagSuggesti
       data-variant={variant}
       className={
         popover
-          ? "absolute top-full z-20 mt-1.5 w-56 rounded-xl border border-base-300 bg-base-100 p-1 shadow-overlay"
+          ? "absolute top-full z-20 mt-1.5 w-56 rounded-xl border border-line-strong bg-base-100 p-1 shadow-overlay"
           : "p-2"
       }
     >
       {!popover && (
-        <li
-          role="presentation"
-          className="px-3 pt-2 pb-1 font-mono text-[11px] text-base-content/40"
-        >
+        <li role="presentation" className="px-3 pt-2 pb-1 font-mono text-[11px] text-faint">
           {kind === "priority" ? "Priority" : "Labels"}
         </li>
       )}
@@ -57,7 +54,7 @@ export default function TagSuggestionList({ autocomplete, variant }: TagSuggesti
             aria-hidden
           />
           <span className="truncate">{suggestion.name}</span>
-          <span className="ml-auto font-mono text-[10px] text-base-content/40">
+          <span className="ml-auto font-mono text-[10px] text-faint">
             {index === selected ? "↵ Tab" : suggestion.hint}
           </span>
         </li>

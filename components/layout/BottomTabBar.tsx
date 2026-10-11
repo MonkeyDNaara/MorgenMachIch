@@ -81,7 +81,7 @@ export default function BottomTabBar() {
               <Link
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`${tabClasses} ${active ? "text-base-content" : "text-base-content/50"}`}
+                className={`${tabClasses} ${active ? "text-base-content" : "text-subtle"}`}
               >
                 <item.icon
                   size={20}
@@ -100,7 +100,7 @@ export default function BottomTabBar() {
             onClick={() => setMenuOpen((open) => !open)}
             aria-expanded={menuOpen}
             aria-controls="more-menu"
-            className={`${tabClasses} ${moreActive || menuOpen ? "text-base-content" : "text-base-content/50"}`}
+            className={`${tabClasses} ${moreActive || menuOpen ? "text-base-content" : "text-subtle"}`}
           >
             <Ellipsis
               size={20}

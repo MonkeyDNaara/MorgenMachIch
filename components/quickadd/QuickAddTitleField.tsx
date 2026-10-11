@@ -135,7 +135,7 @@ export default function QuickAddTitleField({
 
       {hasSuggestions && (
         <div className="mt-2 flex flex-wrap items-center gap-1.5">
-          <span className="mr-0.5 text-xs text-base-content/50">Detected:</span>
+          <span className="mr-0.5 text-xs text-subtle">Detected:</span>
           <QuickAddChips
             className="contents"
             tokens={result.tokens}

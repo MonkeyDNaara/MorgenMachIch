@@ -50,7 +50,7 @@ export default function DangerZoneSection() {
     <section className="flex flex-col gap-4 surface-panel border-error/40 p-4">
       <div className="flex flex-col gap-1">
         <h2 className="font-mono text-eyebrow text-error uppercase">Danger zone</h2>
-        <p className="text-xs text-base-content/50">
+        <p className="text-xs text-subtle">
           Permanently delete all tasks, recurring series and labels from this browser.
         </p>
       </div>
@@ -62,7 +62,7 @@ export default function DangerZoneSection() {
       )}
 
       {confirming && counts !== undefined ? (
-        <div className="flex flex-col gap-3 rounded-lg bg-base-300 p-3">
+        <div className="flex flex-col gap-3 rounded-lg border border-line bg-base-300 p-3">
           <p className="text-xs text-base-content/70">
             This permanently deletes{" "}
             <span className="font-mono text-base-content">
@@ -105,7 +105,7 @@ export default function DangerZoneSection() {
             <Trash2 size={14} />
             Delete all data
           </button>
-          {isEmpty && <span className="text-xs text-base-content/50">Nothing to delete.</span>}
+          {isEmpty && <span className="text-xs text-subtle">Nothing to delete.</span>}
         </div>
       )}
 

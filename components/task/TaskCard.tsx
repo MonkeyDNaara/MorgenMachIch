@@ -64,7 +64,7 @@ const MAX_VISIBLE_LABELS = 2;
 const META_TONE = {
   accent: "text-accent",
   error: "text-error",
-  muted: "text-base-content/50",
+  muted: "text-subtle",
 } as const;
 
 export default function TaskCard({
@@ -136,7 +136,7 @@ export default function TaskCard({
         style={priorityRing ? { borderColor: priorityRing } : undefined}
       >
         {done && <Check size={14} className="text-base-content/70" />}
-        {skipped && <Minus size={14} className="text-base-content/40" />}
+        {skipped && <Minus size={14} className="text-faint" />}
       </button>
       <button
         type="button"
@@ -145,7 +145,7 @@ export default function TaskCard({
       >
         <span
           className={`block truncate text-body font-medium ${
-            done || skipped ? "text-base-content/50 line-through decoration-base-content/30" : ""
+            done || skipped ? "text-subtle line-through decoration-base-content/30" : ""
           }`}
         >
           {task.title}
@@ -154,11 +154,9 @@ export default function TaskCard({
           <span className="mt-1 flex items-center gap-1.5 font-mono text-meta">
             {meta && <span className={META_TONE[meta.tone]}>{meta.text}</span>}
             {!meta && showAge && (
-              <span className="text-base-content/50">added {formatTaskAge(task.createdAt)}</span>
+              <span className="text-subtle">added {formatTaskAge(task.createdAt)}</span>
             )}
-            {task.seriesId && (
-              <Repeat size={12} aria-label="Recurring" className="text-base-content/40" />
-            )}
+            {task.seriesId && <Repeat size={12} aria-label="Recurring" className="text-faint" />}
           </span>
         )}
         <SubtaskProgressBar subtasks={task.subtasks} />
@@ -169,7 +167,7 @@ export default function TaskCard({
             <LabelChip key={label.id} name={label.name} color={label.color} size="sm" />
           ))}
           {overflowCount > 0 && (
-            <span className="inline-flex items-center rounded-full bg-line-strong px-2 py-0.5 text-[10px] font-medium text-base-content/60">
+            <span className="inline-flex items-center rounded-full bg-line-strong px-2 py-0.5 text-[10px] font-medium text-muted">
               +{overflowCount}
             </span>
           )}
@@ -179,7 +177,7 @@ export default function TaskCard({
               onClick={handleSkip}
               aria-label="Skip this occurrence"
               title="Skip this occurrence"
-              className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-base-content/40 outline-none! transition-colors hover:bg-line-strong hover:text-base-content/70"
+              className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-faint outline-none! transition-colors hover:bg-line-strong hover:text-base-content/70"
             >
               <SkipForward size={14} />
             </button>

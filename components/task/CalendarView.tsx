@@ -139,7 +139,7 @@ export default function CalendarView() {
               <button
                 type="button"
                 onClick={() => setSelectedDay(null)}
-                className="btn btn-ghost btn-xs cursor-pointer text-base-content/60"
+                className="btn btn-ghost btn-xs cursor-pointer text-muted"
               >
                 Back to month
               </button>
@@ -175,7 +175,7 @@ export default function CalendarView() {
   }
 
   if (tasks === undefined || series === undefined) {
-    return <p className="p-8 text-center text-base-content/40">Loading…</p>;
+    return <p className="p-8 text-center text-faint">Loading…</p>;
   }
 
   // Skipped occurrences are hidden from the grid (added for #61) — this
@@ -212,7 +212,7 @@ export default function CalendarView() {
             <button
               type="button"
               onClick={goToCurrentMonth}
-              className="btn btn-ghost btn-xs cursor-pointer text-base-content/60"
+              className="btn btn-ghost btn-xs cursor-pointer text-muted"
             >
               Today
             </button>
@@ -230,7 +230,7 @@ export default function CalendarView() {
       <div className="flex flex-col gap-4 p-6">
         <div
           aria-hidden
-          className="grid grid-cols-7 gap-1.5 px-2 font-mono text-eyebrow text-base-content/50 uppercase"
+          className="grid grid-cols-7 gap-1.5 px-2 font-mono text-eyebrow text-subtle uppercase"
         >
           {WEEKDAY_LABELS.map((label, index) => (
             <span key={label} className={index >= 5 ? "text-base-content/30" : undefined}>

@@ -34,7 +34,7 @@ const NTH_OPTIONS: { value: number; label: string }[] = [
 
 function pillClasses(active: boolean): string {
   return `cursor-pointer rounded-full px-3 py-1 text-xs font-medium outline-none! transition-colors ${
-    active ? "bg-accent text-accent-content" : "bg-base-300 text-base-content/60 hover:text-base-content"
+    active ? "bg-accent text-accent-content" : "bg-track text-muted hover:text-base-content"
   }`;
 }
 
@@ -196,7 +196,7 @@ export default function RecurrenceRuleBuilder({ value, onChange }: RecurrenceRul
           onChange={(event) => onChange({ ...value, endDate: event.target.value || null })}
           className={`input input-sm ${FIELD_FOCUS}`}
         />
-        <span className="text-xs text-base-content/40">(optional)</span>
+        <span className="text-xs text-faint">(optional)</span>
       </label>
     </div>
   );

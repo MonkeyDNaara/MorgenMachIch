@@ -90,7 +90,7 @@ export default function TaskQuickAdd({
       {message && (
         <p
           role={message.kind === "error" ? "alert" : "status"}
-          className={`mt-1.5 text-xs ${message.kind === "error" ? "text-error" : "text-base-content/50"}`}
+          className={`mt-1.5 text-xs ${message.kind === "error" ? "text-error" : "text-subtle"}`}
         >
           {message.text}
         </p>

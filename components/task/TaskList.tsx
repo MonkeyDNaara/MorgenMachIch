@@ -91,7 +91,7 @@ export default function TaskList({
   }
 
   if (tasks === undefined) {
-    return <p className="p-8 text-center text-base-content/40">Loading…</p>;
+    return <p className="p-8 text-center text-faint">Loading…</p>;
   }
 
   const applyFilters = (list: Task[]) =>

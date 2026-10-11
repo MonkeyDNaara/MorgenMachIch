@@ -31,11 +31,9 @@ export default function PageHeader({
   return (
     <header className={`flex flex-wrap items-end justify-between gap-x-6 gap-y-4 ${className}`}>
       <div className="flex min-w-0 flex-col gap-3">
-        {eyebrow && (
-          <p className="font-mono text-eyebrow text-base-content/50 uppercase">{eyebrow}</p>
-        )}
+        {eyebrow && <p className="font-mono text-eyebrow text-subtle uppercase">{eyebrow}</p>}
         <h1 className={titleSize === "display" ? "text-display" : "text-title"}>{title}</h1>
-        {meta && <div className="text-sm text-base-content/60">{meta}</div>}
+        {meta && <div className="text-sm text-muted">{meta}</div>}
       </div>
       {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
     </header>

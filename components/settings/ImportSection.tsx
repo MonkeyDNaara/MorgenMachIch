@@ -107,8 +107,8 @@ export default function ImportSection() {
   return (
     <section className="flex flex-col gap-4 surface-panel p-4">
       <div className="flex flex-col gap-1">
-        <h2 className="font-mono text-eyebrow text-base-content/60 uppercase">Restore from backup</h2>
-        <p className="text-xs text-base-content/50">
+        <h2 className="font-mono text-eyebrow text-muted uppercase">Restore from backup</h2>
+        <p className="text-xs text-subtle">
           Import a backup file exported from this app. It replaces everything currently stored here.
         </p>
       </div>
@@ -140,7 +140,7 @@ export default function ImportSection() {
                   className="sr-only"
                 />
               </label>
-              <span className="font-mono text-meta text-base-content/50">.json from Export backup</span>
+              <span className="font-mono text-meta text-subtle">.json from Export backup</span>
             </div>
           )}
 
@@ -160,25 +160,25 @@ export default function ImportSection() {
           {stage.kind === "preview" && (
             <div className="flex flex-col gap-3">
               <div className="flex flex-col gap-2 rounded-lg surface-sunken p-3 font-mono text-xs">
-                <p className="text-base-content/50">{stage.fileName}</p>
+                <p className="text-subtle">{stage.fileName}</p>
                 <p>
-                  <span className="text-base-content/50">In the file: </span>
+                  <span className="text-subtle">In the file: </span>
                   {describe({
                     tasks: stage.backup.data.tasks.length,
                     taskSeries: stage.backup.data.taskSeries.length,
                     labels: stage.backup.data.labels.length,
                   })}
                 </p>
-                <p className="text-base-content/50">
+                <p className="text-subtle">
                   Exported {new Date(stage.backup.exportedAt).toLocaleString(APP_LOCALE, { dateStyle: "medium", timeStyle: "short" })}
                 </p>
                 <p>
-                  <span className="text-base-content/50">In the app now: </span>
+                  <span className="text-subtle">In the app now: </span>
                   {currentCounts === undefined ? "…" : describe(currentCounts)}
                 </p>
               </div>
 
-              <p className="text-xs text-base-content/60">
+              <p className="text-xs text-muted">
                 {currentCounts !== undefined && isEmpty(currentCounts)
                   ? "The app is empty, so nothing will be overwritten."
                   : "Replacing deletes everything currently in the app. It is downloaded first as a safety backup."}

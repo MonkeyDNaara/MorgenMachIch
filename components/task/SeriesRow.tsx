@@ -43,7 +43,7 @@ export default function SeriesRow({ series, labels }: SeriesRowProps) {
     >
       <span
         aria-hidden
-        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-base-content/30 surface-sunken text-base-content/50"
+        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-base-content/30 surface-sunken text-subtle"
         style={ringColor ? { borderColor: ringColor } : undefined}
       >
         <Repeat size={12} />
@@ -53,12 +53,10 @@ export default function SeriesRow({ series, labels }: SeriesRowProps) {
         onClick={() => openSeriesDrawer(series.id)}
         className="min-w-0 flex-1 cursor-pointer text-left outline-none!"
       >
-        <span
-          className={`block truncate text-body font-medium ${paused ? "text-base-content/50" : ""}`}
-        >
+        <span className={`block truncate text-body font-medium ${paused ? "text-subtle" : ""}`}>
           {series.title}
         </span>
-        <span className="mt-1 block font-mono text-meta text-base-content/50">
+        <span className="mt-1 block font-mono text-meta text-subtle">
           {formatRecurrenceRule(series.recurrence)}
           {paused ? " · paused" : ""}
         </span>
@@ -68,7 +66,7 @@ export default function SeriesRow({ series, labels }: SeriesRowProps) {
           <LabelChip key={label.id} name={label.name} color={label.color} size="sm" />
         ))}
         {overflowCount > 0 && (
-          <span className="inline-flex items-center rounded-full bg-line-strong px-2 py-0.5 text-[10px] font-medium text-base-content/60">
+          <span className="inline-flex items-center rounded-full bg-line-strong px-2 py-0.5 text-[10px] font-medium text-muted">
             +{overflowCount}
           </span>
         )}
@@ -77,7 +75,7 @@ export default function SeriesRow({ series, labels }: SeriesRowProps) {
           onClick={handleToggleActive}
           aria-label={paused ? "Resume series" : "Pause series"}
           title={paused ? "Resume series" : "Pause series"}
-          className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-base-content/40 outline-none! transition-colors hover:bg-line-strong hover:text-base-content/70"
+          className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-faint outline-none! transition-colors hover:bg-line-strong hover:text-base-content/70"
         >
           {paused ? <Play size={14} /> : <Pause size={14} />}
         </button>

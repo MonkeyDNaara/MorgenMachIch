@@ -100,7 +100,7 @@ export default function TodayView() {
           <button
             type="button"
             onClick={() => setSelectedDay(null)}
-            className="btn btn-ghost btn-xs cursor-pointer text-base-content/60"
+            className="btn btn-ghost btn-xs cursor-pointer text-muted"
           >
             Back to Today
           </button>

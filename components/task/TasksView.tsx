@@ -84,7 +84,7 @@ export default function TasksView() {
   }
 
   if (tasks === undefined || series === undefined) {
-    return <p className="p-8 text-center text-base-content/40">Loading…</p>;
+    return <p className="p-8 text-center text-faint">Loading…</p>;
   }
 
   const isEmpty = tasks.length === 0 && series.length === 0;
@@ -166,7 +166,7 @@ export default function TasksView() {
           className={`mt-2 flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium outline-none! transition-colors ${
             backlogVisible
               ? "bg-base-300 text-base-content shadow-raised-sm"
-              : "text-base-content/60 hover:bg-line hover:text-base-content"
+              : "text-muted hover:bg-line hover:text-base-content"
           }`}
         >
           <Inbox size={14} />
@@ -182,7 +182,7 @@ export default function TasksView() {
       >
         <div className="p-6">
           <div className="mx-auto w-full max-w-md">
-            <p className="mb-3 font-mono text-eyebrow text-base-content/50 uppercase">Tasks</p>
+            <p className="mb-3 font-mono text-eyebrow text-subtle uppercase">Tasks</p>
             <TaskCardList
               tasks={visibleTasks}
               labels={labels ?? []}
@@ -212,7 +212,7 @@ export default function TasksView() {
         <div className="hidden bg-line md:block" />
         <div className="p-6">
           <div className="mx-auto w-full max-w-xs">
-            <p className="mb-3 font-mono text-eyebrow text-base-content/50 uppercase">Recurring</p>
+            <p className="mb-3 font-mono text-eyebrow text-subtle uppercase">Recurring</p>
             {visibleSeries.length === 0 ? (
               series.length === 0 ? (
                 <EmptyState
@@ -243,7 +243,7 @@ export default function TasksView() {
             <div className="hidden bg-line lg:block" />
             <div className="border-t border-line p-6 md:col-span-3 lg:col-span-1 lg:border-t-0">
               <div className="mx-auto w-full max-w-xs">
-                <p className="mb-3 font-mono text-eyebrow text-base-content/50 uppercase">
+                <p className="mb-3 font-mono text-eyebrow text-subtle uppercase">
                   Backlog · {visibleBacklog.length}
                 </p>
                 <TaskCardList

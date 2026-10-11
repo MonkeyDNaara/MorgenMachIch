@@ -8,10 +8,10 @@ type StatCardProps = {
 export default function StatCard({ label, value, unit }: StatCardProps) {
   return (
     <div className="flex items-center justify-between gap-3 surface-panel px-4 py-3">
-      <span className="text-xs text-base-content/60">{label}</span>
+      <span className="text-xs text-muted">{label}</span>
       <span className="text-2xl font-semibold tabular-nums">
         {value}
-        {unit && <span className="ml-1 text-xs font-normal text-base-content/50">{unit}</span>}
+        {unit && <span className="ml-1 text-xs font-normal text-subtle">{unit}</span>}
       </span>
     </div>
   );

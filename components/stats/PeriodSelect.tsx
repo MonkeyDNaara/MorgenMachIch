@@ -32,7 +32,7 @@ export default function PeriodSelect({ value, onChange }: PeriodSelectProps) {
           className={`cursor-pointer rounded-full px-3 py-1 text-xs outline-none! transition-colors focus-visible:shadow-focus ${
             value === option.value
               ? "bg-base-300 text-base-content shadow-raised-sm"
-              : "text-base-content/50 hover:text-base-content"
+              : "text-subtle hover:text-base-content"
           }`}
         >
           {option.label}

@@ -43,7 +43,7 @@ export default function ErrorPage({
           Go to Today
         </Link>
       </div>
-      <details className="w-full max-w-md text-left text-xs text-base-content/50">
+      <details className="w-full max-w-md text-left text-xs text-subtle">
         <summary className="cursor-pointer text-center">Technical details</summary>
         <pre className="mt-2 overflow-x-auto whitespace-pre-wrap rounded-box surface-sunken p-3 font-mono">
           {`${error.name}: ${error.message}`}

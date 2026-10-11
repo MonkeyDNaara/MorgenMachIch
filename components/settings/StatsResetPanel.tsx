@@ -39,7 +39,7 @@ export default function StatsResetPanel() {
     <div className="flex flex-col gap-3 border-t border-line pt-4">
       <div className="flex flex-col gap-1">
         <h3 className="text-xs font-semibold">Stats</h3>
-        <p className="text-xs text-base-content/50">
+        <p className="text-xs text-subtle">
           {settings.statsSince
             ? `Stats count from ${formatDay(settings.statsSince)}. Earlier completions are kept, just not counted.`
             : "Stats count every task you've ever completed."}

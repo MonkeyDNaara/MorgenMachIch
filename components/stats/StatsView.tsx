@@ -50,7 +50,7 @@ export default function StatsView() {
   const [period, setPeriod] = useState<StatsPeriod>("7d");
 
   if (tasks === undefined || settings === undefined) {
-    return <p className="p-8 text-center text-base-content/40">Loading…</p>;
+    return <p className="p-8 text-center text-faint">Loading…</p>;
   }
 
   const now = new Date();
@@ -114,9 +114,7 @@ export default function StatsView() {
       <section className="surface-panel p-4">
         <h2 className="mb-3 text-sm font-semibold">
           Last 12 months
-          <span className="ml-1.5 text-xs font-normal text-base-content/40">
-            · {heatmap.total} completed
-          </span>
+          <span className="ml-1.5 text-xs font-normal text-faint">· {heatmap.total} completed</span>
         </h2>
         <YearHeatmap heatmap={heatmap} />
       </section>
@@ -127,7 +125,7 @@ export default function StatsView() {
             <h2 className="text-sm font-semibold">Completed per {unit}</h2>
             <PeriodSelect value={period} onChange={setPeriod} />
           </div>
-          <p className="mb-3 text-xs text-base-content/40">
+          <p className="mb-3 text-xs text-faint">
             {seriesTotal} completed · {(seriesTotal / series.length).toFixed(1)} per {unit}
             {period === "all" && " · last 12 months"}
           </p>
@@ -137,7 +135,7 @@ export default function StatsView() {
         <section className="flex flex-col gap-4 surface-panel p-4">
           <div className="flex items-center justify-between gap-2">
             <h2 className="text-sm font-semibold">By label</h2>
-            <span className="text-xs text-base-content/40">{PERIOD_CAPTIONS[period]}</span>
+            <span className="text-xs text-faint">{PERIOD_CAPTIONS[period]}</span>
           </div>
           <LabelBreakdown rows={byLabel} labels={labels ?? []} />
           <div className="mt-auto border-t border-line pt-4">
@@ -146,7 +144,7 @@ export default function StatsView() {
         </section>
       </div>
 
-      <p className="text-center text-xs text-base-content/35">
+      <p className="text-center text-xs text-faint">
         Stats only count completed tasks that are still in the app — reopening or deleting a task
         removes it here.
       </p>

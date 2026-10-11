@@ -24,16 +24,14 @@ export default function EmptyState({
     >
       <span
         aria-hidden
-        className={`flex items-center justify-center rounded-xl surface-sunken text-base-content/50 ${
+        className={`flex items-center justify-center rounded-xl surface-sunken text-subtle ${
           compact ? "size-9" : "size-11"
         }`}
       >
         <Icon size={compact ? 16 : 20} strokeWidth={1.8} />
       </span>
       <p className={`font-medium ${compact ? "text-sm" : "text-body"}`}>{title}</p>
-      {hint && (
-        <p className={`max-w-xs text-base-content/50 ${compact ? "text-xs" : "text-sm"}`}>{hint}</p>
-      )}
+      {hint && <p className={`max-w-xs text-subtle ${compact ? "text-xs" : "text-sm"}`}>{hint}</p>}
     </div>
   );
 }
