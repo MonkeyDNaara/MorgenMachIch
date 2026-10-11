@@ -101,5 +101,12 @@ breakdown by label and how many dated tasks were done on time — all
 hand-built SVG, no chart library — and a streak badge sits in the /today
 header. Stats are calculated from completed tasks, so backups carry them
 automatically, and "Reset stats" in Settings gives a fresh start without
-changing any task. Planned next: a styling pass, a light theme, and later a
-hosted database (Neon).
+changing any task.
+A full design pass gave the app its own look ("Dawn Tactile"): amber for
+actions and cyan for data, a clear sunken / raised / flat depth rule, a type
+scale with an editorial /today header ("Friday." plus a day-progress bar),
+a sidebar on desktop and a tab bar on phones, one-row filters, designed empty
+states and a "→ Morgen" button that moves a task to tomorrow (with undo).
+Every color and shadow comes from theme tokens, so a light theme is next.
+Planned after that: recurring tasks from the quick-add input, a hosted
+database (Neon) and more.

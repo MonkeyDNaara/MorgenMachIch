@@ -7,21 +7,26 @@ conventions used throughout, so new code has an obvious home.
 
 ```
 app/
-  today/page.tsx          # /today route
-  tasks/page.tsx           # /tasks route
-  calendar/page.tsx        # /calendar route
-  labels/page.tsx          # /labels route
-  settings/page.tsx        # /settings route
-  layout.tsx               # root layout — wraps every route in the nav rail shell
-  globals.css
+  today/ tasks/ calendar/ labels/ stats/ settings/   # one page.tsx per route
+  layout.tsx               # root layout — providers, AppNav, BottomTabBar, FAB, drawers, palette
+  globals.css              # DaisyUI theme "morgen" + --mm-* tokens, surfaces, type scale
+  error.tsx, global-error.tsx, not-found.tsx
 components/
-  task/                    # task-related UI: TaskCard, TaskDrawer, SubtaskList, ...
-  layout/                  # app-shell UI: AppNav, BottomTabBar, PageHeader
-  ui/                      # small shared primitives: Chip, IconButton, ProgressBar, ...
+  layout/                  # app shell: AppNav, BottomTabBar, PageHeader, EmptyState, ToastProvider, ...
+  task/                    # tasks & series: TaskCard, TaskList, drawers, toolbar, FilterPopover, ...
+  label/                   # LabelChip, LabelsView, ColorSwatchPicker
+  quickadd/                # natural-language input: QuickAddInput, highlight layer, chips, autocomplete
+  palette/                 # command palette (⌘K)
+  stats/                   # /stats: heatmap, bar chart, streak hero, ...
+  settings/                # /settings sections
+  ui/                      # (reserved for small shared primitives)
 lib/
   db/                      # Dexie schema + repository functions (getTasks, createTask, ...)
-  types/                   # Task, TaskSeries, Subtask, Label type definitions
-  utils/                   # date helpers, filter logic, other pure helpers
+  types/                   # Zod schemas + inferred types (Task, TaskSeries, Label, AppSettings)
+  utils/                   # pure helpers: dates, filters, parser, stats, recurrence, ...
+  ui/                      # small UI helpers/hooks: FIELD_FOCUS, FIELD_LABEL, useDismiss, useModKey, ...
+  constants/               # label palette, priority colors, APP_LOCALE
+  commands/                # framework-free command registry for the palette
 ```
 
 Route pages, the root layout, and most of the folders above are filled in by
