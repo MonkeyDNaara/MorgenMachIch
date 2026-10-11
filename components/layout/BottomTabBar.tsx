@@ -37,7 +37,7 @@ export default function BottomTabBar() {
   return (
     <nav
       aria-label="Main navigation"
-      className="fixed inset-x-0 bottom-0 z-40 bg-base-200 px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[inset_0_1px_0_var(--color-line),0_-6px_16px_rgb(0_0_0/0.35)] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 bg-base-200 px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-bar md:hidden"
     >
       {menuOpen && (
         <div

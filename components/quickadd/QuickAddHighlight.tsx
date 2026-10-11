@@ -2,6 +2,7 @@ import type { ReactNode, Ref } from "react";
 import type { Label } from "@/lib/types";
 import type { QuickAddToken } from "@/lib/utils/parseQuickAdd";
 import { tokenColor } from "@/components/quickadd/tokenDisplay";
+import { inkColor } from "@/lib/ui/colorChip";
 
 type QuickAddHighlightProps = {
   text: string;
@@ -56,7 +57,7 @@ export default function QuickAddHighlight({
   for (const token of tokens) {
     pushPlain(token.start);
     parts.push(
-      <span key={token.id} style={{ color: tokenColor(token, labels) }}>
+      <span key={token.id} style={{ color: inkColor(tokenColor(token, labels)) }}>
         {text.slice(token.start, token.end)}
       </span>,
     );
