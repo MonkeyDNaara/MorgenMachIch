@@ -6,6 +6,7 @@ import type { Label } from "@/lib/types";
 import type { PriorityFilter } from "@/lib/utils/filterTasksByPriority";
 import { PRIORITY_DOT_COLORS } from "@/lib/constants/priorityColors";
 import { useDismiss } from "@/lib/ui/useDismiss";
+import { useRadioGroupKeys } from "@/lib/ui/useRadioGroupKeys";
 import LabelChip from "@/components/label/LabelChip";
 
 const PRIORITY_OPTIONS: { value: PriorityFilter; label: string }[] = [
@@ -37,7 +38,8 @@ const rowClasses =
  * replacing the full-width label pill row and the priority select on
  * /today, /tasks and /calendar. Active filters show as chips inside the
  * button. Labels are multi-select (OR), priority single-select — the
- * same semantics as before, only the controls moved.
+ * same semantics as before, only the controls moved. The priority list
+ * is one tab stop with arrow keys and Home/End (#272).
  */
 export default function FilterPopover({
   labels,
@@ -52,6 +54,11 @@ export default function FilterPopover({
   const panelRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
   useDismiss(open, () => setOpen(false), [buttonRef, panelRef], buttonRef);
+  const priorityRadios = useRadioGroupKeys({
+    count: PRIORITY_OPTIONS.length,
+    selectedIndex: PRIORITY_OPTIONS.findIndex((option) => option.value === priority),
+    onSelect: (index) => onPriorityChange(PRIORITY_OPTIONS[index].value),
+  });
 
   const activeLabels = labels.filter((label) => activeLabelIds.includes(label.id));
   const activeCount = activeLabels.length + (priority === "all" ? 0 : 1);
@@ -120,13 +127,19 @@ export default function FilterPopover({
             </>
           )}
           <p className="px-2.5 pt-1 pb-1 font-mono text-eyebrow text-subtle uppercase">Priority</p>
-          <div role="radiogroup" aria-label="Priority" className="flex flex-col gap-0.5">
-            {PRIORITY_OPTIONS.map((option) => {
+          <div
+            role="radiogroup"
+            aria-label="Priority"
+            {...priorityRadios.groupProps}
+            className="flex flex-col gap-0.5"
+          >
+            {PRIORITY_OPTIONS.map((option, index) => {
               const active = priority === option.value;
               const color = option.value === "all" ? null : PRIORITY_DOT_COLORS[option.value];
               return (
                 <button
                   key={option.value}
+                  {...priorityRadios.itemProps(index)}
                   type="button"
                   role="radio"
                   aria-checked={active}
