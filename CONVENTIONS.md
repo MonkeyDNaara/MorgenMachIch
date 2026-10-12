@@ -80,6 +80,10 @@ zones above, so a date bug shows up as a red job.
 
 Pure logic in `lib/` is tested as plain functions in the default `node`
 environment. Component/hook tests opt into jsdom per file with
-`// @vitest-environment jsdom`. Storage (`lib/db`) is not unit-tested: Dexie
+`// @vitest-environment jsdom`. They use React Testing Library + `user-event`
+(`components/date/DateField.test.tsx` is the reference): call
+`afterEach(cleanup)` (no globals, so no auto-cleanup), fake only `Date`
+(`vi.useFakeTimers({ toFake: ["Date"] })`) so user-event's timers still run,
+and query by role and accessible name, never by class. Storage (`lib/db`) is not unit-tested: Dexie
 is replaced by the hosted database (#298), whose service layer gets its own
 tests.
