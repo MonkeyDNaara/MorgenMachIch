@@ -20,6 +20,7 @@ import RecurrenceRuleBuilder from "@/components/task/RecurrenceRuleBuilder";
 import QuickAddTitleField from "@/components/quickadd/QuickAddTitleField";
 import { withNewLabels } from "@/components/quickadd/newLabels";
 import { useToast } from "@/components/layout/ToastProvider";
+import DateField from "@/components/date/DateField";
 
 const NO_LABELS: Label[] = [];
 
@@ -376,13 +377,13 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
 
             <div className="flex flex-col gap-2">
               <span className={FIELD_LABEL}>Due date</span>
-              <div className="grid grid-cols-2 gap-3">
-                <input
-                  type="date"
+              <div className="grid grid-cols-[minmax(0,1fr)_7.5rem] gap-3">
+                <DateField
                   value={dueDate}
-                  onChange={(event) => setDueDate(event.target.value)}
-                  aria-label="Due date"
-                  className={`input w-full ${FIELD_FOCUS}`}
+                  onChange={setDueDate}
+                  label="Due date"
+                  clearable={!repeatEnabled}
+                  showLateHint
                 />
                 <input
                   type="time"
