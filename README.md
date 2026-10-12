@@ -36,6 +36,19 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) — it redirects to `/today`.
 
+## Tests
+
+Unit tests use [Vitest](https://vitest.dev) and live next to the code they test
+(`*.test.ts`). CI runs them in four time zones on every pull request, because
+much of the app is local calendar-day math.
+
+```bash
+npm test               # run once
+npm run test:watch     # watch mode
+npm run test:tz        # Europe/Berlin, America/Los_Angeles, Asia/Kolkata, Pacific/Auckland
+npm run test:coverage  # coverage summary
+```
+
 ## Project structure & conventions
 
 See [CONVENTIONS.md](./CONVENTIONS.md) for folder layout and naming rules.

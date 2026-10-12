@@ -51,3 +51,36 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  # Unit tests (#339) run once per time zone: much of the logic is local
+  # calendar-day math, and bugs like #279 (a date-only value read as UTC
+  # midnight) only show west of UTC. A separate job, so typecheck, lint and
+  # build don't run four times. Coverage is reported, not enforced.
+  test:
+    name: Test (${{ matrix.tz }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        tz: [Europe/Berlin, America/Los_Angeles, Asia/Kolkata, Pacific/Auckland]
+    env:
+      TZ: ${{ matrix.tz }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test
+        if: matrix.tz != 'Europe/Berlin'
+        run: npm test
+
+      - name: Test with coverage
+        if: matrix.tz == 'Europe/Berlin'
+        run: npm run test:coverage
