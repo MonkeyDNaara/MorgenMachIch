@@ -23,6 +23,10 @@ type DateFieldProps = {
   showLateHint?: boolean;
   placeholder?: string;
   className?: string;
+  /** Focus the text field on mount (Plan for… → Pick a date). */
+  autoFocus?: boolean;
+  /** Line the popover up with the field's right edge, for fields near the right side of the screen. */
+  popoverAlign?: "start" | "end";
 };
 
 type Preview =
@@ -53,6 +57,8 @@ export default function DateField({
   showLateHint = false,
   placeholder = "No date — type “fri” or “12.10.”",
   className = "",
+  autoFocus = false,
+  popoverAlign = "start",
 }: DateFieldProps) {
   const display = value ? formatDateFieldValue(value) : "";
   const [draft, setDraft] = useState<string | null>(null);
@@ -128,6 +134,7 @@ export default function DateField({
         />
         <input
           ref={inputRef}
+          autoFocus={autoFocus}
           type="text"
           value={text}
           placeholder={placeholder}
@@ -195,6 +202,7 @@ export default function DateField({
           value={value}
           min={min}
           clearable={clearable}
+          align={popoverAlign}
           now={now}
           onPick={pick}
           onClose={() => setOpen(false)}
