@@ -127,4 +127,8 @@ On /tasks, done tasks finished more than a week ago step aside: a quiet
 them back whenever you want them.
 Every option group (status filter, priority, stats period, label colours,
 theme) works fully from the keyboard: one Tab stop, arrow keys to choose.
-Planned next: a hosted database (Neon), installable PWA and more.
+Dates are typed the way you'd say them ("fri", "tomorrow", "12.10.") or
+picked from a small calendar with quick picks — always in the app's English
+format, never the browser's.
+Planned next: a hosted database (Neon + Drizzle) with an API and login, so
+n8n and Claude/Obsidian can work with the tasks — plus an installable PWA.
