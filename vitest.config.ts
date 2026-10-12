@@ -18,7 +18,7 @@ export default defineConfig({
     exclude: ["node_modules/**", ".next/**", "Claude outputs/**"],
     coverage: {
       provider: "v8",
-      include: ["lib/**/*.ts", "components/**/*.tsx"],
+      include: ["lib/**/*.ts", "components/**/*.{ts,tsx}"],
       exclude: ["**/*.test.{ts,tsx}", "lib/test/**"],
       reporter: ["text-summary", "text"],
     },

@@ -1,4 +1,5 @@
-import type { RecurrenceRule, Task, TaskSeries } from "@/lib/types";
+import type { Label, RecurrenceRule, Task, TaskSeries } from "@/lib/types";
+import { LABEL_COLOR_HEXES } from "@/lib/constants/labelColors";
 
 /**
  * Test-only builders (#340). Every date helper here works with **local**
@@ -68,4 +69,16 @@ export function rule(
   overrides: Partial<RecurrenceRule> & Pick<RecurrenceRule, "frequency">,
 ): RecurrenceRule {
   return { interval: 1, ...overrides } as RecurrenceRule;
+}
+
+/** A label with the first palette color, unless overridden. */
+export function makeLabel(overrides: Partial<Label> & Pick<Label, "id" | "name">): Label {
+  return { color: LABEL_COLOR_HEXES[0], createdAt: localIso(2026, 1, 1), ...overrides };
+}
+
+/** "YYYY-M-D H:MM" of an ISO string's local time — compact for parser assertions. */
+export function localStamp(iso: string | null): string | null {
+  if (iso === null) return null;
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
