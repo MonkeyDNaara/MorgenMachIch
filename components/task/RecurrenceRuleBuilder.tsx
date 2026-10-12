@@ -2,6 +2,9 @@
 
 import type { RecurrenceRule } from "@/lib/types";
 import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
+import { parseDateOnly } from "@/lib/utils/parseDateOnly";
+import { toLocalDateKey } from "@/lib/utils/planDateOptions";
+import DateField from "@/components/date/DateField";
 
 type Frequency = RecurrenceRule["frequency"];
 
@@ -188,16 +191,21 @@ export default function RecurrenceRuleBuilder({ value, onChange }: RecurrenceRul
         </div>
       )}
 
-      <label className="flex items-center gap-2 text-sm text-base-content/70">
-        Ends
-        <input
-          type="date"
-          value={value.endDate ?? ""}
-          onChange={(event) => onChange({ ...value, endDate: event.target.value || null })}
-          className={`input input-sm ${FIELD_FOCUS}`}
+      <div className="flex flex-col gap-1.5">
+        <span className="text-sm text-base-content/70">
+          Ends <span className="text-xs text-faint">(optional)</span>
+        </span>
+        {/* DateField (#294) instead of the native date input: the end date shows
+            in APP_LOCALE and can be typed ("31.12.", "31 Dec"). Older rows may
+            hold a full ISO string, so the value is normalized to a date key. */}
+        <DateField
+          value={value.endDate ? toLocalDateKey(parseDateOnly(value.endDate)) : ""}
+          onChange={(key) => onChange({ ...value, endDate: key || null })}
+          label="Ends"
+          clearable
+          placeholder="Never — type a date or pick one"
         />
-        <span className="text-xs text-faint">(optional)</span>
-      </label>
+      </div>
     </div>
   );
 }

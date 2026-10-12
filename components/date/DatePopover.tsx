@@ -22,6 +22,8 @@ type DatePopoverProps = {
   onPick: (key: string) => void;
   /** Close without picking (the phone sheet's scrim). */
   onClose: () => void;
+  /** Which edge of the field the popover lines up with (≥ sm). */
+  align: "start" | "end";
 };
 
 /**
@@ -39,6 +41,7 @@ export default function DatePopover({
   now,
   onPick,
   onClose,
+  align,
 }: DatePopoverProps) {
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const initial = value
@@ -90,7 +93,9 @@ export default function DatePopover({
         ref={panelRef}
         role="dialog"
         aria-label="Choose a date"
-        className="fixed inset-x-0 bottom-0 z-50 rounded-t-2xl border-t border-line-strong bg-base-200 p-3 pb-6 shadow-overlay sm:absolute sm:inset-x-auto sm:bottom-auto sm:left-0 sm:top-full sm:mt-2 sm:w-[19rem] sm:rounded-xl sm:border sm:pb-3"
+        className={`fixed inset-x-0 bottom-0 z-50 rounded-t-2xl border-t border-line-strong bg-base-200 p-3 pb-6 shadow-overlay sm:absolute sm:inset-x-auto sm:bottom-auto sm:top-full sm:mt-2 sm:w-[19rem] sm:rounded-xl sm:border sm:pb-3 ${
+          align === "end" ? "sm:right-0" : "sm:left-0"
+        }`}
       >
         <div aria-hidden className="mx-auto mb-3 h-1 w-9 rounded-full bg-line-strong sm:hidden" />
         <div className="grid grid-cols-2 gap-1 border-b border-line pb-2.5">

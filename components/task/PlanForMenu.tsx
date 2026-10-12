@@ -5,8 +5,8 @@ import { CalendarPlus } from "lucide-react";
 import type { Task } from "@/lib/types";
 import { updateTask } from "@/lib/db/tasks";
 import { planDateOptions, planDueDateIso, toLocalDateKey } from "@/lib/utils/planDateOptions";
-import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
 import { APP_LOCALE } from "@/lib/constants/locale";
+import DateField from "@/components/date/DateField";
 
 type PlanForMenuProps = {
   task: Task;
@@ -15,7 +15,8 @@ type PlanForMenuProps = {
 /**
  * "Plan for…" menu on a backlog card (#183): gives a dateless task a
  * due date in one or two clicks — Today, Tomorrow, the rest of this
- * week, or any date via the native picker. Planning sets an all-day due
+ * week, or any other date via the DateField (#294: typed or picked,
+ * past days disabled; it replaced the native picker). Planning sets an all-day due
  * date, which by itself moves the task out of the Backlog column into
  * Tasks (see isBacklogTask); there is no separate "planned" state.
  *
@@ -73,7 +74,7 @@ export default function PlanForMenu({ task }: PlanForMenuProps) {
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-full z-20 mt-1 w-48 rounded-box border border-base-content/10 bg-base-300 p-1 shadow-overlay"
+          className={`absolute right-0 top-full z-20 mt-1 rounded-box border border-base-content/10 bg-base-300 p-1 shadow-overlay ${picking ? "w-64" : "w-48"}`}
         >
           {options.map((option) => (
             <button
@@ -90,15 +91,17 @@ export default function PlanForMenu({ task }: PlanForMenuProps) {
             </button>
           ))}
           {picking ? (
-            <input
-              type="date"
-              autoFocus
-              min={toLocalDateKey(new Date())}
-              aria-label="Pick a due date"
-              onChange={(event) => {
-                if (event.target.value) plan(event.target.value);
+            <DateField
+              value=""
+              onChange={(key) => {
+                if (key) plan(key);
               }}
-              className={`input input-sm mt-1 w-full ${FIELD_FOCUS}`}
+              label="Pick a due date"
+              min={toLocalDateKey(new Date())}
+              placeholder="Type or pick a date"
+              autoFocus
+              popoverAlign="end"
+              className="mt-1"
             />
           ) : (
             <button
