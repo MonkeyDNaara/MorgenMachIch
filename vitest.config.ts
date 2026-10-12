@@ -19,7 +19,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       include: ["lib/**/*.ts", "components/**/*.tsx"],
-      exclude: ["**/*.test.{ts,tsx}"],
+      exclude: ["**/*.test.{ts,tsx}", "lib/test/**"],
       reporter: ["text-summary", "text"],
     },
   },
