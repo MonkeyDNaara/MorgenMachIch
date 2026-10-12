@@ -23,7 +23,9 @@ type WeekAheadStripProps = {
  * via TodayView's selectedDay). A day with zero open tasks hides, so the
  * strip never shows empty placeholder columns (#130). The columns keep
  * their width and the row scrolls sideways when they don't fit (up to 8
- * on a Saturday).
+ * on a Saturday). Each card has a clear header (#331): weekday 15 px
+ * semibold + mono date over a divider; tomorrow's card says "Tomorrow" in
+ * accent with a 2 px accent divider.
  */
 export default function WeekAheadStrip({ selectedDay, onSelectDay }: WeekAheadStripProps) {
   const tasks = useLiveQuery(() => getTasks(), []);
@@ -37,6 +39,9 @@ export default function WeekAheadStrip({ selectedDay, onSelectDay }: WeekAheadSt
 
   if (dayColumns.length === 0) return null;
 
+  const now = new Date();
+  const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toDateString();
+
   return (
     <div className="border-t border-line px-6 py-4">
       <p className="mb-3 font-mono text-xs text-faint">Coming up</p>
@@ -47,6 +52,8 @@ export default function WeekAheadStrip({ selectedDay, onSelectDay }: WeekAheadSt
           const visible = dayTasks.slice(0, MAX_VISIBLE_TASKS);
           const overflow = dayTasks.length - visible.length;
           const active = selectedDay !== null && day.toDateString() === selectedDay.toDateString();
+          // Days without tasks are hidden, so the first card isn't always tomorrow.
+          const isTomorrow = day.toDateString() === tomorrow;
 
           return (
             <button
@@ -58,10 +65,18 @@ export default function WeekAheadStrip({ selectedDay, onSelectDay }: WeekAheadSt
                 active ? "border-accent/50" : "border-transparent"
               }`}
             >
-              <p className="text-xs font-semibold text-base-content/70">
-                {day.toLocaleDateString(APP_LOCALE, { weekday: "short" })}{" "}
-                <span className="font-normal text-faint">
-                  {day.toLocaleDateString(APP_LOCALE, { month: "short", day: "numeric" })}
+              <p
+                className={`mb-0.5 flex flex-wrap items-baseline justify-between gap-x-2 pb-1.5 ${
+                  isTomorrow ? "border-b-2 border-accent" : "border-b border-line-strong"
+                }`}
+              >
+                <span
+                  className={`text-[15px] leading-tight font-semibold ${isTomorrow ? "text-accent" : ""}`}
+                >
+                  {isTomorrow ? "Tomorrow" : day.toLocaleDateString(APP_LOCALE, { weekday: "short" })}
+                </span>
+                <span className="shrink-0 font-mono text-meta text-subtle">
+                  {day.toLocaleDateString(APP_LOCALE, { day: "numeric", month: "short" })}
                 </span>
               </p>
               <div className="flex flex-col gap-1">
