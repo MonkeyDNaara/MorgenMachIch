@@ -27,6 +27,8 @@ lib/
   ui/                      # small UI helpers/hooks: FIELD_FOCUS, FIELD_LABEL, useDismiss, useModKey, theme preference, ...
   constants/               # label palette, priority colors, APP_LOCALE
   commands/                # framework-free command registry for the palette
+scripts/                   # small Node scripts (test-tz.mjs runs the tests in four time zones)
+vitest.config.ts           # Vitest: @/ alias, node environment, v8 coverage
 ```
 
 Route pages, the root layout, and most of the folders above are filled in by
@@ -57,3 +59,27 @@ backend later in the course to a change inside `lib/db` only.
 (`Task`, `TaskSeries`, `Subtask`, `Label`) as a single source of truth,
 defined in issue #19. Everything else imports from there rather than
 redeclaring shapes locally.
+
+## Tests
+
+Vitest (#153, set up in #339). Tests live **next to the code they test**
+(`lib/utils/stats.ts` → `lib/utils/stats.test.ts`), import from `vitest`
+explicitly (no globals) and use the `@/` alias like the app.
+
+- `npm test` — run once (time zone Europe/Berlin unless `TZ` is set)
+- `npm run test:watch` — watch mode while working
+- `npm run test:tz` — the whole suite in all four CI time zones
+  (Europe/Berlin, America/Los_Angeles, Asia/Kolkata, Pacific/Auckland)
+- `npm run test:coverage` — v8 coverage summary (reported, no threshold)
+
+**Time-zone rule:** anything that works with dates builds them from local
+parts (`new Date(y, m, d)`), never from `"YYYY-MM-DD"` strings
+(`parseDateOnly`) or by adding 24-hour blocks, and pure functions take `now`
+as an argument instead of reading the clock. CI runs every test in the four
+zones above, so a date bug shows up as a red job.
+
+Pure logic in `lib/` is tested as plain functions in the default `node`
+environment. Component/hook tests opt into jsdom per file with
+`// @vitest-environment jsdom`. Storage (`lib/db`) is not unit-tested: Dexie
+is replaced by the hosted database (#298), whose service layer gets its own
+tests.
