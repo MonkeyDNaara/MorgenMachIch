@@ -41,6 +41,7 @@ export function makeTask(overrides: Partial<Task> = {}): Task {
     createdAt: localIso(2026, 10, 1, 9),
     updatedAt: localIso(2026, 10, 1, 9),
     completedAt: null,
+    sortOrder: null,
     ...overrides,
   };
 }

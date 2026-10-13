@@ -38,6 +38,7 @@ const task = (overrides: Partial<Task> = {}): Task => ({
   createdAt: NOW,
   updatedAt: NOW,
   completedAt: null,
+  sortOrder: null,
   ...overrides,
 });
 const settings = { id: "app" as const, statsSince: null };
@@ -49,7 +50,7 @@ const good = {
 
 /** A backup file as text. `data` and the envelope fields can be anything — that's the point. */
 const file = (data: unknown, envelope: Record<string, unknown> = {}) =>
-  JSON.stringify({ app: "morgenmachich", version: 2, exportedAt: NOW, data, ...envelope });
+  JSON.stringify({ app: "morgenmachich", version: 3, exportedAt: NOW, data, ...envelope });
 const errorsOf = (text: string) => {
   const result = parseBackup(text);
   if (result.ok) throw new Error("expected the backup to be rejected");
@@ -84,13 +85,34 @@ describe("parseBackup — versions (#226)", () => {
     expect(parseBackup(file({ ...good, settings: { id: "nope" } }, { version: 1 })).ok).toBe(true);
   });
 
-  it("requires valid settings in a v2 file", () => {
+  it("requires valid settings in a v2 and v3 file", () => {
+    expect(errorsOf(file(good, { version: 2 }))[0]).toContain("settings");
     expect(errorsOf(file(good))[0]).toContain("settings");
     expect(parseBackup(file({ ...good, settings: { id: "app", statsSince: 5 } })).ok).toBe(false);
   });
 
+  it("imports v1 and v2 tasks without sortOrder as null (#75)", () => {
+    const withoutOrder: Record<string, unknown> = task({ dueDate: null });
+    delete withoutOrder.sortOrder;
+    for (const [version, extra] of [
+      [1, {}],
+      [2, { settings }],
+    ] as const) {
+      const result = parseBackup(file({ ...good, ...extra, tasks: [withoutOrder] }, { version }));
+      expect(result.ok && result.backup.data.tasks[0].sortOrder).toBeNull();
+    }
+  });
+
+  it("keeps sortOrder from a v3 file and rejects a broken key", () => {
+    const keyed = file({ ...good, settings, tasks: [task({ sortOrder: "V" })] });
+    const result = parseBackup(keyed);
+    expect(result.ok && result.backup.data.tasks[0].sortOrder).toBe("V");
+    const broken = file({ ...good, settings, tasks: [task({ sortOrder: "V0" })] });
+    expect(errorsOf(broken)[0]).toContain("sortOrder");
+  });
+
   it("rejects newer and invalid versions", () => {
-    expect(errorsOf(file({ ...good, settings }, { version: 3 }))[0]).toContain("newer version");
+    expect(errorsOf(file({ ...good, settings }, { version: 4 }))[0]).toContain("newer version");
     expect(errorsOf(file(good, { version: 0 })).join()).toContain("format version");
     expect(errorsOf(file(good, { version: "1" })).join()).toContain("format version");
   });

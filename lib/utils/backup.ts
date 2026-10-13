@@ -16,8 +16,10 @@ export const BACKUP_APP_NAME = "morgenmachich";
 
 /** Bump when the backup shape changes in a way old files can't satisfy,
  * and teach the importer to migrate (or reject) the older versions.
- * v2 (#226) adds `settings`; v1 files import with default settings. */
-export const BACKUP_VERSION = 2;
+ * v2 (#226) adds `settings`; v1 files import with default settings.
+ * v3 (#75) adds `sortOrder` on tasks; older files import with `null`
+ * (the schema's default), i.e. the Backlog keeps its priority → age order. */
+export const BACKUP_VERSION = 3;
 
 export type BackupData = {
   tasks: Task[];
