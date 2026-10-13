@@ -1,5 +1,6 @@
 import type { Label, Task } from "@/lib/types";
 import TaskCard from "@/components/task/TaskCard";
+import SortableTaskCardList from "@/components/task/SortableTaskCardList";
 import EmptyState, { type EmptyCopy } from "@/components/layout/EmptyState";
 
 type TaskCardListProps = {
@@ -13,6 +14,9 @@ type TaskCardListProps = {
   showAge?: boolean;
   /** Show each card's "Plan for…" menu (the Backlog column, #183). */
   showPlan?: boolean;
+  /** Makes the list hand-ordered (the Backlog, #73): cards get a grip to
+   * drag, a keyboard drag and a move menu; each move is saved here. */
+  onReorder?: (id: string, prevId: string | null, nextId: string | null) => Promise<void>;
 };
 
 /**
@@ -32,9 +36,22 @@ export default function TaskCardList({
   compactEmpty = false,
   showAge = false,
   showPlan = false,
+  onReorder,
 }: TaskCardListProps) {
   if (tasks.length === 0) {
     return <EmptyState {...empty} compact={compactEmpty} />;
+  }
+
+  if (onReorder) {
+    return (
+      <SortableTaskCardList
+        tasks={tasks}
+        labels={labels}
+        showAge={showAge}
+        showPlan={showPlan}
+        onReorder={onReorder}
+      />
+    );
   }
 
   return (

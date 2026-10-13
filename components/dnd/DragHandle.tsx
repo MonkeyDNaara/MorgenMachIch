@@ -1,6 +1,6 @@
 "use client";
 
-import type { ButtonHTMLAttributes, Ref } from "react";
+import type { ButtonHTMLAttributes, MouseEvent, Ref } from "react";
 import { GripVertical } from "lucide-react";
 
 type DragHandleProps = {
@@ -10,8 +10,12 @@ type DragHandleProps = {
   handleRef?: Ref<HTMLButtonElement>;
   /** `attributes` + `listeners` from `useSortable` / `useDraggable`. */
   dragProps?: ButtonHTMLAttributes<HTMLButtonElement>;
-  /** A click without dragging (the move menu in #73). */
-  onClick?: () => void;
+  /** A click without dragging (the move menu in #73). `event.detail` is 0
+   * for clicks fired by the keyboard. */
+  onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
+  /** Set when the grip also opens a menu (#73): adds `aria-haspopup` and
+   * `aria-expanded`. */
+  menuExpanded?: boolean;
   /** Keep the grip visible, e.g. while its menu is open or it is lifted. */
   active?: boolean;
   className?: string;
@@ -33,6 +37,7 @@ export default function DragHandle({
   handleRef,
   dragProps,
   onClick,
+  menuExpanded,
   active = false,
   className = "",
 }: DragHandleProps) {
@@ -43,6 +48,8 @@ export default function DragHandle({
       {...dragProps}
       onClick={onClick}
       aria-label={`Move “${title}”`}
+      aria-haspopup={menuExpanded === undefined ? undefined : "menu"}
+      aria-expanded={menuExpanded}
       className={`-ml-1 flex h-7 w-5 flex-shrink-0 cursor-grab touch-none items-center justify-center rounded-md outline-none! transition-[opacity,color,background-color] focus-visible:shadow-focus pointer-coarse:h-9 pointer-coarse:w-7 ${
         active
           ? "bg-accent/15 text-accent"

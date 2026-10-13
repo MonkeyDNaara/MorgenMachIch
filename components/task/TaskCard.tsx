@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Check, Minus, Repeat, SkipForward } from "lucide-react";
 import type { Label, Task } from "@/lib/types";
 import { updateTask } from "@/lib/db/tasks";
@@ -25,6 +26,9 @@ type TaskCardProps = {
   /** Backlog cards also get a "Plan for…" menu (#183) to give the task
    * a due date and move it out of the backlog. */
   showPlan?: boolean;
+  /** Drag handle rendered before the status circle — only in sortable
+   * lists (the Backlog, #73). */
+  dragHandle?: ReactNode;
 };
 
 /** At most this many label chips render inline; the rest collapse into
@@ -72,6 +76,7 @@ export default function TaskCard({
   labels,
   showAge = false,
   showPlan = false,
+  dragHandle,
 }: TaskCardProps) {
   const { openTaskDrawer } = useTaskDrawer();
   const done = task.status === "done";
@@ -117,6 +122,7 @@ export default function TaskCard({
           : `surface-raised ${overdue ? "border-error/50" : "border-transparent"}`
       }`}
     >
+      {dragHandle}
       <button
         type="button"
         onClick={handleToggle}

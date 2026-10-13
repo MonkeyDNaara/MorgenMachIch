@@ -4,7 +4,7 @@ import { useId, useState, useSyncExternalStore } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { CalendarDays, CheckCheck, Inbox, ListTodo, Repeat, SlidersHorizontal } from "lucide-react";
 import type { Task } from "@/lib/types";
-import { getTasks } from "@/lib/db/tasks";
+import { getTasks, reorderBacklogTask } from "@/lib/db/tasks";
 import { getLabels } from "@/lib/db/labels";
 import { listTaskSeries } from "@/lib/db/taskSeries";
 import { filterTasksByLabels } from "@/lib/utils/filterTasksByLabels";
@@ -48,8 +48,9 @@ function excludeSeriesOccurrences(tasks: Task[]): Task[] {
  * paused, regardless of the sort dropdown.
  *
  * A third, hideable Backlog column (#182) lists open standalone tasks
- * without a due date (isBacklogTask), ordered by priority then age, with
- * an age marker on each card. They no longer appear in the Tasks column.
+ * without a due date (isBacklogTask), with an age marker on each card.
+ * It is hand-ordered since #73 (drag by the grip, keyboard, or the grip's
+ * move menu); tasks never moved keep the priority → age order below. They no longer appear in the Tasks column.
  * Label and priority filters apply to it like to the Recurring column;
  * status and sort don't. Whether it is shown is remembered per browser.
  *
@@ -289,6 +290,7 @@ export default function TasksView() {
                   labels={labels ?? []}
                   showAge
                   showPlan
+                  onReorder={reorderBacklogTask}
                   compactEmpty
                   empty={
                     backlogTasks.length === 0
