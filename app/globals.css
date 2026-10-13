@@ -40,6 +40,10 @@
   --mm-shadow-raised:
     inset 0 1px 0 rgb(255 255 255 / 0.06), 0 1px 2px rgb(0 0 0 / 0.5), 0 6px 16px rgb(0 0 0 / 0.25);
   --mm-shadow-raised-sm: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 1px 3px rgb(0 0 0 / 0.4);
+  /* A card picked up for dragging (#355): higher and softer than raised. */
+  --mm-shadow-lift:
+    inset 0 1px 0 rgb(255 255 255 / 0.08), 0 2px 4px rgb(0 0 0 / 0.45),
+    0 18px 40px rgb(0 0 0 / 0.55);
   --mm-shadow-sunken: inset 0 1px 3px rgb(0 0 0 / 0.6), 0 1px 0 rgb(255 255 255 / 0.04);
   --mm-shadow-overlay: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 12px 32px rgb(0 0 0 / 0.5);
   --mm-shadow-gloss:
@@ -114,6 +118,9 @@
     inset 0 1px 0 rgb(255 255 255 / 0.9), 0 1px 2px rgb(60 40 20 / 0.08),
     0 4px 12px rgb(60 40 20 / 0.07);
   --mm-shadow-raised-sm: 0 1px 2px rgb(60 40 20 / 0.1);
+  --mm-shadow-lift:
+    inset 0 1px 0 rgb(255 255 255 / 0.9), 0 2px 4px rgb(60 40 20 / 0.1),
+    0 18px 40px rgb(60 40 20 / 0.2);
   --mm-shadow-sunken: inset 0 1px 2px rgb(60 40 20 / 0.12), 0 1px 0 rgb(255 255 255 / 0.8);
   --mm-shadow-overlay: 0 1px 2px rgb(60 40 20 / 0.06), 0 12px 32px rgb(60 40 20 / 0.16);
   --mm-shadow-gloss:
@@ -163,6 +170,7 @@
   --shadow-overlay: var(--mm-shadow-overlay);
   --shadow-gloss: var(--mm-shadow-gloss);
   --shadow-bar: var(--mm-shadow-bar);
+  --shadow-lift: var(--mm-shadow-lift);
   --shadow-focus: 0 0 0 3px color-mix(in oklab, var(--color-accent) 35%, transparent);
   --shadow-glow: 0 0 0 3px color-mix(in oklab, var(--color-accent) 15%, transparent);
 
@@ -183,6 +191,53 @@
 }
 @utility surface-sunken {
   @apply bg-sunken shadow-sunken;
+}
+
+/* Drag & drop (#355). Accent marks where things go; colors come from
+   the theme, so both themes work. With reduced motion nothing tilts. */
+@utility drag-lifted {
+  /* The item under the pointer (inside dnd-kit's DragOverlay). */
+  box-shadow:
+    var(--mm-shadow-lift),
+    0 0 0 1.5px color-mix(in oklab, var(--color-accent) 55%, transparent);
+  transform: rotate(-1.5deg) scale(1.025);
+  cursor: grabbing;
+  @media (prefers-reduced-motion: reduce) {
+    transform: none;
+  }
+}
+@utility drop-slot {
+  /* The gap a sortable list opens where the dragged item will land. */
+  @apply rounded-box bg-sunken shadow-sunken;
+  border: 1.5px dashed color-mix(in oklab, var(--color-accent) 45%, transparent);
+}
+@utility drop-target {
+  /* A day (or other container) the dragged item is over and may land in.
+     Tint as a background image and edge as an inset ring, so it works on
+     any surface and doesn't fight the element's own border classes. */
+  background-image: linear-gradient(
+    color-mix(in oklab, var(--color-accent) 9%, transparent),
+    color-mix(in oklab, var(--color-accent) 9%, transparent)
+  );
+  box-shadow:
+    inset 0 0 0 1px var(--color-accent),
+    0 0 0 3px color-mix(in oklab, var(--color-accent) 22%, transparent);
+}
+@utility drop-blocked {
+  /* Not a valid target while something is dragged (e.g. a past day). */
+  opacity: 0.55;
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0 6px,
+    var(--mm-line-strong) 6px 7px
+  );
+  cursor: no-drop;
+}
+@utility drop-preview {
+  /* Dashed placeholder row showing where the dropped item will appear. */
+  border: 1px dashed color-mix(in oklab, var(--color-accent) 55%, transparent);
+  border-radius: 0.5rem;
+  color: var(--color-accent);
 }
 
 /* Type scale (#233): one class sets size, line height, tracking and weight. */
