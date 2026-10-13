@@ -97,6 +97,7 @@ type Task = {
   createdAt: string;
   updatedAt: string;
   completedAt: string | null;
+  sortOrder: string | null;   // manual Backlog order key (#75), fractional index
 };
 
 type TaskSeries = {

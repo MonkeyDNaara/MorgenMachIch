@@ -1,5 +1,6 @@
 import { db } from "@/lib/db/db";
 import { TaskSchema, type Task, type NewTask } from "@/lib/types";
+import { isBacklogTask, planBacklogReorder } from "@/lib/utils/backlog";
 
 /** Fields callers may change after creation. id/createdAt/updatedAt are
  * managed by this file so a caller can never accidentally overwrite them. */
@@ -31,6 +32,7 @@ export async function createTask(input: NewTask): Promise<Task> {
     id: crypto.randomUUID(),
     status: "open",
     completedAt: null,
+    sortOrder: null, // new tasks land at the bottom of the Backlog (#75)
     createdAt: now,
     updatedAt: now,
   };
@@ -56,4 +58,27 @@ export async function updateTask(id: string, patch: TaskPatch): Promise<Task> {
 
 export async function deleteTask(id: string): Promise<void> {
   await db.tasks.delete(id);
+}
+
+/**
+ * Moves a Backlog task between two neighbours (#75): `prevId`/`nextId` are
+ * the tasks shown directly above and below the drop position (null = top
+ * or bottom of the visible list). Which keys change is decided by the pure
+ * `planBacklogReorder`; this writes them in one transaction.
+ */
+export async function reorderBacklogTask(
+  id: string,
+  prevId: string | null,
+  nextId: string | null,
+): Promise<void> {
+  await db.transaction("rw", db.tasks, async () => {
+    const backlog = (await getTasks()).filter(isBacklogTask);
+    const keys = planBacklogReorder(backlog, id, prevId, nextId);
+    const now = new Date().toISOString();
+    await db.tasks.bulkPut(
+      backlog
+        .filter((task) => keys.has(task.id))
+        .map((task) => TaskSchema.parse({ ...task, sortOrder: keys.get(task.id), updatedAt: now })),
+    );
+  });
 }

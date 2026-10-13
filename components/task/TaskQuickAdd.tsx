@@ -73,6 +73,7 @@ export default function TaskQuickAdd({
         createdAt: series.createdAt,
         updatedAt: series.updatedAt,
         completedAt: null,
+        sortOrder: null,
       };
       const visibility = visibilityOf(first);
       if (visibility === "visible") return;

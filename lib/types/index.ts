@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { LABEL_COLOR_HEXES } from "@/lib/constants/labelColors";
+import { ORDER_KEY_PATTERN } from "@/lib/utils/orderKey";
 
 /**
  * Shared domain schemas + types (Task, TaskSeries, Subtask, Label).
@@ -80,6 +81,10 @@ export const TaskSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
   completedAt: z.string().nullable(),
+  // Manual Backlog order (#75): a fractional key from lib/utils/orderKey,
+  // compared as a plain string. `default(null)` lets rows and backups from
+  // before this field parse unchanged; only the Backlog reads it.
+  sortOrder: z.string().regex(ORDER_KEY_PATTERN).nullable().default(null),
 });
 export type Task = z.infer<typeof TaskSchema>;
 
@@ -132,6 +137,7 @@ export const NewTaskSchema = TaskSchema.omit({
   createdAt: true,
   updatedAt: true,
   completedAt: true,
+  sortOrder: true,
 });
 export type NewTask = z.infer<typeof NewTaskSchema>;
 
