@@ -25,6 +25,8 @@ been idle)*
 - [lucide-react](https://lucide.dev) for icons
 - [chrono-node](https://github.com/wanasit/chrono) for natural-language
   date parsing in quick-add (English + German)
+- [dnd-kit](https://dndkit.com) for drag & drop (keyboard and touch
+  included)
 - Deployed on [Render](https://render.com) via `render.yaml` (Blueprint)
 
 ## Getting started
@@ -143,7 +145,13 @@ theme) works fully from the keyboard: one Tab stop, arrow keys to choose.
 Dates are typed the way you'd say them ("fri", "tomorrow", "12.10.") or
 picked from a small calendar with quick picks — always in the app's English
 format, never the browser's.
-Every helper behind those features is covered by tests: 472 Vitest tests run on
+Drag & drop arrived last: the Backlog can be put in your own order (drag a
+card by its grip, use the keyboard, or click the grip for "Move to top / up /
+down / bottom"), tasks can be dragged to another day on the calendar or onto
+a "Coming up" day on /today (the time stays, Undo is one click away), and a
+Backlog tray next to the calendar lets you plan the week by dropping tasks
+onto days.
+Every helper behind those features is covered by tests: 596 Vitest tests run on
 every pull request in four time zones, because so much of the app is local
 calendar-day math.
 Planned next: a hosted database (Neon + Drizzle) with an API and login, so
