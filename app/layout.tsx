@@ -30,10 +30,16 @@ export const metadata: Metadata = {
   // Pages set only their own name ("Today"); TitleCount adds the open count (#187).
   title: { default: "MorgenMachIch", template: "%s · MorgenMachIch" },
   description: "A to-do app with labels, a calendar view, and recurring tasks.",
+  // iOS "Add to Home Screen": standalone launch with the short name (#80). The
+  // default status bar keeps content below it, so only the bottom inset matters.
+  appleWebApp: { capable: true, title: "Morgen", statusBarStyle: "default" },
 };
 
 // Mobile browser bar per OS scheme; an explicit theme choice overrides both (#266).
+// viewportFit "cover" makes env(safe-area-inset-*) non-zero on notched phones,
+// so the tab bar, FAB and toasts clear the home indicator (#80).
 export const viewport: Viewport = {
+  viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: THEME_COLORS.light },
     { media: "(prefers-color-scheme: dark)", color: THEME_COLORS.dark },
