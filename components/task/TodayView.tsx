@@ -5,9 +5,6 @@ import {
   DndContext,
   DragOverlay,
   MeasuringStrategy,
-  pointerWithin,
-  rectIntersection,
-  type CollisionDetection,
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
@@ -30,15 +27,11 @@ import type { DraggedTask } from "@/components/dnd/types";
 import { useMoveTaskToDay } from "@/components/dnd/useMoveTaskToDay";
 import { useAppSensors } from "@/lib/ui/dnd/useAppSensors";
 import { dayKeyboardCoordinates } from "@/lib/ui/dnd/dayKeyboardCoordinates";
+import { dayCollision } from "@/lib/ui/dnd/dayCollision";
 import { createDayAnnouncements } from "@/lib/ui/dnd/announcements";
 import { REDUCED_MOTION, useMediaQuery } from "@/lib/ui/useMediaQuery";
 import { DAY_DRAG_INSTRUCTIONS } from "@/lib/utils/dndAnnouncements";
 import { isDropDay, parseDragTaskId, parseDropDayId } from "@/lib/utils/reschedule";
-
-/** Pointer drags hit the day under the pointer; keyboard drags (no pointer)
- * hit the day the dragged chip was moved onto (dayKeyboardCoordinates). */
-const collisionDetection: CollisionDetection = (args) =>
-  args.pointerCoordinates ? pointerWithin(args) : rectIntersection(args);
 
 function scopeToTodayOrOverdue(tasks: Task[]): Task[] {
   return tasks.filter(isTodayOrOverdue);
@@ -160,7 +153,7 @@ export default function TodayView() {
       <DndContext
         id={dndId}
         sensors={sensors}
-        collisionDetection={collisionDetection}
+        collisionDetection={dayCollision}
         // Empty strip days only mount once a drag starts, so keep measuring.
         measuring={{ droppable: { strategy: MeasuringStrategy.Always } }}
         onDragStart={handleDragStart}
