@@ -16,8 +16,9 @@ export type ToastAction = { label: string; onAction: () => unknown };
 type Toast = { id: number; message: string; action?: ToastAction };
 
 type ToastContextValue = {
-  /** Shows a short message at the bottom; with an action (e.g. Undo) it stays a little longer. */
-  notify: (message: string, options?: { action?: ToastAction }) => void;
+  /** Shows a short message at the bottom; with an action (e.g. Undo) it stays a little longer.
+   * `sticky` keeps it until the action is used or another toast replaces it (#82). */
+  notify: (message: string, options?: { action?: ToastAction; sticky?: boolean }) => void;
 };
 
 const PLAIN_MS = 3000;
@@ -46,6 +47,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     if (timer.current) clearTimeout(timer.current);
     nextId.current += 1;
     setToast({ id: nextId.current, message, action: options?.action });
+    if (options?.sticky) return;
     timer.current = setTimeout(() => setToast(null), options?.action ? ACTION_MS : PLAIN_MS);
   }, []);
 

@@ -6,6 +6,7 @@ import AddTaskFab from "@/components/layout/AddTaskFab";
 import { ToastProvider } from "@/components/layout/ToastProvider";
 import TitleCount from "@/components/layout/TitleCount";
 import ServiceWorkerRegistrar from "@/components/layout/ServiceWorkerRegistrar";
+import UpdateToast from "@/components/layout/UpdateToast";
 import TaskDrawer from "@/components/task/TaskDrawer";
 import SeriesDrawer from "@/components/task/SeriesDrawer";
 import OccurrenceSync from "@/components/task/OccurrenceSync";
@@ -65,6 +66,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ServiceWorkerRegistrar />
         <OccurrenceSync />
         <ToastProvider>
+          <UpdateToast />
           <TaskDrawerProvider>
             <SeriesDrawerProvider>
               <CommandPaletteProvider>
