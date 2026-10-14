@@ -30,6 +30,8 @@ export const OFFLINE_URL = "/offline";
 /** Message the page sends with the URLs it loaded before the worker took
  * control, so even the first visit is available offline. */
 export const WARM_MESSAGE = "CACHE_URLS";
+/** Message from "Reload" (#82): the waiting worker takes over now. */
+export const SKIP_WAITING_MESSAGE = "SKIP_WAITING";
 
 const CACHE_PREFIX = "mm-";
 const STATIC_PREFIXES = ["/_next/static/", "/icons/"];
