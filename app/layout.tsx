@@ -5,6 +5,7 @@ import BottomTabBar from "@/components/layout/BottomTabBar";
 import AddTaskFab from "@/components/layout/AddTaskFab";
 import { ToastProvider } from "@/components/layout/ToastProvider";
 import TitleCount from "@/components/layout/TitleCount";
+import ServiceWorkerRegistrar from "@/components/layout/ServiceWorkerRegistrar";
 import TaskDrawer from "@/components/task/TaskDrawer";
 import SeriesDrawer from "@/components/task/SeriesDrawer";
 import OccurrenceSync from "@/components/task/OccurrenceSync";
@@ -61,6 +62,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex bg-base-100 text-base-content">
         <ThemeSync />
         <TitleCount />
+        <ServiceWorkerRegistrar />
         <OccurrenceSync />
         <ToastProvider>
           <TaskDrawerProvider>
