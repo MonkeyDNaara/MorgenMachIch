@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="MorgenMachIch"><defs>
+<linearGradient id="mmSun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc27a"/><stop offset="1" stop-color="#ff9f5a"/></linearGradient>
+<linearGradient id="mmCard" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#17323c"/><stop offset="1" stop-color="#10232a"/></linearGradient>
+</defs><rect width="512" height="512" rx="0" fill="#0b1214"/><g transform="translate(256 263) scale(1.18) translate(-256 -263)"><path d="M256 140 V118 M303 159 L318 144 M209 159 L194 144" stroke="#ffb26a" stroke-width="16" stroke-linecap="round"/>
+<path d="M204 223 A52 52 0 0 1 308 223 Z" fill="url(#mmSun)"/>
+<path d="M152 196 H184 C196 196 202 200 210 208 L224 222 C231 229 238 232 248 232 H264 C274 232 281 229 288 222 L302 208 C310 200 316 196 328 196 H360 A46 46 0 0 1 406 242 V362 A46 46 0 0 1 360 408 H152 A46 46 0 0 1 106 362 V242 A46 46 0 0 1 152 196 Z" fill="url(#mmCard)" stroke="#2fa7b6" stroke-width="5"/>
+<g stroke="#4dd1e0" stroke-linecap="round" fill="none"><path d="M144 282 H200 M144 322 H200 M144 362 H170" stroke-width="22"/><path d="M238 320 L272 358 L364 264" stroke-width="30" stroke-linejoin="round"/></g></g></svg>
