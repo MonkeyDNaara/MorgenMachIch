@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import LogoMark from "@/components/layout/LogoMark";
 
 type StatusPageProps = {
   /** Big monospace headline, e.g. "404". */
@@ -13,9 +14,9 @@ type StatusPageProps = {
 };
 
 /**
- * Shared layout for the 404 and error pages (#177): a large monospace
- * code in the accent colour, a title, one friendly sentence, then
- * whatever actions the page passes in. One component so not-found,
+ * Shared layout for the 404 and error pages (#177): the logo (#174), a
+ * large monospace code in the accent colour, a title, one friendly
+ * sentence, then whatever actions the page passes in. One component so not-found,
  * error and global-error stay visually identical.
  */
 export default function StatusPage({
@@ -31,6 +32,7 @@ export default function StatusPage({
         fullScreen ? "min-h-screen" : "min-h-[70vh]"
       }`}
     >
+      <LogoMark size={48} />
       <p className="font-mono text-7xl font-semibold tracking-tight text-accent">{code}</p>
       <h1 className="text-xl font-semibold">{title}</h1>
       <p className="max-w-md text-sm text-muted">{description}</p>

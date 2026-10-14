@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="MorgenMachIch"><defs>
+<linearGradient id="mmSun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc27a"/><stop offset="1" stop-color="#ff9f5a"/></linearGradient>
+<linearGradient id="mmCard" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#17323c"/><stop offset="1" stop-color="#10232a"/></linearGradient>
+</defs><rect width="512" height="512" rx="112" fill="#0b1214"/><g transform=""><path d="M256 112 V92 M320 138 L338 120 M192 138 L174 120" stroke="#ffb26a" stroke-width="30" stroke-linecap="round"/>
+<path d="M186 222 A70 70 0 0 1 326 222 Z" fill="#ff9f5a"/>
+<path d="M136 192 H168 C182 192 190 197 199 206 L214 221 C222 229 230 232 242 232 H270 C282 232 290 229 298 221 L313 206 C322 197 330 192 344 192 H376 A48 48 0 0 1 424 240 V384 A48 48 0 0 1 376 432 H136 A48 48 0 0 1 88 384 V240 A48 48 0 0 1 136 192 Z" fill="#17323c"/>
+<path d="M168 332 L226 392 L346 270" stroke="#4dd1e0" stroke-width="48" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g></svg>
