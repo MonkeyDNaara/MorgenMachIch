@@ -27,6 +27,9 @@ been idle)*
   date parsing in quick-add (English + German)
 - [dnd-kit](https://dndkit.com) for drag & drop (keyboard and touch
   included)
+- A hand-written service worker and web app manifest (installable PWA, no
+  library); icons generated from the SVG logo with
+  [sharp](https://sharp.pixelplumbing.com) (`npm run icons`)
 - Deployed on [Render](https://render.com) via `render.yaml` (Blueprint)
 
 ## Getting started
@@ -170,8 +173,15 @@ down / bottom"), tasks can be dragged to another day on the calendar or onto
 a "Coming up" day on /today (the time stays, Undo is one click away), and a
 Backlog tray next to the calendar lets you plan the week by dropping tasks
 onto days.
-Every helper behind those features is covered by tests: 596 Vitest tests run on
+The app can now be installed (PWA): it has its own logo, opens on /today as
+"Morgen" in its own window or from the home screen, offers New task / Today /
+Calendar shortcuts and shows the number of open tasks in the tab title and on
+the app icon. A service worker keeps the app shell, so every page you've opened
+once loads offline and the app opens within seconds even while the server wakes
+up. Settings → App explains how to install it in your browser, and after a
+deploy a "New version · Reload" toast lets you choose when to update.
+Every helper behind those features is covered by tests: 628 Vitest tests run on
 every pull request in four time zones, because so much of the app is local
 calendar-day math.
 Planned next: a hosted database (Neon + Drizzle) with an API and login, so
-n8n and Claude/Obsidian can work with the tasks — plus an installable PWA.
+n8n and Claude/Obsidian can work with the tasks — and a public landing page.
