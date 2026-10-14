@@ -7,7 +7,7 @@ import { isStorageError } from "@/lib/utils/isStorageError";
 
 /**
  * Route-level error boundary (#177): catches errors thrown while
- * rendering any page, keeps the nav rail from the root layout, and
+ * rendering any app page, keeps the nav rail from the app layout, and
  * offers a retry. Browser-storage failures (blocked IndexedDB, e.g. in a
  * private window) get their own hint, since that's the one runtime
  * failure this local-first app can realistically hit.

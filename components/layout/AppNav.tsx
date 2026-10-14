@@ -94,6 +94,7 @@ export default function AppNav() {
           <kbd className="hidden font-mono text-meta lg:inline">{modKey}K</kbd>
         </button>
         <ThemeToggle labelFromLg className={`${itemClasses(false)} cursor-pointer`} />
+        <NavLink item={NAV_ITEMS.about} active={false} />
         <NavLink item={NAV_ITEMS.settings} active={isActive(pathname, NAV_ITEMS.settings.href)} />
       </div>
     </nav>

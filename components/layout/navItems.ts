@@ -1,5 +1,6 @@
 import {
   Calendar,
+  Info,
   LayoutList,
   Settings,
   Sun,
@@ -25,9 +26,12 @@ export const NAV_ITEMS = {
   labels: { href: "/labels", label: "Labels", icon: Tag },
   stats: { href: "/stats", label: "Stats", icon: TrendingUp },
   settings: { href: "/settings", label: "Settings", icon: Settings },
+  // The landing page with the project story, the developer and the Impressum (#83).
+  // `?landing` keeps returning users from being sent back to /today.
+  about: { href: "/?landing", label: "About", icon: Info },
 } satisfies Record<string, NavItem>;
 
-/** Main entries in sidebar order; Settings sits apart at the bottom. */
+/** Main entries in sidebar order; About and Settings sit apart at the bottom. */
 export const MAIN_NAV: NavItem[] = [
   NAV_ITEMS.today,
   NAV_ITEMS.tasks,

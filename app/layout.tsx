@@ -1,21 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
-import AppNav from "@/components/layout/AppNav";
-import BottomTabBar from "@/components/layout/BottomTabBar";
-import AddTaskFab from "@/components/layout/AddTaskFab";
-import { ToastProvider } from "@/components/layout/ToastProvider";
-import TitleCount from "@/components/layout/TitleCount";
 import ServiceWorkerRegistrar from "@/components/layout/ServiceWorkerRegistrar";
-import UpdateToast from "@/components/layout/UpdateToast";
-import TaskDrawer from "@/components/task/TaskDrawer";
-import SeriesDrawer from "@/components/task/SeriesDrawer";
-import OccurrenceSync from "@/components/task/OccurrenceSync";
 import ThemeSync from "@/components/layout/ThemeSync";
 import { THEME_COLORS, THEME_INIT_SCRIPT } from "@/lib/ui/themePreference";
-import { TaskDrawerProvider } from "@/components/task/TaskDrawerProvider";
-import { SeriesDrawerProvider } from "@/components/task/SeriesDrawerProvider";
-import { CommandPaletteProvider } from "@/components/palette/CommandPaletteProvider";
-import CommandPalette from "@/components/palette/CommandPalette";
+import { SKIP_LANDING_SCRIPT } from "@/lib/ui/appVisited";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -59,32 +47,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         {/* Applies a stored light/dark choice before the first paint (#266). */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        {/* Sends returning users from / to /today before anything is painted (#83). */}
+        <script dangerouslySetInnerHTML={{ __html: SKIP_LANDING_SCRIPT }} />
       </head>
       <body className="min-h-full flex bg-base-100 text-base-content">
+        {/* Only what every page needs; the app shell lives in app/(app)/layout.tsx and
+          the landing page in app/(site)/ (#83). */}
         <ThemeSync />
-        <TitleCount />
         <ServiceWorkerRegistrar />
-        <OccurrenceSync />
-        <ToastProvider>
-          <UpdateToast />
-          <TaskDrawerProvider>
-            <SeriesDrawerProvider>
-              <CommandPaletteProvider>
-                <AppNav />
-                {/* Below md the BottomTabBar is fixed to the bottom; this padding keeps
-                  the last content row from hiding behind it. */}
-                <main className="min-w-0 flex-1 pb-[calc(4.75rem+env(safe-area-inset-bottom))] md:pb-0">
-                  {children}
-                </main>
-                <BottomTabBar />
-                <AddTaskFab />
-                <TaskDrawer />
-                <SeriesDrawer />
-                <CommandPalette />
-              </CommandPaletteProvider>
-            </SeriesDrawerProvider>
-          </TaskDrawerProvider>
-        </ToastProvider>
+        {children}
       </body>
     </html>
   );

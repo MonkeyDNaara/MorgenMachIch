@@ -21,6 +21,7 @@ describe("command registry (#196)", () => {
       "go-labels",
       "go-stats",
       "go-settings",
+      "go-about",
       "new-task",
       "theme-system",
       "theme-light",
@@ -36,6 +37,7 @@ describe("command registry (#196)", () => {
     expect(ids("backup")).toContain("go-settings");
     expect(ids("tags")).toContain("go-labels");
     expect(ids("streak")).toContain("go-stats");
+    expect(ids("impressum")).toContain("go-about");
     expect(ids("dark mode")).toContain("theme-dark");
   });
 
@@ -49,6 +51,7 @@ describe("command registry (#196)", () => {
       "/labels",
       "/stats",
       "/settings",
+      "/?landing",
     ]);
     expect(context.openNewTask).toHaveBeenCalledOnce();
     expect(vi.mocked(context.setTheme).mock.calls.map(([p]) => p)).toEqual([

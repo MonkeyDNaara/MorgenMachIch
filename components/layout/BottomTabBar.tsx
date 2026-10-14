@@ -10,7 +10,7 @@ import { NAV_ITEMS, isActive, type NavItem } from "@/components/layout/navItems"
 import ThemeToggle from "@/components/layout/ThemeToggle";
 
 const TABS: NavItem[] = [NAV_ITEMS.today, NAV_ITEMS.tasks, NAV_ITEMS.calendar, NAV_ITEMS.stats];
-const MORE_ITEMS: NavItem[] = [NAV_ITEMS.labels, NAV_ITEMS.settings];
+const MORE_ITEMS: NavItem[] = [NAV_ITEMS.labels, NAV_ITEMS.settings, NAV_ITEMS.about];
 
 const tabClasses =
   "flex min-h-11 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl text-[11px] outline-none! transition-colors focus-visible:shadow-focus";
@@ -21,7 +21,7 @@ const menuItemClasses =
 /**
  * Mobile navigation below md (#235): a bar fixed to the bottom with
  * Today, Tasks, Calendar, Stats and More. More opens a small menu above
- * the bar with Labels, Settings, Search and the theme toggle (#266) —
+ * the bar with Labels, Settings, About (#83), Search and the theme toggle (#266) —
  * plain React state with useDismiss (Escape or an outside click closes
  * it, focus returns to the More button). More counts as active on /labels and /settings.
  */
