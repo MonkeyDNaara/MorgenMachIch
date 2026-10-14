@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { isDueToday, isSameLocalDay, isTodayOrOverdue } from "@/lib/utils/isDueToday";
+import {
+  countOpenToday,
+  isDueToday,
+  isSameLocalDay,
+  isTodayOrOverdue,
+} from "@/lib/utils/isDueToday";
 import { localDate, localIso, makeTask } from "@/lib/test/factories";
 
 // Both helpers read the clock: freeze it at Fri 9 Oct 2026 10:00.
@@ -28,5 +33,20 @@ describe("isTodayOrOverdue (/today, #126)", () => {
     ["backlog", { dueDate: null }, false],
   ])("%s → %s", (_name, overrides, expected) => {
     expect(isTodayOrOverdue(makeTask(overrides))).toBe(expected);
+  });
+});
+
+describe("countOpenToday (#187)", () => {
+  it("counts open tasks due today or overdue, nothing else", () => {
+    const tasks = [
+      makeTask({ dueDate: localIso(2026, 10, 9, 15) }), // today
+      makeTask({ dueDate: localIso(2026, 10, 7) }), // overdue
+      makeTask({ dueDate: localIso(2026, 10, 9, 8), status: "done" }), // done today
+      makeTask({ dueDate: localIso(2026, 10, 9), status: "skipped" }), // skipped
+      makeTask({ dueDate: localIso(2026, 10, 10) }), // tomorrow
+      makeTask({ dueDate: null }), // backlog
+    ];
+    expect(countOpenToday(tasks)).toBe(2);
+    expect(countOpenToday([])).toBe(0);
   });
 });

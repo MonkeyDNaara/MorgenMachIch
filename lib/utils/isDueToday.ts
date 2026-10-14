@@ -34,3 +34,12 @@ export function isTodayOrOverdue(task: Task): boolean {
   if (isDueToday(task.dueDate)) return true;
   return task.status !== "done" && isOverdue(task.dueDate, task.allDay);
 }
+
+/**
+ * How many tasks still need doing for /today: open and due today or
+ * overdue. Shared by the Today nav badge, the tab title "(3) …" and the
+ * installed app's icon badge (#187), so all three always agree.
+ */
+export function countOpenToday(tasks: Task[]): number {
+  return tasks.filter((task) => task.status === "open" && isTodayOrOverdue(task)).length;
+}

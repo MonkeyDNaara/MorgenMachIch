@@ -3,7 +3,7 @@ import Link from "next/link";
 import StatusPage from "@/components/layout/StatusPage";
 
 export const metadata: Metadata = {
-  title: "Not found | MorgenMachIch",
+  title: "Not found",
 };
 
 /** Shown for any URL that doesn't match a route (#177). Rendered inside
