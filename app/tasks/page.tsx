@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import TasksView from "@/components/task/TasksView";
 
 export const metadata: Metadata = {
-  title: "Tasks | MorgenMachIch",
+  title: "Tasks",
 };
 
 export default function TasksPage() {

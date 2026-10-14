@@ -4,6 +4,7 @@ import AppNav from "@/components/layout/AppNav";
 import BottomTabBar from "@/components/layout/BottomTabBar";
 import AddTaskFab from "@/components/layout/AddTaskFab";
 import { ToastProvider } from "@/components/layout/ToastProvider";
+import TitleCount from "@/components/layout/TitleCount";
 import TaskDrawer from "@/components/task/TaskDrawer";
 import SeriesDrawer from "@/components/task/SeriesDrawer";
 import OccurrenceSync from "@/components/task/OccurrenceSync";
@@ -26,7 +27,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MorgenMachIch",
+  // Pages set only their own name ("Today"); TitleCount adds the open count (#187).
+  title: { default: "MorgenMachIch", template: "%s · MorgenMachIch" },
   description: "A to-do app with labels, a calendar view, and recurring tasks.",
 };
 
@@ -52,6 +54,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="min-h-full flex bg-base-100 text-base-content">
         <ThemeSync />
+        <TitleCount />
         <OccurrenceSync />
         <ToastProvider>
           <TaskDrawerProvider>

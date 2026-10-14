@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Search } from "lucide-react";
 import { getTasks } from "@/lib/db/tasks";
-import { isTodayOrOverdue } from "@/lib/utils/isDueToday";
+import { countOpenToday } from "@/lib/utils/isDueToday";
 import { useModKey } from "@/lib/ui/useModKey";
 import { useCommandPalette } from "@/components/palette/CommandPaletteProvider";
 import LogoMark from "@/components/layout/LogoMark";
@@ -49,11 +49,7 @@ export default function AppNav() {
   const pathname = usePathname();
   const { openPalette } = useCommandPalette();
   const modKey = useModKey();
-  const todayCount = useLiveQuery(
-    async () =>
-      (await getTasks()).filter((task) => task.status === "open" && isTodayOrOverdue(task)).length,
-    [],
-  );
+  const todayCount = useLiveQuery(async () => countOpenToday(await getTasks()), []);
 
   return (
     <nav

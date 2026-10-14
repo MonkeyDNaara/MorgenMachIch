@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import LabelsView from "@/components/label/LabelsView";
 
 export const metadata: Metadata = {
-  title: "Labels | MorgenMachIch",
+  title: "Labels",
 };
 
 export default function LabelsPage() {
