@@ -1,6 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
+import {
+  DndContext,
+  DragOverlay,
+  MeasuringStrategy,
+  pointerWithin,
+  rectIntersection,
+  type CollisionDetection,
+  type DragEndEvent,
+  type DragStartEvent,
+} from "@dnd-kit/core";
 import { useLiveQuery } from "dexie-react-hooks";
 import type { Task } from "@/lib/types";
 import { getTasks } from "@/lib/db/tasks";
@@ -15,6 +25,20 @@ import DayProgress from "@/components/task/DayProgress";
 import { CalendarDays, Sunrise } from "lucide-react";
 import type { EmptyCopy } from "@/components/layout/EmptyState";
 import { APP_LOCALE } from "@/lib/constants/locale";
+import DragChip from "@/components/dnd/DragChip";
+import type { DraggedTask } from "@/components/dnd/types";
+import { useMoveTaskToDay } from "@/components/dnd/useMoveTaskToDay";
+import { useAppSensors } from "@/lib/ui/dnd/useAppSensors";
+import { dayKeyboardCoordinates } from "@/lib/ui/dnd/dayKeyboardCoordinates";
+import { createDayAnnouncements } from "@/lib/ui/dnd/announcements";
+import { REDUCED_MOTION, useMediaQuery } from "@/lib/ui/useMediaQuery";
+import { DAY_DRAG_INSTRUCTIONS } from "@/lib/utils/dndAnnouncements";
+import { isDropDay, parseDragTaskId, parseDropDayId } from "@/lib/utils/reschedule";
+
+/** Pointer drags hit the day under the pointer; keyboard drags (no pointer)
+ * hit the day the dragged chip was moved onto (dayKeyboardCoordinates). */
+const collisionDetection: CollisionDetection = (args) =>
+  args.pointerCoordinates ? pointerWithin(args) : rectIntersection(args);
 
 function scopeToTodayOrOverdue(tasks: Task[]): Task[] {
   return tasks.filter(isTodayOrOverdue);
@@ -35,11 +59,38 @@ function scopeToTodayOrOverdue(tasks: Task[]): Task[] {
  * as a display title, today's progress (dayProgress) and the streak
  * badge (#219), which links to /stats. A quick-add bar sits above the cards (#205). Text without a date is due
  * today — or on the day drilled into, since that is the day being looked at.
+ *
+ * Drag & drop (#356): the list and the Coming up strip share one
+ * DndContext. Open, non-recurring cards have a grip; dropping one on a
+ * strip day moves it there (time kept, Undo toast — useMoveTaskToDay).
+ * With the keyboard, Space/Enter on the grip picks it up, arrows jump from
+ * day to day, Space/Enter drops, Escape cancels.
  */
 export default function TodayView() {
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const tasks = useLiveQuery(() => getTasks(), []);
   const now = new Date();
+  const dndId = useId();
+  const sensors = useAppSensors({ coordinateGetter: dayKeyboardCoordinates });
+  const reducedMotion = useMediaQuery(REDUCED_MOTION);
+  const moveTaskToDay = useMoveTaskToDay();
+  const [dragged, setDragged] = useState<DraggedTask | null>(null);
+
+  function findTask(dragId: string | number) {
+    const id = parseDragTaskId(dragId);
+    return id === null ? undefined : tasks?.find((task) => task.id === id);
+  }
+
+  function handleDragStart({ active }: DragStartEvent) {
+    setDragged((active.data.current as DraggedTask | undefined) ?? null);
+  }
+
+  function handleDragEnd({ active, over }: DragEndEvent) {
+    setDragged(null);
+    const task = findTask(active.id);
+    const day = over ? parseDropDayId(over.id) : null;
+    if (task && day) void moveTaskToDay(task, day);
+  }
 
   const baseFilter = selectedDay
     ? (tasks: Task[]) =>
@@ -106,14 +157,39 @@ export default function TodayView() {
           </button>
         </div>
       )}
-      <TaskList
-        baseFilter={baseFilter}
-        empty={empty}
-        header={(visibilityOf) => (
-          <TaskQuickAdd defaultDate={selectedDay ?? new Date()} visibilityOf={visibilityOf} />
-        )}
-      />
-      <WeekAheadStrip selectedDay={selectedDay} onSelectDay={setSelectedDay} />
+      <DndContext
+        id={dndId}
+        sensors={sensors}
+        collisionDetection={collisionDetection}
+        // Empty strip days only mount once a drag starts, so keep measuring.
+        measuring={{ droppable: { strategy: MeasuringStrategy.Always } }}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragCancel={() => setDragged(null)}
+        accessibility={{
+          announcements: createDayAnnouncements(
+            (id) => findTask(id)?.title ?? "task",
+            (id) => {
+              const day = parseDropDayId(id);
+              return day ? { day, allowed: isDropDay(day, new Date()) } : null;
+            },
+          ),
+          screenReaderInstructions: { draggable: DAY_DRAG_INSTRUCTIONS },
+        }}
+      >
+        <TaskList
+          baseFilter={baseFilter}
+          empty={empty}
+          draggableToDays
+          header={(visibilityOf) => (
+            <TaskQuickAdd defaultDate={selectedDay ?? new Date()} visibilityOf={visibilityOf} />
+          )}
+        />
+        <WeekAheadStrip selectedDay={selectedDay} onSelectDay={setSelectedDay} />
+        <DragOverlay dropAnimation={reducedMotion ? null : undefined}>
+          {dragged && <DragChip task={dragged} />}
+        </DragOverlay>
+      </DndContext>
     </div>
   );
 }

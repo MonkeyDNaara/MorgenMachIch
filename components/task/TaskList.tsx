@@ -45,6 +45,9 @@ type TaskListProps = {
    * (#205). Gets a check that tells whether a task would show up in this
    * list (scope + current filters), so the bar can explain when it won't. */
   header?: (visibilityOf: (task: Task) => QuickAddVisibility) => ReactNode;
+  /** Cards get a grip to drag them onto a day (/today's Coming up, #356).
+   * The DndContext and the day targets belong to the surrounding view. */
+  draggableToDays?: boolean;
 };
 
 /**
@@ -76,6 +79,7 @@ export default function TaskList({
   empty,
   hideLabelAndPriorityFilters = false,
   header,
+  draggableToDays = false,
 }: TaskListProps = {}) {
   const tasks = useLiveQuery(() => getTasks(), []);
   const labels = useLiveQuery(() => getLabels(), []);
@@ -147,6 +151,7 @@ export default function TaskList({
         <TaskCardList
           tasks={visibleTasks}
           labels={labels ?? []}
+          draggableToDays={draggableToDays}
           empty={
             tasks.length === 0
               ? NO_TASKS_YET
