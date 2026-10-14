@@ -1,5 +1,6 @@
 import {
   Calendar,
+  Info,
   LayoutList,
   Monitor,
   Moon,
@@ -22,6 +23,7 @@ const COMMAND_ICONS: Record<string, LucideIcon> = {
   "go-labels": Tag,
   "go-stats": TrendingUp,
   "go-settings": Settings,
+  "go-about": Info,
   "new-task": Plus,
   "theme-system": Monitor,
   "theme-light": SunDim,

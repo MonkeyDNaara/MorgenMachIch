@@ -39,7 +39,8 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) — it redirects to `/today`.
+Open [http://localhost:3000](http://localhost:3000) for the landing page; once a browser has
+opened the app, `/` goes straight to `/today` (`/?landing` shows the landing page anyway).
 
 ## Tests
 

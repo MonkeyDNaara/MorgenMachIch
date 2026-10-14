@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import packageJson from "@/package.json";
 
@@ -21,6 +22,9 @@ export default function AboutCard() {
           A local-first to-do app — your data stays in this browser unless you export it.
         </p>
       </div>
+      <Link href="/?landing" className="self-start text-xs text-accent hover:underline">
+        About this project
+      </Link>
       <a
         href={REPO_URL}
         target="_blank"

@@ -43,6 +43,16 @@ export const COMMANDS: readonly Command[] = [
     "data",
     "preferences",
   ]),
+  goTo("go-about", "About MorgenMachIch", "/?landing", [
+    "landing",
+    "project",
+    "developer",
+    "author",
+    "contact",
+    "linkedin",
+    "impressum",
+    "imprint",
+  ]),
   {
     id: "new-task",
     label: "New task",
