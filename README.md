@@ -51,6 +51,25 @@ npm run test:tz        # Europe/Berlin, America/Los_Angeles, Asia/Kolkata, Pacif
 npm run test:coverage  # coverage summary
 ```
 
+## Offline & installing
+
+The app is a PWA: it can be installed (Chrome/Edge install icon, iPhone
+"Share → Add to Home Screen") and opens without a connection. A hand-written
+service worker (`lib/sw/`, built into `public/sw.js` by `npm run sw`, which runs
+before every build) caches the app shell: build files cache-first, pages
+network-first with a 3 s timeout, and an offline page for pages not cached yet.
+Your tasks themselves live in the browser (IndexedDB) and are always available.
+
+The worker is only registered in production builds. To try it locally:
+
+```bash
+npm run build && npm run start
+```
+
+Then open DevTools → Application → Service workers (status, "Update on
+reload"), Cache storage (the `mm-*` caches) and the Network tab's **Offline**
+checkbox. Open a few pages, go offline and reload.
+
 ## Project structure & conventions
 
 See [CONVENTIONS.md](./CONVENTIONS.md) for folder layout and naming rules.

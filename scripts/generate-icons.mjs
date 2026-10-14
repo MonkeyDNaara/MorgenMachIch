@@ -13,10 +13,7 @@ const brand = (name) => join(root, "assets/brand", name);
  * small sizes crisp (sharp rasterises the vector before resizing). */
 async function png(source, size) {
   const svg = await readFile(brand(source));
-  return sharp(svg, { density: 384 })
-    .resize(size, size)
-    .png({ compressionLevel: 9 })
-    .toBuffer();
+  return sharp(svg, { density: 384 }).resize(size, size).png({ compressionLevel: 9 }).toBuffer();
 }
 
 /** A .ico file that simply wraps PNG images — supported by every current
@@ -70,15 +67,9 @@ await write("app/apple-icon.png", await png("icon.svg", 180));
 // Web app manifest (#80).
 await write("public/icons/icon-192.png", await png("icon.svg", 192));
 await write("public/icons/icon-512.png", await png("icon.svg", 512));
-await write(
-  "public/icons/maskable-512.png",
-  await png("icon-maskable.svg", 512),
-);
+await write("public/icons/maskable-512.png", await png("icon-maskable.svg", 512));
 // Manifest shortcuts (long-press menu on the installed app icon).
 for (const name of ["new", "today", "calendar"]) {
-  await write(
-    `public/icons/shortcut-${name}-96.png`,
-    await png(`shortcut-${name}.svg`, 96),
-  );
+  await write(`public/icons/shortcut-${name}-96.png`, await png(`shortcut-${name}.svg`, 96));
 }
 console.log("Done.");

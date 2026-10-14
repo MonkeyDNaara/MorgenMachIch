@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 import LogoMark from "@/components/layout/LogoMark";
 
 type StatusPageProps = {
-  /** Big monospace headline, e.g. "404". */
-  code: string;
+  /** Big monospace headline, e.g. "404", or an icon (offline page). */
+  code: ReactNode;
   title: string;
   description: string;
   /** Buttons/links, and anything else under the text. */

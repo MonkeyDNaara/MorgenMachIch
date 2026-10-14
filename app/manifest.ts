@@ -8,8 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
     id: "/today",
     name: "MorgenMachIch",
     short_name: "Morgen",
-    description:
-      "A to-do app with labels, a calendar view, and recurring tasks.",
+    description: "A to-do app with labels, a calendar view, and recurring tasks.",
     start_url: "/today",
     scope: "/",
     display: "standalone",

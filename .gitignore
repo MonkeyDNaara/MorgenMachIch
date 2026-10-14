@@ -20,6 +20,9 @@
 # production
 /build
 
+# generated service worker (npm run sw, runs before every build)
+/public/sw.js
+
 # misc
 .DS_Store
 *.pem
