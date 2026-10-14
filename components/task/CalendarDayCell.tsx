@@ -7,6 +7,7 @@ import { APP_LOCALE } from "@/lib/constants/locale";
 import { formatDropDay } from "@/lib/utils/dndAnnouncements";
 import { dragTaskId, dropDayId, isOnDay } from "@/lib/utils/reschedule";
 import PriorityDot from "@/components/task/PriorityDot";
+import type { DraggedTask } from "@/components/dnd/types";
 
 const MAX_VISIBLE_TASKS = 3;
 
@@ -21,9 +22,6 @@ type CalendarDayCellProps = {
   /** Whether entries can be picked up with the pointer (off below `md`). */
   dragEnabled: boolean;
 };
-
-/** What CalendarView puts on a dragged entry's `data.current`. */
-export type DraggedEntry = { title: string; priority: CalendarEntry["priority"]; dueDate: string };
 
 /**
  * One cell in the /calendar month grid (#145): the date number plus a
@@ -61,9 +59,10 @@ export default function CalendarDayCell({
 }: CalendarDayCellProps) {
   const { active } = useDndContext();
   const { setNodeRef, isOver } = useDroppable({ id: dropDayId(date), disabled: !acceptsDrop });
-  const dragged = active?.data.current as DraggedEntry | undefined;
+  const dragged = active?.data.current as DraggedTask | undefined;
   const dragging = active !== null && dragged !== undefined;
-  const isTarget = dragging && isOver && acceptsDrop && !isOnDay(dragged.dueDate, date);
+  const isTarget =
+    dragging && isOver && acceptsDrop && !(dragged.dueDate && isOnDay(dragged.dueDate, date));
 
   const visible = entries.slice(0, MAX_VISIBLE_TASKS);
   const weekend = date.getDay() === 0 || date.getDay() === 6;
@@ -138,10 +137,11 @@ function CalendarEntryRow({
   // Recurring entries explain why they don't move; both kinds sit above the
   // cell's button, so they open the day on click themselves.
   const blocked = entry.isRecurring && dragEnabled;
-  const data: DraggedEntry = {
+  const data: DraggedTask = {
     title: entry.title,
     priority: entry.priority,
     dueDate: entry.dueDate,
+    allDay: entry.allDay,
   };
   const { setNodeRef, listeners, isDragging } = useDraggable({
     id: dragTaskId(entry.movableTaskId ?? entry.key),
