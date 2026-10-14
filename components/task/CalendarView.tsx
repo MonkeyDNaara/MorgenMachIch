@@ -1,10 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
+import {
+  DndContext,
+  DragOverlay,
+  pointerWithin,
+  type DragEndEvent,
+  type DragStartEvent,
+} from "@dnd-kit/core";
 import { useLiveQuery } from "dexie-react-hooks";
 import { CalendarDays, ChevronLeft, ChevronRight, Repeat, SlidersHorizontal } from "lucide-react";
 import type { Task } from "@/lib/types";
-import { getTasks } from "@/lib/db/tasks";
+import { getTasks, updateTask } from "@/lib/db/tasks";
 import { listTaskSeries } from "@/lib/db/taskSeries";
 import { getLabels } from "@/lib/db/labels";
 import { getMonthGrid } from "@/lib/utils/monthGrid";
@@ -15,7 +22,22 @@ import { filterTasksByPriority, type PriorityFilter } from "@/lib/utils/filterTa
 import { projectSeriesOccurrences } from "@/lib/utils/projectOccurrences";
 import { ghostToEntry, hasDueDate, taskToEntry } from "@/lib/utils/calendarEntries";
 import TaskList from "@/components/task/TaskList";
-import CalendarDayCell from "@/components/task/CalendarDayCell";
+import CalendarDayCell, { type DraggedEntry } from "@/components/task/CalendarDayCell";
+import PriorityDot from "@/components/task/PriorityDot";
+import { useToast } from "@/components/layout/ToastProvider";
+import { useAppSensors } from "@/lib/ui/dnd/useAppSensors";
+import { createDayAnnouncements } from "@/lib/ui/dnd/announcements";
+import { MD_UP, REDUCED_MOTION, useMediaQuery } from "@/lib/ui/useMediaQuery";
+import { DAY_DRAG_INSTRUCTIONS, formatDropDay } from "@/lib/utils/dndAnnouncements";
+import { formatTime } from "@/lib/utils/formatDueDate";
+import {
+  canReschedule,
+  isDropDay,
+  isOnDay,
+  moveToDay,
+  parseDragTaskId,
+  parseDropDayId,
+} from "@/lib/utils/reschedule";
 import ProjectedOccurrenceList from "@/components/task/ProjectedOccurrenceList";
 import FilterPopover from "@/components/task/FilterPopover";
 import PageHeader from "@/components/layout/PageHeader";
@@ -51,6 +73,10 @@ function scopeToSelectedDay(day: Date) {
  * label/priority controls hidden in the day view so there is only one
  * source of truth. Plain state, resets on reload, like the other filters.
  *
+ * Drag & drop (#74): open, non-recurring tasks can be dragged from one day
+ * cell to another (from `md` up). The time of day is kept, past days don't
+ * accept drops, and a toast offers Undo — the same contract as "→ Morgen".
+ *
  * The week-view toggle is a separate stretch issue (#145).
  */
 export default function CalendarView() {
@@ -63,6 +89,13 @@ export default function CalendarView() {
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+  const [dragged, setDragged] = useState<(DraggedEntry & { allDay: boolean }) | null>(null);
+  const dndId = useId();
+  const { notify } = useToast();
+  // Pointer dragging only from md up: the cells are ~45 px wide on phones.
+  const dragEnabled = useMediaQuery(MD_UP);
+  const reducedMotion = useMediaQuery(REDUCED_MOTION);
+  const sensors = useAppSensors({ pointer: dragEnabled });
 
   function toggleLabelFilter(labelId: string) {
     setActiveLabelIds((prev) =>
@@ -108,6 +141,38 @@ export default function CalendarView() {
   function goToCurrentMonth() {
     setViewYear(today.getFullYear());
     setViewMonth(today.getMonth());
+  }
+
+  function findTask(dragId: string | number) {
+    const id = parseDragTaskId(dragId);
+    return id === null ? undefined : tasks?.find((task) => task.id === id);
+  }
+
+  function handleDragStart({ active }: DragStartEvent) {
+    const task = findTask(active.id);
+    const data = active.data.current as DraggedEntry | undefined;
+    setDragged(data && task ? { ...data, allDay: task.allDay } : null);
+  }
+
+  /** Moves the task to the day it was dropped on (#74), keeping its time,
+   * with an Undo toast like "→ Morgen". */
+  async function handleDragEnd({ active, over }: DragEndEvent) {
+    setDragged(null);
+    const task = findTask(active.id);
+    const day = over ? parseDropDayId(over.id) : null;
+    if (!task || task.dueDate === null || !day || !canReschedule(task)) return;
+    if (!isDropDay(day, new Date()) || isOnDay(task.dueDate, day)) return;
+    const previous = task.dueDate;
+    try {
+      await updateTask(task.id, { dueDate: moveToDay(previous, task.allDay, day) });
+    } catch (error) {
+      console.error("Moving the task failed", error);
+      notify(`Couldn't move “${task.title}”.`);
+      return;
+    }
+    notify(`Moved “${task.title}” to ${formatDropDay(day)}`, {
+      action: { label: "Undo", onAction: () => updateTask(task.id, { dueDate: previous }) },
+    });
   }
 
   const grid = getMonthGrid(viewYear, viewMonth, today);
@@ -238,18 +303,52 @@ export default function CalendarView() {
             </span>
           ))}
         </div>
-        <div className="grid grid-cols-7 gap-1.5">
-          {grid.map(({ date, isCurrentMonth, isToday }) => (
-            <CalendarDayCell
-              key={date.toDateString()}
-              date={date}
-              isCurrentMonth={isCurrentMonth}
-              isToday={isToday}
-              entries={entriesByDate.get(dateKey(date)) ?? []}
-              onSelect={setSelectedDay}
-            />
-          ))}
-        </div>
+        <DndContext
+          id={dndId}
+          sensors={sensors}
+          collisionDetection={pointerWithin}
+          onDragStart={handleDragStart}
+          onDragEnd={(event) => void handleDragEnd(event)}
+          onDragCancel={() => setDragged(null)}
+          accessibility={{
+            announcements: createDayAnnouncements(
+              (id) => findTask(id)?.title ?? "task",
+              (id) => {
+                const day = parseDropDayId(id);
+                return day ? { day, allowed: isDropDay(day, today) } : null;
+              },
+            ),
+            screenReaderInstructions: { draggable: DAY_DRAG_INSTRUCTIONS },
+          }}
+        >
+          <div className="grid grid-cols-7 gap-1.5">
+            {grid.map(({ date, isCurrentMonth, isToday }) => (
+              <CalendarDayCell
+                key={date.toDateString()}
+                date={date}
+                isCurrentMonth={isCurrentMonth}
+                isToday={isToday}
+                entries={entriesByDate.get(dateKey(date)) ?? []}
+                onSelect={setSelectedDay}
+                acceptsDrop={isDropDay(date, today)}
+                dragEnabled={dragEnabled}
+              />
+            ))}
+          </div>
+          <DragOverlay dropAnimation={reducedMotion ? null : undefined}>
+            {dragged && (
+              <div className="drag-lifted flex w-max max-w-56 items-center gap-1.5 rounded-field bg-base-300 px-2.5 py-1.5 text-xs">
+                <PriorityDot priority={dragged.priority} />
+                <span className="min-w-0 truncate">{dragged.title}</span>
+                {!dragged.allDay && (
+                  <span className="font-mono text-[11px] text-accent">
+                    {formatTime(dragged.dueDate)}
+                  </span>
+                )}
+              </div>
+            )}
+          </DragOverlay>
+        </DndContext>
       </div>
     </div>
   );

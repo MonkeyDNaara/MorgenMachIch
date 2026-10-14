@@ -1,5 +1,6 @@
 import type { Priority, Task, TaskStatus } from "@/lib/types";
 import type { GhostOccurrence } from "@/lib/utils/projectOccurrences";
+import { canReschedule } from "@/lib/utils/reschedule";
 
 /**
  * What one line in a /calendar day cell needs to render (#168) — a
@@ -13,8 +14,12 @@ export type CalendarEntry = {
   labelIds: string[];
   status: TaskStatus;
   dueDate: string;
+  allDay: boolean;
   isRecurring: boolean;
   isGhost: boolean;
+  /** The task id when this entry may be dragged to another day (#74):
+   * a real, open, non-recurring task. Null for occurrences and ghosts. */
+  movableTaskId: string | null;
 };
 
 /** Tasks without a due date never reach the calendar, so callers
@@ -31,8 +36,10 @@ export function taskToEntry(task: Task & { dueDate: string }): CalendarEntry {
     labelIds: task.labelIds,
     status: task.status,
     dueDate: task.dueDate,
+    allDay: task.allDay,
     isRecurring: task.seriesId !== null,
     isGhost: false,
+    movableTaskId: canReschedule(task) ? task.id : null,
   };
 }
 
@@ -44,7 +51,9 @@ export function ghostToEntry(ghost: GhostOccurrence): CalendarEntry {
     labelIds: ghost.labelIds,
     status: "open",
     dueDate: ghost.dueDate,
+    allDay: ghost.allDay,
     isRecurring: true,
     isGhost: true,
+    movableTaskId: null,
   };
 }
