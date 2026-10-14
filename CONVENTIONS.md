@@ -19,12 +19,14 @@ components/
   palette/                 # command palette (⌘K)
   stats/                   # /stats: heatmap, bar chart, streak hero, ...
   settings/                # /settings sections
+  dnd/                     # drag & drop pieces: DragHandle, MoveMenu, DragChip, useMoveTaskToDay
   ui/                      # (reserved for small shared primitives)
 lib/
   db/                      # Dexie schema + repository functions (getTasks, createTask, ...)
   types/                   # Zod schemas + inferred types (Task, TaskSeries, Label, AppSettings)
   utils/                   # pure helpers: dates, filters, parser, stats, recurrence, ...
-  ui/                      # small UI helpers/hooks: FIELD_FOCUS, FIELD_LABEL, useDismiss, useModKey, theme preference, ...
+  ui/                      # small UI helpers/hooks: FIELD_FOCUS, FIELD_LABEL, useDismiss, useModKey, useMediaQuery, storedFlag, theme preference, ...
+    dnd/                   # dnd-kit glue: useAppSensors, announcements, dayKeyboardCoordinates, dayCollision
   constants/               # label palette, priority colors, APP_LOCALE
   commands/                # framework-free command registry for the palette
 scripts/                   # small Node scripts (test-tz.mjs runs the tests in four time zones)
