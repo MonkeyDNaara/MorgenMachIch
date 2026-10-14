@@ -1,15 +1,16 @@
 "use client";
 
-import { useId, useState } from "react";
-import {
-  DndContext,
-  DragOverlay,
-  pointerWithin,
-  type DragEndEvent,
-  type DragStartEvent,
-} from "@dnd-kit/core";
+import { useId, useState, useSyncExternalStore } from "react";
+import { DndContext, DragOverlay, type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
 import { useLiveQuery } from "dexie-react-hooks";
-import { CalendarDays, ChevronLeft, ChevronRight, Repeat, SlidersHorizontal } from "lucide-react";
+import {
+  CalendarDays,
+  ChevronLeft,
+  ChevronRight,
+  Inbox,
+  Repeat,
+  SlidersHorizontal,
+} from "lucide-react";
 import type { Task } from "@/lib/types";
 import { getTasks } from "@/lib/db/tasks";
 import { listTaskSeries } from "@/lib/db/taskSeries";
@@ -23,12 +24,17 @@ import { projectSeriesOccurrences } from "@/lib/utils/projectOccurrences";
 import { ghostToEntry, hasDueDate, taskToEntry } from "@/lib/utils/calendarEntries";
 import TaskList from "@/components/task/TaskList";
 import CalendarDayCell from "@/components/task/CalendarDayCell";
+import CalendarBacklogTray from "@/components/task/CalendarBacklogTray";
 import DragChip from "@/components/dnd/DragChip";
 import type { DraggedTask } from "@/components/dnd/types";
 import { useMoveTaskToDay } from "@/components/dnd/useMoveTaskToDay";
 import { useAppSensors } from "@/lib/ui/dnd/useAppSensors";
 import { createDayAnnouncements } from "@/lib/ui/dnd/announcements";
-import { MD_UP, REDUCED_MOTION, useMediaQuery } from "@/lib/ui/useMediaQuery";
+import { LG_UP, MD_UP, REDUCED_MOTION, useMediaQuery } from "@/lib/ui/useMediaQuery";
+import { dayCollision } from "@/lib/ui/dnd/dayCollision";
+import { dayKeyboardCoordinates } from "@/lib/ui/dnd/dayKeyboardCoordinates";
+import { calendarBacklogVisible } from "@/lib/ui/backlogVisible";
+import { isBacklogTask, sortBacklogTasks } from "@/lib/utils/backlog";
 import { DAY_DRAG_INSTRUCTIONS } from "@/lib/utils/dndAnnouncements";
 import { isDropDay, parseDragTaskId, parseDropDayId } from "@/lib/utils/reschedule";
 import ProjectedOccurrenceList from "@/components/task/ProjectedOccurrenceList";
@@ -69,6 +75,9 @@ function scopeToSelectedDay(day: Date) {
  * Drag & drop (#74): open, non-recurring tasks can be dragged from one day
  * cell to another (from `md` up). The time of day is kept, past days don't
  * accept drops, and a toast offers Undo — the same contract as "→ Morgen".
+ * At `lg` a "Backlog · N" pill opens a tray beside the grid (#357): its
+ * cards drop onto a day as all-day tasks (keyboard: grip, Space, arrows
+ * day by day, Space). The tray's visibility is remembered per browser.
  *
  * The week-view toggle is a separate stretch issue (#145).
  */
@@ -88,7 +97,17 @@ export default function CalendarView() {
   // Pointer dragging only from md up: the cells are ~45 px wide on phones.
   const dragEnabled = useMediaQuery(MD_UP);
   const reducedMotion = useMediaQuery(REDUCED_MOTION);
-  const sensors = useAppSensors({ pointer: dragEnabled });
+  const sensors = useAppSensors({
+    pointer: dragEnabled,
+    coordinateGetter: dayKeyboardCoordinates,
+  });
+  // The Backlog tray (#357): lg+ only, toggled and remembered per browser.
+  const lgUp = useMediaQuery(LG_UP);
+  const trayOn = useSyncExternalStore(
+    calendarBacklogVisible.subscribe,
+    calendarBacklogVisible.read,
+    () => false,
+  );
 
   function toggleLabelFilter(labelId: string) {
     setActiveLabelIds((prev) =>
@@ -231,6 +250,9 @@ export default function CalendarView() {
       .map(taskToEntry),
     ...applyFilters(ghosts).map(ghostToEntry),
   ]);
+  const backlogTasks = tasks.filter(isBacklogTask);
+  const showTray = lgUp && trayOn;
+
   const monthLabel = new Date(viewYear, viewMonth, 1).toLocaleDateString(APP_LOCALE, {
     month: "long",
     year: "numeric",
@@ -244,6 +266,19 @@ export default function CalendarView() {
         title={monthLabel}
         actions={
           <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => calendarBacklogVisible.write(!trayOn)}
+              aria-pressed={trayOn}
+              className={`mr-1 hidden shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium outline-none! transition-colors focus-visible:shadow-focus lg:flex ${
+                trayOn
+                  ? "bg-base-300 text-base-content shadow-raised-sm"
+                  : "text-muted hover:bg-line hover:text-base-content"
+              }`}
+            >
+              <Inbox size={14} />
+              Backlog · {backlogTasks.length}
+            </button>
             <div className="mr-2">{filterControl}</div>
             <button
               type="button"
@@ -272,20 +307,10 @@ export default function CalendarView() {
         }
       />
       <div className="flex flex-col gap-4 p-6">
-        <div
-          aria-hidden
-          className="grid grid-cols-7 gap-1.5 px-2 font-mono text-eyebrow text-subtle uppercase"
-        >
-          {WEEKDAY_LABELS.map((label, index) => (
-            <span key={label} className={index >= 5 ? "text-base-content/30" : undefined}>
-              {label}
-            </span>
-          ))}
-        </div>
         <DndContext
           id={dndId}
           sensors={sensors}
-          collisionDetection={pointerWithin}
+          collisionDetection={dayCollision}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
           onDragCancel={() => setDragged(null)}
@@ -300,19 +325,43 @@ export default function CalendarView() {
             screenReaderInstructions: { draggable: DAY_DRAG_INSTRUCTIONS },
           }}
         >
-          <div className="grid grid-cols-7 gap-1.5">
-            {grid.map(({ date, isCurrentMonth, isToday }) => (
-              <CalendarDayCell
-                key={date.toDateString()}
-                date={date}
-                isCurrentMonth={isCurrentMonth}
-                isToday={isToday}
-                entries={entriesByDate.get(dateKey(date)) ?? []}
-                onSelect={setSelectedDay}
-                acceptsDrop={isDropDay(date, today)}
-                dragEnabled={dragEnabled}
+          <div
+            className={
+              showTray ? "grid grid-cols-[minmax(0,1fr)_15rem] items-start gap-4" : undefined
+            }
+          >
+            <div className="flex min-w-0 flex-col gap-4">
+              <div
+                aria-hidden
+                className="grid grid-cols-7 gap-1.5 px-2 font-mono text-eyebrow text-subtle uppercase"
+              >
+                {WEEKDAY_LABELS.map((label, index) => (
+                  <span key={label} className={index >= 5 ? "text-base-content/30" : undefined}>
+                    {label}
+                  </span>
+                ))}
+              </div>
+              <div className="grid grid-cols-7 gap-1.5">
+                {grid.map(({ date, isCurrentMonth, isToday }) => (
+                  <CalendarDayCell
+                    key={date.toDateString()}
+                    date={date}
+                    isCurrentMonth={isCurrentMonth}
+                    isToday={isToday}
+                    entries={entriesByDate.get(dateKey(date)) ?? []}
+                    onSelect={setSelectedDay}
+                    acceptsDrop={isDropDay(date, today)}
+                    dragEnabled={dragEnabled}
+                  />
+                ))}
+              </div>
+            </div>
+            {showTray && (
+              <CalendarBacklogTray
+                tasks={sortBacklogTasks(applyFilters(backlogTasks))}
+                total={backlogTasks.length}
               />
-            ))}
+            )}
           </div>
           <DragOverlay dropAnimation={reducedMotion ? null : undefined}>
             {dragged && <DragChip task={dragged} />}

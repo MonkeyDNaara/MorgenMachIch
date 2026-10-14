@@ -117,6 +117,9 @@ export default function CalendarDayCell({
           <div className="drop-preview flex items-center gap-1 px-1 py-0.5 text-xs">
             <PriorityDot priority={dragged.priority} />
             <span className="min-w-0 flex-1 truncate">{dragged.title}</span>
+            {dragged.dueDate === null && (
+              <span className="flex-shrink-0 font-mono text-[10px]">all-day</span>
+            )}
           </div>
         )}
       </div>
