@@ -19,10 +19,14 @@ const NO_IGNORED: ReadonlySet<string> = new Set();
  *
  * `recurrence: true` lets the parse find "every mon" phrases (#274) — only
  * for fields whose caller can create a series (bars and palette, #275);
- * `newLabels: true` reports unknown `#tags` as labels to create (#283).
+ * `newLabels: true` reports unknown `#tags` as labels to create (#283);
+ * `initialText` pre-fills the field (the landing page demo, #86).
  */
-export function useQuickAdd(labels: Label[], { recurrence = false, newLabels = false } = {}) {
-  const [text, setTextState] = useState("");
+export function useQuickAdd(
+  labels: Label[],
+  { recurrence = false, newLabels = false, initialText = "" } = {},
+) {
+  const [text, setTextState] = useState(initialText);
   const [ignored, setIgnored] = useState<ReadonlySet<string>>(NO_IGNORED);
 
   const result = useMemo(

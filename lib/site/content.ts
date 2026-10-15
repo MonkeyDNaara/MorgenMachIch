@@ -37,6 +37,12 @@ export const HERO = {
   note: "No sign-up · sample data only fills an empty app · works offline",
 };
 
+export const QUICK_ADD_DEMO = {
+  eyebrow: "Try it here",
+  title: "Type it the way you'd say it.",
+  text: "This is the app's real quick-add parser, English and German. Dates, times, repeats, labels and priority are picked out while you type — click a chip to ignore it. Nothing is saved.",
+};
+
 export type Feature = { icon: LucideIcon; title: string; text: string };
 
 export const FEATURES: Feature[] = [
