@@ -1,0 +1,2 @@
+# npm writes this file itself; formatting it would only create churn.
+package-lock.json
