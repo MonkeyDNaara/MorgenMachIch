@@ -77,6 +77,11 @@ generated (`npm run screenshots`, see the README) — never edit or replace them
 by hand. Change the preview card in `scripts/og-card.html`. Pages don't set
 their own `openGraph` object: it would replace the root layout's, image included.
 
+Legal pages (`/impressum`, `/datenschutz`) are German, `noindex` and built on
+`components/site/LegalPage.tsx`. Name, address and email live only in
+`lib/site/legal.ts` — nowhere else on the site. Update `PRIVACY_UPDATED` with
+every change to the privacy notice.
+
 ## Data layer
 
 `lib/db` is the only place that talks to storage (Dexie/IndexedDB today).

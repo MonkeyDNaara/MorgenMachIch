@@ -2,8 +2,12 @@ import Link from "next/link";
 import LogoMark from "@/components/layout/LogoMark";
 import { SITE_LINKS, SITE_NAV } from "@/lib/site/content";
 
-/** Sticky header of the landing page (#85): logo, anchor links, GitHub and "Open app". */
-export default function SiteHeader() {
+/**
+ * Sticky header of the landing page (#85): logo, anchor links, GitHub and
+ * "Open app". The legal pages (#378) pass `sections={false}`: the anchor
+ * links only exist on the landing page.
+ */
+export default function SiteHeader({ sections = true }: { sections?: boolean }) {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-base-100/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-6 px-4 sm:px-6">
@@ -20,15 +24,16 @@ export default function SiteHeader() {
           aria-label="Page sections"
           className="ml-auto hidden items-center gap-6 text-sm md:flex"
         >
-          {SITE_NAV.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className="text-muted transition-colors hover:text-base-content"
-            >
-              {item.label}
-            </a>
-          ))}
+          {sections &&
+            SITE_NAV.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="text-muted transition-colors hover:text-base-content"
+              >
+                {item.label}
+              </a>
+            ))}
           <a
             href={SITE_LINKS.repo}
             target="_blank"
