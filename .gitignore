@@ -45,3 +45,6 @@ next-env.d.ts
 
 # stray local output folder from AI-assisted design mockups
 /Claude outputs/
+
+# private local files (CV, photos, notes) — never committed
+/documents/

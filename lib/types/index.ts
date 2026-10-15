@@ -81,7 +81,7 @@ export const TaskSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
   completedAt: z.string().nullable(),
-  // Manual Backlog order (#75): a fractional key from lib/utils/orderKey,
+  // Manual Backlog order (#75): a fractional key from lib/domain/orderKey,
   // compared as a plain string. `default(null)` lets rows and backups from
   // before this field parse unchanged; only the Backlog reads it.
   sortOrder: z.string().regex(ORDER_KEY_PATTERN).nullable().default(null),
