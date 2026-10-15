@@ -30,6 +30,8 @@ been idle)_
 - A hand-written service worker and web app manifest (installable PWA, no
   library); icons generated from the SVG logo with
   [sharp](https://sharp.pixelplumbing.com) (`npm run icons`)
+- [Playwright](https://playwright.dev) for the generated landing-page
+  screenshots and link-preview image (`npm run screenshots`)
 - Deployed on [Render](https://render.com) via `render.yaml` (Blueprint)
 
 ## Getting started
@@ -206,8 +208,15 @@ the app icon. A service worker keeps the app shell, so every page you've opened
 once loads offline and the app opens within seconds even while the server wakes
 up. Settings → App explains how to install it in your browser, and after a
 deploy a "New version · Reload" toast lets you choose when to update.
-Every helper behind those features is covered by tests: 628 Vitest tests run on
+The app now has a public landing page at `/`: a hero with the real Today
+screen, a live quick-add demo running the real parser, the features, real
+screenshots in both themes (made by a script from sample data), how the app
+is built and who built it. "Try it with sample data" fills an empty app with
+demo tasks dated around today; browsers that have used the app before go
+straight to /today. Links shared on LinkedIn show a preview card, and an
+Impressum and a short privacy notice are in the footer.
+Every helper behind those features is covered by tests: 670+ Vitest tests run on
 every pull request in four time zones, because so much of the app is local
 calendar-day math.
 Planned next: a hosted database (Neon + Drizzle) with an API and login, so
-n8n and Claude/Obsidian can work with the tasks — and a public landing page.
+n8n and Claude/Obsidian can work with the tasks.
