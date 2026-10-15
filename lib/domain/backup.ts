@@ -66,7 +66,9 @@ export type BackupParseResult = { ok: true; backup: BackupFile } | { ok: false; 
 const MAX_ERRORS = 20;
 
 type RowSchema<T> = {
-  safeParse(value: unknown):
+  safeParse(
+    value: unknown,
+  ):
     | { success: true; data: T }
     | { success: false; error: { issues: { path: PropertyKey[]; message: string }[] } };
 };
@@ -184,7 +186,9 @@ export function parseBackup(text: string): BackupParseResult {
   for (const task of tasks) {
     const missing = task.labelIds.filter((id) => !labelIds.has(id));
     if (missing.length > 0) {
-      errors.push(`Task "${task.title}" refers to ${missing.length} label(s) that aren't in the file.`);
+      errors.push(
+        `Task "${task.title}" refers to ${missing.length} label(s) that aren't in the file.`,
+      );
     }
     if (task.seriesId !== null && !seriesIds.has(task.seriesId)) {
       errors.push(`Task "${task.title}" belongs to a recurring series that isn't in the file.`);
@@ -193,7 +197,9 @@ export function parseBackup(text: string): BackupParseResult {
   for (const series of taskSeries) {
     const missing = series.labelIds.filter((id) => !labelIds.has(id));
     if (missing.length > 0) {
-      errors.push(`Series "${series.title}" refers to ${missing.length} label(s) that aren't in the file.`);
+      errors.push(
+        `Series "${series.title}" refers to ${missing.length} label(s) that aren't in the file.`,
+      );
     }
   }
 

@@ -49,7 +49,11 @@ export function projectSeriesOccurrences(
 
   // occurrencesBetween is strictly *after* `from`, so step back a day
   // to make firstDay itself eligible.
-  const dayBeforeFirst = new Date(firstDay.getFullYear(), firstDay.getMonth(), firstDay.getDate() - 1);
+  const dayBeforeFirst = new Date(
+    firstDay.getFullYear(),
+    firstDay.getMonth(),
+    firstDay.getDate() - 1,
+  );
 
   const existingBySeries = new Map<string, Set<string>>();
   for (const task of tasks) {
@@ -63,7 +67,12 @@ export function projectSeriesOccurrences(
   for (const s of series) {
     if (!s.active) continue;
     const existing = existingBySeries.get(s.id);
-    const days = occurrencesBetween(s.recurrence, startOfDay(new Date(s.startDate)), dayBeforeFirst, lastDay);
+    const days = occurrencesBetween(
+      s.recurrence,
+      startOfDay(new Date(s.startDate)),
+      dayBeforeFirst,
+      lastDay,
+    );
     for (const day of days) {
       if (existing?.has(dateKey(day))) continue;
       ghosts.push({

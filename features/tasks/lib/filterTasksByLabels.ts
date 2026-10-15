@@ -7,7 +7,10 @@
  * Generic over anything with `labelIds` (#171) so the calendar can run
  * the same filter over real tasks and projected ghost occurrences.
  */
-export function filterTasksByLabels<T extends { labelIds: string[] }>(tasks: T[], labelIds: string[]): T[] {
+export function filterTasksByLabels<T extends { labelIds: string[] }>(
+  tasks: T[],
+  labelIds: string[],
+): T[] {
   if (labelIds.length === 0) return tasks;
   return tasks.filter((task) => task.labelIds.some((id) => labelIds.includes(id)));
 }

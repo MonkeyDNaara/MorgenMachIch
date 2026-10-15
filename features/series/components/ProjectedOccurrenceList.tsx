@@ -22,16 +22,22 @@ export default function ProjectedOccurrenceList({ ghosts }: ProjectedOccurrenceL
       <h2 className="text-xs font-medium uppercase tracking-wide text-subtle">Projected</h2>
       <ul className="flex flex-col gap-1.5">
         {ghosts.map((ghost) => (
-          <li key={`${ghost.seriesId}-${ghost.dueDate}`} className="flex items-center gap-2 text-sm text-muted">
+          <li
+            key={`${ghost.seriesId}-${ghost.dueDate}`}
+            className="flex items-center gap-2 text-sm text-muted"
+          >
             <Repeat size={12} className="flex-shrink-0" aria-hidden="true" />
             <PriorityDot priority={ghost.priority} />
             <span className="min-w-0 flex-1 truncate">{ghost.title}</span>
-            {!ghost.allDay && <span className="text-xs text-faint">{formatTime(ghost.dueDate)}</span>}
+            {!ghost.allDay && (
+              <span className="text-xs text-faint">{formatTime(ghost.dueDate)}</span>
+            )}
           </li>
         ))}
       </ul>
       <p className="text-xs text-faint">
-        Not generated yet — becomes a task when it enters the 60-day window. Edit the series from /tasks.
+        Not generated yet — becomes a task when it enters the 60-day window. Edit the series from
+        /tasks.
       </p>
     </section>
   );

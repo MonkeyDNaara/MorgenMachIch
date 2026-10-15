@@ -11,7 +11,9 @@ export function dateKey(date: Date): string {
  * grid (up to ~42 cells) can look up each day's tasks in O(1) instead
  * of filtering the whole task list once per cell.
  */
-export function groupTasksByDate<T extends { dueDate: string | null }>(items: T[]): Map<string, T[]> {
+export function groupTasksByDate<T extends { dueDate: string | null }>(
+  items: T[],
+): Map<string, T[]> {
   const map = new Map<string, T[]>();
   for (const item of items) {
     if (item.dueDate === null) continue;

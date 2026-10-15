@@ -29,7 +29,11 @@ export type DataCounts = { tasks: number; taskSeries: number; labels: number };
 /** Row counts per table — shown on Settings, and reused by the import
  * preview and delete-all confirm (#162, #163). */
 export async function getDataCounts(): Promise<DataCounts> {
-  const [tasks, taskSeries, labels] = await Promise.all([db.tasks.count(), db.taskSeries.count(), db.labels.count()]);
+  const [tasks, taskSeries, labels] = await Promise.all([
+    db.tasks.count(),
+    db.taskSeries.count(),
+    db.labels.count(),
+  ]);
   return { tasks, taskSeries, labels };
 }
 
@@ -43,7 +47,12 @@ export async function getDataCounts(): Promise<DataCounts> {
  */
 export async function importAll(data: BackupData): Promise<void> {
   await db.transaction("rw", db.tasks, db.taskSeries, db.labels, db.settings, async () => {
-    await Promise.all([db.tasks.clear(), db.taskSeries.clear(), db.labels.clear(), db.settings.clear()]);
+    await Promise.all([
+      db.tasks.clear(),
+      db.taskSeries.clear(),
+      db.labels.clear(),
+      db.settings.clear(),
+    ]);
     await db.settings.put(data.settings);
     await db.labels.bulkAdd(data.labels);
     await db.taskSeries.bulkAdd(data.taskSeries);
@@ -65,6 +74,11 @@ export async function importAll(data: BackupData): Promise<void> {
  */
 export async function deleteAllData(): Promise<void> {
   await db.transaction("rw", db.tasks, db.taskSeries, db.labels, db.settings, async () => {
-    await Promise.all([db.tasks.clear(), db.taskSeries.clear(), db.labels.clear(), db.settings.clear()]);
+    await Promise.all([
+      db.tasks.clear(),
+      db.taskSeries.clear(),
+      db.labels.clear(),
+      db.settings.clear(),
+    ]);
   });
 }

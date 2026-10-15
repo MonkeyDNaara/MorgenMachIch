@@ -4,7 +4,13 @@ import { useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Upload } from "lucide-react";
 import { exportAll, getDataCounts, importAll, type DataCounts } from "@/lib/db/backup";
-import { backupFileName, buildBackup, parseBackup, serializeBackup, type BackupFile } from "@/lib/domain/backup";
+import {
+  backupFileName,
+  buildBackup,
+  parseBackup,
+  serializeBackup,
+  type BackupFile,
+} from "@/lib/domain/backup";
 import { downloadTextFile } from "@/features/settings/lib/downloadFile";
 import { APP_LOCALE } from "@/lib/constants/locale";
 
@@ -84,7 +90,10 @@ export default function ImportSection() {
       const hasData = current.tasks.length + current.taskSeries.length + current.labels.length > 0;
       if (hasData) {
         const now = new Date();
-        downloadTextFile(backupFileName(now, "before-import"), serializeBackup(buildBackup(current, now)));
+        downloadTextFile(
+          backupFileName(now, "before-import"),
+          serializeBackup(buildBackup(current, now)),
+        );
       }
 
       await importAll(stage.backup.data);
@@ -117,7 +126,8 @@ export default function ImportSection() {
         <div className="flex flex-col gap-3">
           <p className="rounded-lg border border-accent/30 bg-accent/5 p-3 text-xs text-base-content/70">
             Import complete — {describe(stage.counts)} restored.
-            {stage.savedSafetyBackup && " Your previous data was downloaded first as a safety backup."}
+            {stage.savedSafetyBackup &&
+              " Your previous data was downloaded first as a safety backup."}
           </p>
           <button type="button" onClick={reset} className="btn btn-ghost btn-sm self-start">
             Done
@@ -170,7 +180,11 @@ export default function ImportSection() {
                   })}
                 </p>
                 <p className="text-subtle">
-                  Exported {new Date(stage.backup.exportedAt).toLocaleString(APP_LOCALE, { dateStyle: "medium", timeStyle: "short" })}
+                  Exported{" "}
+                  {new Date(stage.backup.exportedAt).toLocaleString(APP_LOCALE, {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  })}
                 </p>
                 <p>
                   <span className="text-subtle">In the app now: </span>
@@ -185,10 +199,20 @@ export default function ImportSection() {
               </p>
 
               <div className="flex items-center gap-2">
-                <button type="button" onClick={handleConfirm} disabled={importing} className="btn btn-error btn-sm">
+                <button
+                  type="button"
+                  onClick={handleConfirm}
+                  disabled={importing}
+                  className="btn btn-error btn-sm"
+                >
                   {importing ? "Importing…" : "Replace everything with this file"}
                 </button>
-                <button type="button" onClick={reset} disabled={importing} className="btn btn-ghost btn-sm">
+                <button
+                  type="button"
+                  onClick={reset}
+                  disabled={importing}
+                  className="btn btn-ghost btn-sm"
+                >
                   Cancel
                 </button>
               </div>

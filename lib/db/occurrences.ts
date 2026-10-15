@@ -33,7 +33,11 @@ function startOfDay(date: Date): Date {
 export async function generateOccurrences(now: Date = new Date()): Promise<void> {
   const allSeries = await db.taskSeries.toArray();
   const activeSeries = allSeries.filter((series) => series.active);
-  const horizon = new Date(now.getFullYear(), now.getMonth(), now.getDate() + GENERATION_HORIZON_DAYS);
+  const horizon = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() + GENERATION_HORIZON_DAYS,
+  );
 
   for (const series of activeSeries) {
     await topUpSeries(series, now, horizon);
@@ -56,7 +60,9 @@ async function topUpSeries(series: TaskSeries, now: Date, horizon: Date): Promis
 
   const existing = await db.tasks.where("seriesId").equals(series.id).toArray();
   const existingDates = new Set(
-    existing.filter((task) => task.dueDate !== null).map((task) => dateKey(new Date(task.dueDate!))),
+    existing
+      .filter((task) => task.dueDate !== null)
+      .map((task) => dateKey(new Date(task.dueDate!))),
   );
 
   for (const date of dates) {

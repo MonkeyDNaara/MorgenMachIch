@@ -7,7 +7,10 @@ export type PriorityFilter = "all" | Priority;
  * reused for the Recurring column on /tasks (#62) so the shared
  * priority filter applies to both columns.
  */
-export function filterSeriesByPriority(series: TaskSeries[], priority: PriorityFilter): TaskSeries[] {
+export function filterSeriesByPriority(
+  series: TaskSeries[],
+  priority: PriorityFilter,
+): TaskSeries[] {
   if (priority === "all") return series;
   return series.filter((s) => s.priority === priority);
 }

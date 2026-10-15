@@ -71,7 +71,12 @@ function matchesRule(date: Date, startDate: Date, rule: RecurrenceRule): boolean
  * loop is far simpler to get right across three different frequencies
  * than interval arithmetic, and just as fast at this scale.
  */
-export function occurrencesBetween(rule: RecurrenceRule, startDate: Date, from: Date, horizon: Date): Date[] {
+export function occurrencesBetween(
+  rule: RecurrenceRule,
+  startDate: Date,
+  from: Date,
+  horizon: Date,
+): Date[] {
   const cutoff = rule.endDate ? startOfDay(parseDateOnly(rule.endDate)) : null;
   const effectiveHorizon = cutoff && cutoff < horizon ? cutoff : horizon;
   const fromDay = startOfDay(from);
@@ -114,7 +119,10 @@ export function computeMonthlyDefaults(dueDateIso: string): {
  * the calendar's projected occurrences (#168) so both always agree on
  * what "the 15th at 09:00" means.
  */
-export function occurrenceDueIso(series: Pick<TaskSeries, "startDate" | "allDay">, day: Date): string {
+export function occurrenceDueIso(
+  series: Pick<TaskSeries, "startDate" | "allDay">,
+  day: Date,
+): string {
   const start = new Date(series.startDate);
   const hours = series.allDay ? 0 : start.getHours();
   const minutes = series.allDay ? 0 : start.getMinutes();

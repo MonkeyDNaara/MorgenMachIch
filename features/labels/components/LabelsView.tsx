@@ -3,7 +3,13 @@
 import { useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Pencil, Plus, Tag, Trash2 } from "lucide-react";
-import { countTasksWithLabel, createLabel, deleteLabel, getLabels, updateLabel } from "@/lib/db/labels";
+import {
+  countTasksWithLabel,
+  createLabel,
+  deleteLabel,
+  getLabels,
+  updateLabel,
+} from "@/lib/db/labels";
 import { getTasks } from "@/lib/db/tasks";
 import { DEFAULT_LABEL_COLOR, type LabelColorHex } from "@/lib/constants/labelColors";
 import { FIELD_FOCUS } from "@/lib/styles/fieldFocus";
@@ -180,10 +186,7 @@ export default function LabelsView() {
               error={formError}
             />
           ) : (
-            <div
-              key={label.id}
-              className="flex items-center gap-3 surface-raised p-3"
-            >
+            <div key={label.id} className="flex items-center gap-3 surface-raised p-3">
               <LabelChip name={label.name} color={label.color} />
               <span className="ml-auto font-mono text-meta text-subtle">
                 {taskCounts?.get(label.id) ?? 0}{" "}
@@ -204,10 +207,10 @@ export default function LabelsView() {
                 <button
                   type="button"
                   onClick={() => handleDeleteClick(label)}
-                  disabled={form.kind !== "none" || (deletingId !== null && deletingId !== label.id)}
-                  aria-label={
-                    confirmingDeleteId === label.id ? undefined : `Delete ${label.name}`
+                  disabled={
+                    form.kind !== "none" || (deletingId !== null && deletingId !== label.id)
                   }
+                  aria-label={confirmingDeleteId === label.id ? undefined : `Delete ${label.name}`}
                   title={confirmingDeleteId === label.id ? undefined : "Delete"}
                   className={
                     confirmingDeleteId === label.id
@@ -281,7 +284,12 @@ function LabelForm({
         <button type="button" onClick={onCancel} disabled={saving} className="btn btn-ghost btn-sm">
           Cancel
         </button>
-        <button type="button" onClick={onSave} disabled={!canSave} className="btn btn-primary btn-sm">
+        <button
+          type="button"
+          onClick={onSave}
+          disabled={!canSave}
+          className="btn btn-primary btn-sm"
+        >
           {saving ? "Saving…" : "Save"}
         </button>
       </div>

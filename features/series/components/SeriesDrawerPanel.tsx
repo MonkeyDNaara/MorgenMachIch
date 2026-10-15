@@ -59,7 +59,9 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
   const [deleting, setDeleting] = useState(false);
   // null = not choosing; otherwise the counts shown on the delete choice
   // panel (#148), loaded when the panel opens.
-  const [deleteCounts, setDeleteCounts] = useState<{ upcoming: number; total: number } | null>(null);
+  const [deleteCounts, setDeleteCounts] = useState<{ upcoming: number; total: number } | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
   const [loadState, setLoadState] = useState<LoadState>("loading");
 
@@ -98,7 +100,9 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
   const labels = useLiveQuery(() => getLabels(), []);
 
   function toggleLabel(id: string) {
-    setLabelIds((prev) => (prev.includes(id) ? prev.filter((labelId) => labelId !== id) : [...prev, id]));
+    setLabelIds((prev) =>
+      prev.includes(id) ? prev.filter((labelId) => labelId !== id) : [...prev, id],
+    );
   }
 
   // Same guard as the task drawer: switching to monthly seeds a valid
@@ -106,13 +110,18 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
   // shows an unset monthly rule.
   function handleRecurrenceChange(rule: RecurrenceRule) {
     if (rule.frequency === "monthly" && rule.monthlyMode === undefined) {
-      setRecurrence({ ...rule, monthlyMode: "dayOfMonth", ...computeMonthlyDefaults(startDateIso) });
+      setRecurrence({
+        ...rule,
+        monthlyMode: "dayOfMonth",
+        ...computeMonthlyDefaults(startDateIso),
+      });
       return;
     }
     setRecurrence(rule);
   }
 
-  const recurrenceValid = recurrence.frequency !== "weekly" || (recurrence.daysOfWeek?.length ?? 0) > 0;
+  const recurrenceValid =
+    recurrence.frequency !== "weekly" || (recurrence.daysOfWeek?.length ?? 0) > 0;
   const busy = saving || deleting;
   const canSave = loadState === "ready" && title.trim().length > 0 && !busy && recurrenceValid;
 
@@ -298,7 +307,9 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
                   />
                 </label>
               </div>
-              <p className="text-xs text-faint">Series started {anchorLabel} — the start date can&apos;t be changed.</p>
+              <p className="text-xs text-faint">
+                Series started {anchorLabel} — the start date can&apos;t be changed.
+              </p>
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -307,8 +318,8 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
             </div>
 
             <p className="rounded-lg surface-sunken p-3 text-xs text-subtle">
-              Saving updates every upcoming open occurrence of this series. Completed and skipped ones stay as they
-              are.
+              Saving updates every upcoming open occurrence of this series. Completed and skipped
+              ones stay as they are.
             </p>
           </div>
         )}
@@ -335,8 +346,8 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
                 disabled={busy}
                 className="btn btn-ghost btn-sm h-auto justify-start whitespace-normal py-2 text-left text-error"
               >
-                Delete series only — keep all {deleteCounts.total} {deleteCounts.total === 1 ? "task" : "tasks"} as
-                standalone
+                Delete series only — keep all {deleteCounts.total}{" "}
+                {deleteCounts.total === 1 ? "task" : "tasks"} as standalone
               </button>
               <button
                 type="button"
@@ -344,12 +355,12 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
                 disabled={busy || deleteCounts.total === 0}
                 className="btn btn-outline btn-error btn-sm h-auto justify-start whitespace-normal py-2 text-left"
               >
-                Delete series + all {deleteCounts.total} {deleteCounts.total === 1 ? "task" : "tasks"}, including
-                completed history
+                Delete series + all {deleteCounts.total}{" "}
+                {deleteCounts.total === 1 ? "task" : "tasks"}, including completed history
               </button>
               <p className="text-xs text-faint">
-                Unless you delete everything, completed, skipped and overdue tasks are kept as standalone tasks.
-                Deleting everything can&apos;t be undone.
+                Unless you delete everything, completed, skipped and overdue tasks are kept as
+                standalone tasks. Deleting everything can&apos;t be undone.
               </p>
               <button
                 type="button"
@@ -364,20 +375,35 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
           <div className="flex items-center justify-between gap-2">
             <div>
               {loadState === "ready" && deleteCounts === null && (
-                <button type="button" onClick={handleDeleteClick} disabled={busy} className="btn btn-ghost btn-sm text-error">
+                <button
+                  type="button"
+                  onClick={handleDeleteClick}
+                  disabled={busy}
+                  className="btn btn-ghost btn-sm text-error"
+                >
                   Delete series
                 </button>
               )}
             </div>
             <div className="flex items-center justify-end gap-2">
-            <button type="button" onClick={onClose} disabled={busy} className="btn btn-ghost btn-sm">
-              {loadState === "not-found" ? "Close" : "Cancel"}
-            </button>
-            {loadState !== "not-found" && (
-              <button type="button" onClick={handleSave} disabled={!canSave} className="btn btn-primary btn-sm">
-                {saving ? "Saving…" : "Save"}
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={busy}
+                className="btn btn-ghost btn-sm"
+              >
+                {loadState === "not-found" ? "Close" : "Cancel"}
               </button>
-            )}
+              {loadState !== "not-found" && (
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={!canSave}
+                  className="btn btn-primary btn-sm"
+                >
+                  {saving ? "Saving…" : "Save"}
+                </button>
+              )}
             </div>
           </div>
           {error && <p className="text-right text-xs text-error">{error}</p>}
