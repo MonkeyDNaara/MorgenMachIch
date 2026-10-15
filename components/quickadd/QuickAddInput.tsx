@@ -5,7 +5,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { Plus } from "lucide-react";
 import type { Label } from "@/lib/types";
 import { getLabels } from "@/lib/db/labels";
-import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
+import { FIELD_FOCUS } from "@/lib/styles/fieldFocus";
 import type { QuickAddResult } from "@/lib/utils/parseQuickAdd";
 import { formatQuickAddDue } from "@/lib/utils/formatQuickAddDue";
 import { useQuickAdd } from "@/components/quickadd/useQuickAdd";

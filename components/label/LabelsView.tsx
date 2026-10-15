@@ -6,11 +6,11 @@ import { Pencil, Plus, Tag, Trash2 } from "lucide-react";
 import { countTasksWithLabel, createLabel, deleteLabel, getLabels, updateLabel } from "@/lib/db/labels";
 import { getTasks } from "@/lib/db/tasks";
 import { DEFAULT_LABEL_COLOR, type LabelColorHex } from "@/lib/constants/labelColors";
-import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
+import { FIELD_FOCUS } from "@/lib/styles/fieldFocus";
 import type { Label } from "@/lib/types";
 import LabelChip from "@/components/label/LabelChip";
-import PageHeader from "@/components/layout/PageHeader";
-import EmptyState from "@/components/layout/EmptyState";
+import PageHeader from "@/components/ui/PageHeader";
+import EmptyState from "@/components/ui/EmptyState";
 import ColorSwatchPicker from "@/components/label/ColorSwatchPicker";
 
 type FormMode = { kind: "none" } | { kind: "create" } | { kind: "edit"; label: Label };

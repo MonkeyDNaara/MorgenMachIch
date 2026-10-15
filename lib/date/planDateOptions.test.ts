@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { planDateOptions, planDueDateIso, toLocalDateKey } from "@/lib/utils/planDateOptions";
+import { planDateOptions, planDueDateIso, toLocalDateKey } from "@/lib/date/planDateOptions";
 import { localDate } from "@/lib/test/factories";
 
 const keys = (date: Date) => planDateOptions(date).map((o) => o.key);

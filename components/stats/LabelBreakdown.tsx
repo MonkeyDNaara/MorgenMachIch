@@ -1,5 +1,5 @@
 import type { Label } from "@/lib/types";
-import { inkColor } from "@/lib/ui/colorChip";
+import { inkColor } from "@/lib/styles/colorChip";
 
 /** Color for tasks without a label: the theme's neutral gray-teal. */
 const NO_LABEL_COLOR = "var(--color-neutral)";

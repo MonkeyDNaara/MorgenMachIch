@@ -19,10 +19,10 @@ import type { Label, Task } from "@/lib/types";
 import TaskCard from "@/components/task/TaskCard";
 import DragHandle from "@/components/dnd/DragHandle";
 import MoveMenu from "@/components/dnd/MoveMenu";
-import { useToast } from "@/components/layout/ToastProvider";
+import { useToast } from "@/components/ui/ToastProvider";
 import { useAppSensors } from "@/lib/ui/dnd/useAppSensors";
 import { createListAnnouncements } from "@/lib/ui/dnd/announcements";
-import { REDUCED_MOTION, useMediaQuery } from "@/lib/ui/useMediaQuery";
+import { REDUCED_MOTION, useMediaQuery } from "@/hooks/useMediaQuery";
 import { LIST_DRAG_INSTRUCTIONS } from "@/lib/utils/dndAnnouncements";
 import {
   applyOrder,

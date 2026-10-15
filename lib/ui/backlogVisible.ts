@@ -1,4 +1,4 @@
-import { createStoredFlag } from "@/lib/ui/storedFlag";
+import { createStoredFlag } from "@/lib/storage/storedFlag";
 
 /** Whether /tasks shows the Backlog column (#182); default visible. The
  * key and its "0"/"1" values are unchanged since #182. */

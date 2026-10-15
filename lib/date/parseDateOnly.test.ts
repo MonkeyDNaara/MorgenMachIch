@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseDateOnly } from "@/lib/utils/parseDateOnly";
+import { parseDateOnly } from "@/lib/date/parseDateOnly";
 import { dayKey } from "@/lib/test/factories";
 
 describe("parseDateOnly", () => {

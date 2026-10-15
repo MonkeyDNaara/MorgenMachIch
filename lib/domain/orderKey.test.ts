@@ -5,7 +5,7 @@ import {
   keyBetween,
   keysBetween,
   ORDER_KEY_DIGITS,
-} from "@/lib/utils/orderKey";
+} from "@/lib/domain/orderKey";
 
 /** Every key valid and the list strictly ascending by plain comparison. */
 function expectStrictlyOrdered(keys: string[]) {

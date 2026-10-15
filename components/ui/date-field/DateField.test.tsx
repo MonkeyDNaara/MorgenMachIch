@@ -3,7 +3,7 @@ import { useState } from "react";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import DateField from "@/components/date/DateField";
+import DateField from "@/components/ui/date-field/DateField";
 import { localDate } from "@/lib/test/factories";
 
 // Only Date is faked (Sun 11 Oct 2026 14:00), so user-event's timers still run.

@@ -1,4 +1,4 @@
-import { tintChipStyle } from "@/lib/ui/colorChip";
+import { tintChipStyle } from "@/lib/styles/colorChip";
 
 type LabelChipProps = {
   name: string;
@@ -22,7 +22,7 @@ const SIZE_CLASSES: Record<NonNullable<LabelChipProps["size"]>, string> = {
  * with the theme accent. Shared by the labels page, the task drawer's
  * label picker, and task cards.
  *
- * The tint styling itself lives in lib/ui/colorChip.ts (tintChipStyle),
+ * The tint styling itself lives in lib/styles/colorChip.ts (tintChipStyle),
  * shared with the quick-add chips since both are runtime colors
  * applied as inline styles rather than Tailwind classes.
  */

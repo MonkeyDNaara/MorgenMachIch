@@ -3,7 +3,7 @@ import {
   computeMonthlyDefaults,
   occurrenceDueIso,
   occurrencesBetween,
-} from "@/lib/utils/recurrence";
+} from "@/lib/domain/recurrence";
 import { dayKey, localDate, localIso, rule } from "@/lib/test/factories";
 
 /** Occurrence days of `r` (anchored at `start`) after `from` up to `to`, as "YYYY-MM-DD". */

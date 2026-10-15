@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import StatusPage from "@/components/layout/StatusPage";
+import StatusPage from "@/components/ui/StatusPage";
 import { isStorageError } from "@/lib/utils/isStorageError";
 
 /**

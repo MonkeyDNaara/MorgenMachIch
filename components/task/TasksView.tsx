@@ -13,7 +13,7 @@ import { filterTasksByPriority, type PriorityFilter } from "@/lib/utils/filterTa
 import { filterSeriesByPriority } from "@/lib/utils/filterSeriesByPriority";
 import { filterSeriesByLabels } from "@/lib/utils/filterSeriesByLabels";
 import { sortTasks, type TaskSortBy } from "@/lib/utils/sortTasks";
-import { isBacklogTask, sortBacklogTasks } from "@/lib/utils/backlog";
+import { isBacklogTask, sortBacklogTasks } from "@/lib/domain/backlog";
 import { OLD_DONE_DAYS, splitOldDone } from "@/lib/utils/oldDone";
 import {
   readBacklogVisible,
@@ -25,8 +25,8 @@ import FilterPopover from "@/components/task/FilterPopover";
 import TaskCardList from "@/components/task/TaskCardList";
 import TaskQuickAdd, { type QuickAddVisibility } from "@/components/task/TaskQuickAdd";
 import SeriesRow from "@/components/task/SeriesRow";
-import EmptyState from "@/components/layout/EmptyState";
-import PageHeader from "@/components/layout/PageHeader";
+import EmptyState from "@/components/ui/EmptyState";
+import PageHeader from "@/components/ui/PageHeader";
 
 function excludeSeriesOccurrences(tasks: Task[]): Task[] {
   return tasks.filter((task) => task.seriesId === null);

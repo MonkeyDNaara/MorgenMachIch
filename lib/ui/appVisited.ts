@@ -1,4 +1,4 @@
-import { createStoredFlag } from "@/lib/ui/storedFlag";
+import { createStoredFlag } from "@/lib/storage/storedFlag";
 
 /**
  * "This browser has used the app before" (#83). Set by the app layout;

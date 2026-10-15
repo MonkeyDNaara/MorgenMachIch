@@ -6,7 +6,7 @@ import type { Label, Task } from "@/lib/types";
 import { updateTask } from "@/lib/db/tasks";
 import { isOverdue } from "@/lib/utils/formatDueDate";
 import { dueMeta } from "@/lib/utils/dueMeta";
-import { formatTaskAge } from "@/lib/utils/backlog";
+import { formatTaskAge } from "@/lib/domain/backlog";
 import { useTaskDrawer } from "@/components/task/TaskDrawerProvider";
 import LabelChip from "@/components/label/LabelChip";
 import SubtaskProgressBar from "@/components/task/SubtaskProgressBar";

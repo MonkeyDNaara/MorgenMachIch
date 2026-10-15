@@ -5,9 +5,9 @@ import {
   moveDateFocus,
   quickDateOptions,
   relativeDayLabel,
-} from "@/lib/utils/dateField";
-import { parseDateText } from "@/lib/utils/parseDate";
-import { toLocalDateKey } from "@/lib/utils/planDateOptions";
+} from "@/lib/date/dateField";
+import { parseDateText } from "@/lib/date/parseDate";
+import { toLocalDateKey } from "@/lib/date/planDateOptions";
 import { localDate } from "@/lib/test/factories";
 
 const SUNDAY = localDate(2026, 10, 11, 14);

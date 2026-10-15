@@ -1,6 +1,6 @@
 import type { Priority, Task, TaskSeries } from "@/lib/types";
-import { occurrenceDueIso, occurrencesBetween } from "@/lib/utils/recurrence";
-import { dateKey } from "@/lib/utils/groupTasksByDate";
+import { occurrenceDueIso, occurrencesBetween } from "@/lib/domain/recurrence";
+import { dateKey } from "@/lib/domain/groupTasksByDate";
 
 /** A not-yet-generated occurrence of a recurring series, computed on
  * the fly for display only (#168). Never persisted — when its day

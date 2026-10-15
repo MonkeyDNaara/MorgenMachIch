@@ -6,7 +6,7 @@ import {
   type PwaSnapshot,
 } from "@/lib/pwa/pwaStore";
 import { installState, isIOSDevice, type InstallState } from "@/lib/pwa/installState";
-import { useMediaQuery } from "@/lib/ui/useMediaQuery";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const STANDALONE = "(display-mode: standalone)";
 

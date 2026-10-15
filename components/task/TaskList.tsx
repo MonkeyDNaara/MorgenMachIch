@@ -12,7 +12,7 @@ import { sortTasks, type TaskSortBy } from "@/lib/utils/sortTasks";
 import TaskCardList from "@/components/task/TaskCardList";
 import FilterPopover from "@/components/task/FilterPopover";
 import TaskListToolbar from "@/components/task/TaskListToolbar";
-import EmptyState, { type EmptyCopy } from "@/components/layout/EmptyState";
+import EmptyState, { type EmptyCopy } from "@/components/ui/EmptyState";
 import { ListTodo, SlidersHorizontal } from "lucide-react";
 
 const NO_TASKS_YET: EmptyCopy = {

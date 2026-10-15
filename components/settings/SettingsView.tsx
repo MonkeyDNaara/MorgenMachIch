@@ -4,7 +4,7 @@ import DataSection from "@/components/settings/DataSection";
 import ImportSection from "@/components/settings/ImportSection";
 import DangerZoneSection from "@/components/settings/DangerZoneSection";
 import AboutCard from "@/components/settings/AboutCard";
-import PageHeader from "@/components/layout/PageHeader";
+import PageHeader from "@/components/ui/PageHeader";
 
 /**
  * /settings — appearance (theme, #266), installing the app (#82), data backup (export, import),

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { LabelSchema, TaskSchema, TaskSeriesSchema } from "@/lib/types";
 import { completionsByDay, onTimeRate, streakSummary } from "@/lib/utils/stats";
-import { occurrencesBetween } from "@/lib/utils/recurrence";
-import { dateKey } from "@/lib/utils/groupTasksByDate";
-import { compareOrderKeys } from "@/lib/utils/orderKey";
+import { occurrencesBetween } from "@/lib/domain/recurrence";
+import { dateKey } from "@/lib/domain/groupTasksByDate";
+import { compareOrderKeys } from "@/lib/domain/orderKey";
 import { SAMPLE_DAYS_OFF, buildSampleData } from "./sampleData";
 
 const HORIZON = 60;

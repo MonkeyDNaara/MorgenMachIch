@@ -25,7 +25,7 @@ import YearHeatmap from "@/components/stats/YearHeatmap";
 import PeriodSelect from "@/components/stats/PeriodSelect";
 import CompletionBarChart from "@/components/stats/CompletionBarChart";
 import LabelBreakdown from "@/components/stats/LabelBreakdown";
-import PageHeader from "@/components/layout/PageHeader";
+import PageHeader from "@/components/ui/PageHeader";
 import OnTimeRate from "@/components/stats/OnTimeRate";
 
 const PERIOD_CAPTIONS = { "7d": "last 7 days", "30d": "last 30 days", all: "all time" } as const;

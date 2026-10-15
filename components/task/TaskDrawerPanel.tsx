@@ -8,9 +8,9 @@ import { createTask, deleteTask, getTask, updateTask } from "@/lib/db/tasks";
 import { createTaskSeriesWithOccurrences } from "@/lib/db/taskSeries";
 import { getLabels } from "@/lib/db/labels";
 import { buildDueDateIso, splitDueDateIso } from "@/lib/utils/dueDate";
-import { computeMonthlyDefaults } from "@/lib/utils/recurrence";
-import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
-import { FIELD_LABEL } from "@/lib/ui/fieldLabel";
+import { computeMonthlyDefaults } from "@/lib/domain/recurrence";
+import { FIELD_FOCUS } from "@/lib/styles/fieldFocus";
+import { FIELD_LABEL } from "@/lib/styles/fieldLabel";
 import type { Label, Priority, RecurrenceRule, Subtask } from "@/lib/types";
 import type { QuickAddResult } from "@/lib/utils/parseQuickAdd";
 import LabelChip from "@/components/label/LabelChip";
@@ -19,8 +19,8 @@ import PrioritySelector from "@/components/task/PrioritySelector";
 import RecurrenceRuleBuilder from "@/components/task/RecurrenceRuleBuilder";
 import QuickAddTitleField from "@/components/quickadd/QuickAddTitleField";
 import { withNewLabels } from "@/components/quickadd/newLabels";
-import { useToast } from "@/components/layout/ToastProvider";
-import DateField from "@/components/date/DateField";
+import { useToast } from "@/components/ui/ToastProvider";
+import DateField from "@/components/ui/date-field/DateField";
 
 const NO_LABELS: Label[] = [];
 

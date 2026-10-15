@@ -1,7 +1,7 @@
 "use client";
 
 import type { StatsPeriod } from "@/lib/utils/stats";
-import { useRadioGroupKeys } from "@/lib/ui/useRadioGroupKeys";
+import { useRadioGroupKeys } from "@/hooks/useRadioGroupKeys";
 
 const OPTIONS: { value: StatsPeriod; label: string }[] = [
   { value: "7d", label: "7 days" },

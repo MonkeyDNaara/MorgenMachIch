@@ -1,4 +1,4 @@
-import { isSameCalendarDate } from "@/lib/utils/isSameCalendarDate";
+import { isSameCalendarDate } from "@/lib/date/isSameCalendarDate";
 
 export type CalendarDay = {
   date: Date;

@@ -3,10 +3,10 @@
 import { useCallback } from "react";
 import type { Task } from "@/lib/types";
 import { updateTask } from "@/lib/db/tasks";
-import { useToast } from "@/components/layout/ToastProvider";
+import { useToast } from "@/components/ui/ToastProvider";
 import { formatDropDay } from "@/lib/utils/dndAnnouncements";
 import { canReschedule, isDropDay, isOnDay, moveToDay } from "@/lib/utils/reschedule";
-import { planDueDateIso, toLocalDateKey } from "@/lib/utils/planDateOptions";
+import { planDueDateIso, toLocalDateKey } from "@/lib/date/planDateOptions";
 
 /**
  * Saves a drop of `task` on `day` (#74, #356): keeps the time of day,

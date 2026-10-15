@@ -2,12 +2,12 @@
 
 import { useId, useRef, useState, type KeyboardEvent } from "react";
 import { CalendarDays, ChevronDown, ChevronUp } from "lucide-react";
-import { parseDateText } from "@/lib/utils/parseDate";
-import { parseDateOnly } from "@/lib/utils/parseDateOnly";
-import { toLocalDateKey } from "@/lib/utils/planDateOptions";
-import { dayOffset, formatDateFieldValue, relativeDayLabel } from "@/lib/utils/dateField";
-import { useDismiss } from "@/lib/ui/useDismiss";
-import DatePopover from "@/components/date/DatePopover";
+import { parseDateText } from "@/lib/date/parseDate";
+import { parseDateOnly } from "@/lib/date/parseDateOnly";
+import { toLocalDateKey } from "@/lib/date/planDateOptions";
+import { dayOffset, formatDateFieldValue, relativeDayLabel } from "@/lib/date/dateField";
+import { useDismiss } from "@/hooks/useDismiss";
+import DatePopover from "@/components/ui/date-field/DatePopover";
 
 type DateFieldProps = {
   /** "YYYY-MM-DD", or "" for no date. */

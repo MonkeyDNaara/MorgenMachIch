@@ -4,7 +4,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { useDndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import type { Task } from "@/lib/types";
 import { getTasks } from "@/lib/db/tasks";
-import { upcomingWeekDays } from "@/lib/utils/upcomingWeekDays";
+import { upcomingWeekDays } from "@/lib/date/upcomingWeekDays";
 import { filterTasksByDay } from "@/lib/utils/filterTasksByDay";
 import { formatTime } from "@/lib/utils/formatDueDate";
 import { canReschedule, dragTaskId, dropDayId, isOnDay } from "@/lib/utils/reschedule";

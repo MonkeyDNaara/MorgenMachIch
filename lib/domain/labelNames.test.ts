@@ -4,7 +4,7 @@ import {
   normalizeLabelName,
   pickLabelColors,
   tagToLabelName,
-} from "@/lib/utils/labelNames";
+} from "@/lib/domain/labelNames";
 import { LABEL_COLOR_HEXES as H } from "@/lib/constants/labelColors";
 
 describe("tagToLabelName (#283)", () => {

@@ -14,9 +14,9 @@ import {
 } from "@/lib/db/taskSeries";
 import { getLabels } from "@/lib/db/labels";
 import { buildDueDateIso, splitDueDateIso } from "@/lib/utils/dueDate";
-import { computeMonthlyDefaults } from "@/lib/utils/recurrence";
-import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
-import { FIELD_LABEL } from "@/lib/ui/fieldLabel";
+import { computeMonthlyDefaults } from "@/lib/domain/recurrence";
+import { FIELD_FOCUS } from "@/lib/styles/fieldFocus";
+import { FIELD_LABEL } from "@/lib/styles/fieldLabel";
 import type { Priority, RecurrenceRule, Subtask } from "@/lib/types";
 import LabelChip from "@/components/label/LabelChip";
 import SubtaskEditor from "@/components/task/SubtaskEditor";

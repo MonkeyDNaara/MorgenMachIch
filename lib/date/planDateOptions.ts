@@ -1,4 +1,4 @@
-import { upcomingWeekDays } from "@/lib/utils/upcomingWeekDays";
+import { upcomingWeekDays } from "@/lib/date/upcomingWeekDays";
 import { APP_LOCALE } from "@/lib/constants/locale";
 
 export type PlanDateOption = {

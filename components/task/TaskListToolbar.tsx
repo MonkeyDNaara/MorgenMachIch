@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { ArrowDownUp } from "lucide-react";
 import type { StatusFilter } from "@/lib/utils/filterTasksByStatus";
 import type { TaskSortBy } from "@/lib/utils/sortTasks";
-import { useRadioGroupKeys } from "@/lib/ui/useRadioGroupKeys";
+import { useRadioGroupKeys } from "@/hooks/useRadioGroupKeys";
 
 const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: "all", label: "All" },

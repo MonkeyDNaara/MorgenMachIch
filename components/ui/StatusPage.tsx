@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import LogoMark from "@/components/layout/LogoMark";
+import LogoMark from "@/components/ui/LogoMark";
 
 type StatusPageProps = {
   /** Big monospace headline, e.g. "404", or an icon (offline page). */

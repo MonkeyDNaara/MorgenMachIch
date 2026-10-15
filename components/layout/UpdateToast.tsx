@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from "react";
-import { useToast } from "@/components/layout/ToastProvider";
+import { useToast } from "@/components/ui/ToastProvider";
 import { applyUpdate, getPwaSnapshot, SERVER_SNAPSHOT, subscribePwa } from "@/lib/pwa/pwaStore";
 
 /**

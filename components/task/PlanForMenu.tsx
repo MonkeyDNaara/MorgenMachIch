@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { CalendarPlus } from "lucide-react";
 import type { Task } from "@/lib/types";
 import { updateTask } from "@/lib/db/tasks";
-import { planDateOptions, planDueDateIso, toLocalDateKey } from "@/lib/utils/planDateOptions";
+import { planDateOptions, planDueDateIso, toLocalDateKey } from "@/lib/date/planDateOptions";
 import { APP_LOCALE } from "@/lib/constants/locale";
-import DateField from "@/components/date/DateField";
+import DateField from "@/components/ui/date-field/DateField";
 
 type PlanForMenuProps = {
   task: Task;

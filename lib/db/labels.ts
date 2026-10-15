@@ -1,6 +1,6 @@
 import { db } from "@/lib/db/db";
 import { LabelSchema, type Label, type NewLabel } from "@/lib/types";
-import { normalizeLabelName, pickLabelColors } from "@/lib/utils/labelNames";
+import { normalizeLabelName, pickLabelColors } from "@/lib/domain/labelNames";
 
 export type LabelPatch = Partial<Omit<Label, "id" | "createdAt">>;
 

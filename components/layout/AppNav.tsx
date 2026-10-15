@@ -6,9 +6,9 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { Search } from "lucide-react";
 import { getTasks } from "@/lib/db/tasks";
 import { countOpenToday } from "@/lib/utils/isDueToday";
-import { useModKey } from "@/lib/ui/useModKey";
+import { useModKey } from "@/hooks/useModKey";
 import { useCommandPalette } from "@/components/palette/CommandPaletteProvider";
-import LogoMark from "@/components/layout/LogoMark";
+import LogoMark from "@/components/ui/LogoMark";
 import ThemeToggle from "@/components/layout/ThemeToggle";
 import { MAIN_NAV, NAV_ITEMS, isActive, type NavItem } from "@/components/layout/navItems";
 

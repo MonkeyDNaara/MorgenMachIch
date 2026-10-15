@@ -2,7 +2,7 @@
 
 import { Check } from "lucide-react";
 import { LABEL_COLORS, type LabelColorHex } from "@/lib/constants/labelColors";
-import { useRadioGroupKeys } from "@/lib/ui/useRadioGroupKeys";
+import { useRadioGroupKeys } from "@/hooks/useRadioGroupKeys";
 
 type ColorSwatchPickerProps = {
   value: LabelColorHex;

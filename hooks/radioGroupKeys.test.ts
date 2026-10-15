@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { nextRadioIndex } from "@/lib/utils/radioGroupKeys";
+import { nextRadioIndex } from "@/hooks/radioGroupKeys";
 
 describe("nextRadioIndex", () => {
   it.each(["ArrowRight", "ArrowDown"])("%s moves to the next option and wraps", (key) => {

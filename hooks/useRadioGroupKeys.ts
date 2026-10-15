@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, type KeyboardEvent } from "react";
-import { nextRadioIndex } from "@/lib/utils/radioGroupKeys";
+import { nextRadioIndex } from "@/hooks/radioGroupKeys";
 
 type Options = {
   /** Number of radios in the group. */

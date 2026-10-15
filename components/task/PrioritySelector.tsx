@@ -2,7 +2,7 @@
 
 import type { Priority } from "@/lib/types";
 import { PRIORITY_DOT_COLORS } from "@/lib/constants/priorityColors";
-import { useRadioGroupKeys } from "@/lib/ui/useRadioGroupKeys";
+import { useRadioGroupKeys } from "@/hooks/useRadioGroupKeys";
 
 const PRIORITY_LEVELS: { value: Priority; label: string }[] = [
   { value: "none", label: "None" },

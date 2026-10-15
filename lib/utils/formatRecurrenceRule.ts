@@ -1,6 +1,6 @@
 import type { RecurrenceRule } from "@/lib/types";
 import { APP_LOCALE } from "@/lib/constants/locale";
-import { parseDateOnly } from "@/lib/utils/parseDateOnly";
+import { parseDateOnly } from "@/lib/date/parseDateOnly";
 
 const WEEKDAY_ABBR = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 

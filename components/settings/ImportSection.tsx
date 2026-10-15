@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Upload } from "lucide-react";
 import { exportAll, getDataCounts, importAll, type DataCounts } from "@/lib/db/backup";
-import { backupFileName, buildBackup, parseBackup, serializeBackup, type BackupFile } from "@/lib/utils/backup";
+import { backupFileName, buildBackup, parseBackup, serializeBackup, type BackupFile } from "@/lib/domain/backup";
 import { downloadTextFile } from "@/lib/ui/downloadFile";
 import { APP_LOCALE } from "@/lib/constants/locale";
 

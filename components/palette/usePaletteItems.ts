@@ -13,7 +13,7 @@ import type { QuickAddResult } from "@/lib/utils/parseQuickAdd";
 import { tokenColor, tokenLabel } from "@/components/quickadd/tokenDisplay";
 import { useTaskDrawer } from "@/components/task/TaskDrawerProvider";
 import { commandIcon } from "@/components/palette/commandIcons";
-import { useToast } from "@/components/layout/ToastProvider";
+import { useToast } from "@/components/ui/ToastProvider";
 import { useAddSeries } from "@/components/quickadd/useAddSeries";
 import { newLabelsNote, withNewLabels } from "@/components/quickadd/newLabels";
 import { writeThemePreference } from "@/lib/ui/themePreference";

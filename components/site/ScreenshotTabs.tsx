@@ -4,7 +4,7 @@ import { useId, useState } from "react";
 import BrowserFrame from "@/components/site/BrowserFrame";
 import Screenshot from "@/components/site/Screenshot";
 import { SCREENSHOTS } from "@/lib/site/content";
-import { useRadioGroupKeys } from "@/lib/ui/useRadioGroupKeys";
+import { useRadioGroupKeys } from "@/hooks/useRadioGroupKeys";
 
 const VIEWS = SCREENSHOTS.views;
 const THEMES = [

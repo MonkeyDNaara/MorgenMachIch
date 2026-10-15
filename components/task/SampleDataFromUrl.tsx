@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useToast } from "@/components/layout/ToastProvider";
+import { useToast } from "@/components/ui/ToastProvider";
 import { loadSampleData } from "@/lib/db/sampleData";
 import { SAMPLE_DATA_PARAM, takeUrlFlag } from "@/lib/utils/urlFlag";
 

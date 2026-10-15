@@ -1,6 +1,6 @@
 import { APP_LOCALE } from "@/lib/constants/locale";
-import { parseDateOnly } from "@/lib/utils/parseDateOnly";
-import { toLocalDateKey } from "@/lib/utils/planDateOptions";
+import { parseDateOnly } from "@/lib/date/parseDateOnly";
+import { toLocalDateKey } from "@/lib/date/planDateOptions";
 
 /**
  * Pure helpers for the DateField (#258). Values are local "YYYY-MM-DD"

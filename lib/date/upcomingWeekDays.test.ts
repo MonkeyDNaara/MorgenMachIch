@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { upcomingWeekDays } from "@/lib/utils/upcomingWeekDays";
+import { upcomingWeekDays } from "@/lib/date/upcomingWeekDays";
 import { dayKey, localDate } from "@/lib/test/factories";
 
 const days = (y: number, m: number, d: number, h = 10) =>

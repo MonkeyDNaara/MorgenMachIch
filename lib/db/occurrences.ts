@@ -1,8 +1,8 @@
 import { db } from "@/lib/db/db";
 import { createTask } from "@/lib/db/tasks";
 import type { TaskSeries } from "@/lib/types";
-import { occurrencesBetween, occurrenceDueIso } from "@/lib/utils/recurrence";
-import { dateKey } from "@/lib/utils/groupTasksByDate";
+import { occurrencesBetween, occurrenceDueIso } from "@/lib/domain/recurrence";
+import { dateKey } from "@/lib/domain/groupTasksByDate";
 
 /** How far ahead occurrences are kept generated, from whenever this
  * runs. Regenerated on every app load (see OccurrenceSync) rather than

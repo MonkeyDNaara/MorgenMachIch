@@ -5,8 +5,8 @@ import { Check, SlidersHorizontal } from "lucide-react";
 import type { Label } from "@/lib/types";
 import type { PriorityFilter } from "@/lib/utils/filterTasksByPriority";
 import { PRIORITY_DOT_COLORS } from "@/lib/constants/priorityColors";
-import { useDismiss } from "@/lib/ui/useDismiss";
-import { useRadioGroupKeys } from "@/lib/ui/useRadioGroupKeys";
+import { useDismiss } from "@/hooks/useDismiss";
+import { useRadioGroupKeys } from "@/hooks/useRadioGroupKeys";
 import LabelChip from "@/components/label/LabelChip";
 
 const PRIORITY_OPTIONS: { value: PriorityFilter; label: string }[] = [

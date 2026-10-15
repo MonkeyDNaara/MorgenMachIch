@@ -3,7 +3,7 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Sparkles } from "lucide-react";
 import type { Label } from "@/lib/types";
-import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
+import { FIELD_FOCUS } from "@/lib/styles/fieldFocus";
 import { parseQuickAdd, type QuickAddResult } from "@/lib/utils/parseQuickAdd";
 import QuickAddHighlight from "@/components/quickadd/QuickAddHighlight";
 import QuickAddChips from "@/components/quickadd/QuickAddChips";

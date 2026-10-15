@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import AppNav from "@/components/layout/AppNav";
 import BottomTabBar from "@/components/layout/BottomTabBar";
 import AddTaskFab from "@/components/layout/AddTaskFab";
-import { ToastProvider } from "@/components/layout/ToastProvider";
+import { ToastProvider } from "@/components/ui/ToastProvider";
 import TitleCount from "@/components/layout/TitleCount";
 import UpdateToast from "@/components/layout/UpdateToast";
 import MarkAppVisited from "@/components/layout/MarkAppVisited";

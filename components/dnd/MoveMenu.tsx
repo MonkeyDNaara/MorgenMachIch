@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, type KeyboardEvent, type RefObject } from "react";
 import { MOVE_ACTIONS, type MoveAction } from "@/lib/utils/listMove";
-import { useDismiss } from "@/lib/ui/useDismiss";
+import { useDismiss } from "@/hooks/useDismiss";
 
 type MoveMenuProps = {
   open: boolean;

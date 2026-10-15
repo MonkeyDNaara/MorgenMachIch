@@ -1,5 +1,5 @@
 import type { RecurrenceRule, TaskSeries } from "@/lib/types";
-import { parseDateOnly } from "@/lib/utils/parseDateOnly";
+import { parseDateOnly } from "@/lib/date/parseDateOnly";
 
 function startOfDay(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());

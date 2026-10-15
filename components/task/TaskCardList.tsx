@@ -2,7 +2,7 @@ import type { Label, Task } from "@/lib/types";
 import TaskCard from "@/components/task/TaskCard";
 import SortableTaskCardList from "@/components/task/SortableTaskCardList";
 import DraggableTaskCard from "@/components/task/DraggableTaskCard";
-import EmptyState, { type EmptyCopy } from "@/components/layout/EmptyState";
+import EmptyState, { type EmptyCopy } from "@/components/ui/EmptyState";
 
 type TaskCardListProps = {
   tasks: Task[];

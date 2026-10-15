@@ -4,7 +4,7 @@ import { Sunrise } from "lucide-react";
 import type { Task } from "@/lib/types";
 import { updateTask } from "@/lib/db/tasks";
 import { snoozeToTomorrow } from "@/lib/utils/snooze";
-import { useToast } from "@/components/layout/ToastProvider";
+import { useToast } from "@/components/ui/ToastProvider";
 
 type SnoozeButtonProps = {
   task: Task;

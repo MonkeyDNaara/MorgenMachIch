@@ -1,7 +1,7 @@
 import type { Label, Priority, RecurrenceRule, Subtask, Task, TaskSeries } from "@/lib/types";
 import type { LabelColorHex } from "@/lib/constants/labelColors";
-import { keysBetween } from "@/lib/utils/orderKey";
-import { occurrenceDueIso, occurrencesBetween } from "@/lib/utils/recurrence";
+import { keysBetween } from "@/lib/domain/orderKey";
+import { occurrenceDueIso, occurrencesBetween } from "@/lib/domain/recurrence";
 
 /**
  * Sample data for "Try it with sample data" (#84): a believable week in

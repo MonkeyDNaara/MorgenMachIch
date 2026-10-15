@@ -1,6 +1,6 @@
 import type { Task } from "@/lib/types";
-import { parseDateOnly } from "@/lib/utils/parseDateOnly";
-import { toLocalDateKey } from "@/lib/utils/planDateOptions";
+import { parseDateOnly } from "@/lib/date/parseDateOnly";
+import { toLocalDateKey } from "@/lib/date/planDateOptions";
 
 /**
  * Rules and date math for moving a task to another day by drag & drop

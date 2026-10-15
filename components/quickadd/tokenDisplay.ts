@@ -4,7 +4,7 @@ import { PRIORITY_DOT_COLORS } from "@/lib/constants/priorityColors";
 import { formatQuickAddDue } from "@/lib/utils/formatQuickAddDue";
 import { formatRecurrenceRule } from "@/lib/utils/formatRecurrenceRule";
 import { APP_LOCALE } from "@/lib/constants/locale";
-import { pickLabelColors } from "@/lib/utils/labelNames";
+import { pickLabelColors } from "@/lib/domain/labelNames";
 
 /** The theme's accent; tintChipStyle mixes it with color-mix, so a CSS variable works. */
 export const DATE_TOKEN_COLOR = "var(--color-accent)";

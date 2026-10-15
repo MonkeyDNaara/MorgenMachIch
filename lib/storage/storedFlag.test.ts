@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createStoredFlag } from "@/lib/ui/storedFlag";
+import { createStoredFlag } from "@/lib/storage/storedFlag";
 
 afterEach(() => {
   window.localStorage.clear();

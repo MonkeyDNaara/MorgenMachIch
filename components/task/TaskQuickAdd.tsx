@@ -8,7 +8,7 @@ import type { QuickAddResult } from "@/lib/utils/parseQuickAdd";
 import QuickAddInput from "@/components/quickadd/QuickAddInput";
 import { useAddSeries } from "@/components/quickadd/useAddSeries";
 import { newLabelsNote, withNewLabels } from "@/components/quickadd/newLabels";
-import { useToast } from "@/components/layout/ToastProvider";
+import { useToast } from "@/components/ui/ToastProvider";
 
 /** Why a just-added task can't be seen where it was added. */
 export type QuickAddVisibility = "visible" | "out-of-scope" | "filtered";

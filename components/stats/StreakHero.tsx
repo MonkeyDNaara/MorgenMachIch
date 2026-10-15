@@ -1,6 +1,6 @@
 import type { StreakSummary } from "@/lib/utils/stats";
 import { addLocalDays, startOfLocalWeek } from "@/lib/utils/stats";
-import { toLocalDateKey } from "@/lib/utils/planDateOptions";
+import { toLocalDateKey } from "@/lib/date/planDateOptions";
 
 const WEEKDAY_LETTERS = ["M", "T", "W", "T", "F", "S", "S"];
 

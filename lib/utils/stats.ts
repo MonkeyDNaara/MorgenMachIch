@@ -1,6 +1,6 @@
 import type { Task } from "@/lib/types";
 import { APP_LOCALE } from "@/lib/constants/locale";
-import { toLocalDateKey } from "@/lib/utils/planDateOptions";
+import { toLocalDateKey } from "@/lib/date/planDateOptions";
 
 /**
  * Pure numbers behind /stats and the streak badge (Stats & Streaks epic,

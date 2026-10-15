@@ -1,10 +1,10 @@
 import type * as chrono from "chrono-node";
 import { RecurrenceRuleSchema, type Label, type Priority, type RecurrenceRule } from "@/lib/types";
-import { occurrencesBetween } from "@/lib/utils/recurrence";
-import { parseDateOnly } from "@/lib/utils/parseDateOnly";
-import { canBeLabelTag, normalizeLabelName, tagToLabelName } from "@/lib/utils/labelNames";
+import { occurrencesBetween } from "@/lib/domain/recurrence";
+import { parseDateOnly } from "@/lib/date/parseDateOnly";
+import { canBeLabelTag, normalizeLabelName, tagToLabelName } from "@/lib/domain/labelNames";
 import { findRecurrencePhrase, type RecurrencePhrase } from "@/lib/utils/parseRecurrence";
-import { findDateCandidates, isDated, resolveDate, startOfDay } from "@/lib/utils/parseDate";
+import { findDateCandidates, isDated, resolveDate, startOfDay } from "@/lib/date/parseDate";
 
 /**
  * Natural-language quick-add (#202): turns free text such as

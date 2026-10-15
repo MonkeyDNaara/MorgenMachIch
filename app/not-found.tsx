@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import StatusPage from "@/components/layout/StatusPage";
+import StatusPage from "@/components/ui/StatusPage";
 
 export const metadata: Metadata = {
   title: "Not found",

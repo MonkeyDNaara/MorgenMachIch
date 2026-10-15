@@ -1,10 +1,10 @@
 "use client";
 
 import type { RecurrenceRule } from "@/lib/types";
-import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
-import { parseDateOnly } from "@/lib/utils/parseDateOnly";
-import { toLocalDateKey } from "@/lib/utils/planDateOptions";
-import DateField from "@/components/date/DateField";
+import { FIELD_FOCUS } from "@/lib/styles/fieldFocus";
+import { parseDateOnly } from "@/lib/date/parseDateOnly";
+import { toLocalDateKey } from "@/lib/date/planDateOptions";
+import DateField from "@/components/ui/date-field/DateField";
 
 type Frequency = RecurrenceRule["frequency"];
 
@@ -57,7 +57,7 @@ type RecurrenceRuleBuilderProps = {
  * Frequency is a single-select pill row (same idiom as the /tasks
  * status filter pills); weekly's day picker and monthly's mode picker
  * reuse the same pill treatment. Monthly-mode defaults and the
- * day-by-day generation math live in lib/utils/recurrence.ts, not here
+ * day-by-day generation math live in lib/domain/recurrence.ts, not here
  * — this component only edits the rule object it's given.
  */
 export default function RecurrenceRuleBuilder({ value, onChange }: RecurrenceRuleBuilderProps) {

@@ -5,7 +5,7 @@ import {
   buildBackup,
   parseBackup,
   serializeBackup,
-} from "@/lib/utils/backup";
+} from "@/lib/domain/backup";
 import { LABEL_COLOR_HEXES } from "@/lib/constants/labelColors";
 import { localDate } from "@/lib/test/factories";
 import type { Task } from "@/lib/types";

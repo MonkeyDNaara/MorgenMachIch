@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { APP_LOCALE } from "@/lib/constants/locale";
-import { getMonthGrid } from "@/lib/utils/monthGrid";
-import { parseDateOnly } from "@/lib/utils/parseDateOnly";
-import { toLocalDateKey } from "@/lib/utils/planDateOptions";
-import { moveDateFocus, quickDateOptions } from "@/lib/utils/dateField";
+import { getMonthGrid } from "@/lib/date/monthGrid";
+import { parseDateOnly } from "@/lib/date/parseDateOnly";
+import { toLocalDateKey } from "@/lib/date/planDateOptions";
+import { moveDateFocus, quickDateOptions } from "@/lib/date/dateField";
 
 const WEEKDAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 

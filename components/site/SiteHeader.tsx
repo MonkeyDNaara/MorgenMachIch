@@ -1,5 +1,5 @@
 import Link from "next/link";
-import LogoMark from "@/components/layout/LogoMark";
+import LogoMark from "@/components/ui/LogoMark";
 import { SITE_LINKS, SITE_NAV } from "@/lib/site/content";
 
 /**

@@ -9,7 +9,7 @@ import {
 import { formatRecurrenceRule } from "@/lib/utils/formatRecurrenceRule";
 import type { QuickAddResult } from "@/lib/utils/parseQuickAdd";
 import { seriesFromQuickAdd } from "@/lib/utils/quickAddSeries";
-import { useToast } from "@/components/layout/ToastProvider";
+import { useToast } from "@/components/ui/ToastProvider";
 import { newLabelsNote, withNewLabels } from "@/components/quickadd/newLabels";
 
 /**

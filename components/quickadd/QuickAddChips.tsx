@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import type { Label } from "@/lib/types";
 import type { QuickAddToken } from "@/lib/utils/parseQuickAdd";
-import { tintChipStyle } from "@/lib/ui/colorChip";
+import { tintChipStyle } from "@/lib/styles/colorChip";
 import { tokenColor, tokenLabel } from "@/components/quickadd/tokenDisplay";
 
 type QuickAddChipsProps = {

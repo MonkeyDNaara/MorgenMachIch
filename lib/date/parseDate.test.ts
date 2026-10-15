@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseDateText } from "@/lib/utils/parseDate";
+import { parseDateText } from "@/lib/date/parseDate";
 import { dayKey, localDate } from "@/lib/test/factories";
 
 const SUNDAY = localDate(2026, 10, 11, 14);

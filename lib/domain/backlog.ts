@@ -1,5 +1,5 @@
 import type { Priority, Task } from "@/lib/types";
-import { compareOrderKeys, keyBetween, keysBetween } from "@/lib/utils/orderKey";
+import { compareOrderKeys, keyBetween, keysBetween } from "@/lib/domain/orderKey";
 
 /**
  * A backlog task is an open, standalone task with no due date (#182):

@@ -3,7 +3,7 @@
 import { Monitor, Moon, SunDim, type LucideIcon } from "lucide-react";
 import { writeThemePreference, type ThemePreference } from "@/lib/ui/themePreference";
 import { useThemePreference } from "@/lib/ui/useTheme";
-import { useRadioGroupKeys } from "@/lib/ui/useRadioGroupKeys";
+import { useRadioGroupKeys } from "@/hooks/useRadioGroupKeys";
 
 const OPTIONS: { value: ThemePreference; label: string; icon: LucideIcon }[] = [
   { value: "system", label: "System", icon: Monitor },

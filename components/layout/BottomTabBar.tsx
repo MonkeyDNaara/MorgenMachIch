@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Ellipsis, Search } from "lucide-react";
-import { useDismiss } from "@/lib/ui/useDismiss";
+import { useDismiss } from "@/hooks/useDismiss";
 import { useCommandPalette } from "@/components/palette/CommandPaletteProvider";
 import { NAV_ITEMS, isActive, type NavItem } from "@/components/layout/navItems";
 import ThemeToggle from "@/components/layout/ThemeToggle";

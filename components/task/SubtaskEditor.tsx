@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp, Plus, X } from "lucide-react";
 import type { Subtask } from "@/lib/types";
-import { FIELD_FOCUS } from "@/lib/ui/fieldFocus";
+import { FIELD_FOCUS } from "@/lib/styles/fieldFocus";
 
 type SubtaskEditorProps = {
   subtasks: Subtask[];

@@ -6,7 +6,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import type { Label } from "@/lib/types";
 import { getLabels } from "@/lib/db/labels";
 import { parseQuickAdd } from "@/lib/utils/parseQuickAdd";
-import { tintChipStyle } from "@/lib/ui/colorChip";
+import { tintChipStyle } from "@/lib/styles/colorChip";
 import QuickAddHighlight from "@/components/quickadd/QuickAddHighlight";
 import TagSuggestionList from "@/components/quickadd/TagSuggestionList";
 import { useTagAutocomplete } from "@/components/quickadd/useTagAutocomplete";
@@ -16,7 +16,7 @@ import HighlightedText from "@/components/palette/HighlightedText";
 import PriorityDot from "@/components/task/PriorityDot";
 import type { PaletteItem } from "@/components/palette/types";
 import { groupPaletteResults } from "@/lib/utils/groupPaletteResults";
-import { useModKey } from "@/lib/ui/useModKey";
+import { useModKey } from "@/hooks/useModKey";
 import { matchWithKeywords, type FuzzyMatch } from "@/lib/utils/fuzzyMatch";
 
 /** Order of the group headings; anything not listed comes last. */

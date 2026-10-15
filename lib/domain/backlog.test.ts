@@ -4,7 +4,7 @@ import {
   isBacklogTask,
   planBacklogReorder,
   sortBacklogTasks,
-} from "@/lib/utils/backlog";
+} from "@/lib/domain/backlog";
 import type { Task } from "@/lib/types";
 import { localDate, localIso, makeTask } from "@/lib/test/factories";
 

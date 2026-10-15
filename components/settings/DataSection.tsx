@@ -4,7 +4,7 @@ import { useState, useSyncExternalStore } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Download } from "lucide-react";
 import { exportAll, getDataCounts } from "@/lib/db/backup";
-import { buildBackup, backupFileName, serializeBackup } from "@/lib/utils/backup";
+import { buildBackup, backupFileName, serializeBackup } from "@/lib/domain/backup";
 import { getBackupNudge } from "@/lib/utils/backupNudge";
 import { downloadTextFile } from "@/lib/ui/downloadFile";
 import { readLastExportedAt, subscribeLastExportedAt, writeLastExportedAt } from "@/lib/ui/lastExported";

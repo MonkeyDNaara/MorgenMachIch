@@ -6,7 +6,7 @@ import {
   normalizeLabelName,
   pickLabelColors,
   tagToLabelName,
-} from "@/lib/utils/labelNames";
+} from "@/lib/domain/labelNames";
 
 /** One entry in the quick-add autocomplete (#203). */
 export type QuickAddSuggestion = {
