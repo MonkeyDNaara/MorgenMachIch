@@ -193,6 +193,22 @@
   @apply bg-sunken shadow-sunken;
 }
 
+/* Landing page (#85): a soft amber + cyan glow behind the hero and the final
+   call to action. Built from theme colors, so both themes work. */
+@utility site-glow {
+  background-image:
+    radial-gradient(
+      60% 60% at 75% 0%,
+      color-mix(in oklab, var(--color-primary) 11%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      45% 50% at 5% 35%,
+      color-mix(in oklab, var(--color-accent) 7%, transparent),
+      transparent 70%
+    );
+}
+
 /* Drag & drop (#355). Accent marks where things go; colors come from
    the theme, so both themes work. With reduced motion nothing tilts. */
 @utility drag-lifted {
