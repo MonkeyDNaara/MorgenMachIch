@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import SiteHeader from "@/components/site/SiteHeader";
 import Hero from "@/components/site/Hero";
+import QuickAddDemoSection from "@/components/site/QuickAddDemoSection";
 import FeatureGrid from "@/components/site/FeatureGrid";
 import FinalCta from "@/components/site/FinalCta";
 import SiteFooter from "@/components/site/SiteFooter";
@@ -10,7 +11,8 @@ export const metadata: Metadata = {
 };
 
 /**
- * `/` — the landing page (#14). Product half (#85): header, hero, features,
+ * `/` — the landing page (#14). Product half (#85): header, hero, live
+ * quick-add demo (#86), features,
  * final call to action, footer. Returning users are sent to /today by a
  * script in the root layout's <head>; `/?landing` shows the page anyway.
  * Server components only — no IndexedDB on this page.
@@ -27,6 +29,7 @@ export default function LandingPage() {
       <SiteHeader />
       <main id="main">
         <Hero />
+        <QuickAddDemoSection />
         <FeatureGrid />
         <FinalCta />
       </main>
