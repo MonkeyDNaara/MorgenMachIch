@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import AppNav from "@/components/layout/AppNav";
 import BottomTabBar from "@/components/layout/BottomTabBar";
@@ -13,6 +14,10 @@ import { TaskDrawerProvider } from "@/components/task/TaskDrawerProvider";
 import { SeriesDrawerProvider } from "@/components/task/SeriesDrawerProvider";
 import { CommandPaletteProvider } from "@/components/palette/CommandPaletteProvider";
 import CommandPalette from "@/components/palette/CommandPalette";
+
+// The app pages show nothing without local data — keep them out of search
+// results (#377). They stay crawlable, so the noindex is seen.
+export const metadata: Metadata = { robots: { index: false } };
 
 /**
  * The app shell (#83, moved from the root layout): navigation, FAB,

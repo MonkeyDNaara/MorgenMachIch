@@ -1,0 +1,95 @@
+<!--
+  Open Graph card (#377), 1200×630. `npm run screenshots` loads the landing
+  page (for the fonts and theme tokens), replaces its body with this markup
+  and saves app/opengraph-image.jpg. {{TODAY_SCREENSHOT}} becomes the fresh
+  Today screenshot. Copy follows HERO in lib/site/content.ts.
+-->
+<div
+  style="
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background-color: var(--color-base-100);
+    background-image:
+      radial-gradient(
+        60% 70% at 85% 0%,
+        color-mix(in oklab, var(--color-primary) 16%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        50% 60% at 0% 100%,
+        color-mix(in oklab, var(--color-accent) 10%, transparent),
+        transparent 70%
+      );
+    color: var(--color-base-content);
+    font-family: var(--font-sans), sans-serif;
+  "
+>
+  <div
+    style="position: absolute; top: 64px; left: 72px; display: flex; gap: 14px; align-items: center"
+  >
+    <img src="/icon.svg" alt="" width="48" height="48" />
+    <span style="font-size: 28px; font-weight: 700; letter-spacing: -0.01em">
+      <span style="color: var(--color-primary)">Morgen</span>MachIch
+    </span>
+  </div>
+
+  <div style="position: absolute; top: 170px; left: 72px; width: 560px">
+    <div style="font-size: 68px; font-weight: 700; line-height: 0.98; letter-spacing: -0.03em">
+      Today, sorted.<br />The rest can wait for
+      <span style="color: var(--color-primary)">Morgen.</span>
+    </div>
+    <div style="margin-top: 28px; color: var(--color-muted); font-size: 24px; line-height: 1.35">
+      Tasks, calendar, routines and a quick-add that understands “Call mom fri 3pm”.
+    </div>
+  </div>
+
+  <div
+    style="
+      position: absolute;
+      bottom: 56px;
+      left: 72px;
+      color: var(--color-muted);
+      font-family: var(--font-mono), monospace;
+      font-size: 17px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    "
+  >
+    Next.js · TypeScript · PWA · works offline
+  </div>
+
+  <div
+    style="
+      position: absolute;
+      top: 120px;
+      left: 680px;
+      width: 900px;
+      overflow: hidden;
+      border: 1px solid var(--color-line-strong);
+      border-radius: 18px;
+      background: var(--color-base-200);
+      box-shadow: 0 30px 80px rgb(0 0 0 / 0.55);
+    "
+  >
+    <div
+      style="
+        display: flex;
+        gap: 8px;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--color-line);
+      "
+    >
+      <i
+        style="width: 11px; height: 11px; border-radius: 50%; background: var(--color-line-strong)"
+      ></i>
+      <i
+        style="width: 11px; height: 11px; border-radius: 50%; background: var(--color-line-strong)"
+      ></i>
+      <i
+        style="width: 11px; height: 11px; border-radius: 50%; background: var(--color-line-strong)"
+      ></i>
+    </div>
+    <img src="{{TODAY_SCREENSHOT}}" alt="" style="display: block; width: 900px" />
+  </div>
+</div>

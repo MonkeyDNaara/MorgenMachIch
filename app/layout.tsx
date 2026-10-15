@@ -4,6 +4,8 @@ import ServiceWorkerRegistrar from "@/components/layout/ServiceWorkerRegistrar";
 import ThemeSync from "@/components/layout/ThemeSync";
 import { THEME_COLORS, THEME_INIT_SCRIPT } from "@/lib/ui/themePreference";
 import { SKIP_LANDING_SCRIPT } from "@/lib/ui/appVisited";
+import { SEO } from "@/lib/site/content";
+import { SITE_URL } from "@/lib/site/siteUrl";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -19,7 +21,11 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   // Pages set only their own name ("Today"); TitleCount adds the open count (#187).
   title: { default: "MorgenMachIch", template: "%s · MorgenMachIch" },
-  description: "A to-do app with labels, a calendar view, and recurring tasks.",
+  description: SEO.description,
+  // Absolute URLs for link previews, canonical links and the sitemap (#377).
+  metadataBase: SITE_URL,
+  openGraph: { type: "website", siteName: SEO.siteName, locale: "en_US" },
+  twitter: { card: "summary_large_image" },
   // iOS "Add to Home Screen": standalone launch with the short name (#80). The
   // default status bar keeps content below it, so only the bottom inset matters.
   appleWebApp: { capable: true, title: "Morgen", statusBarStyle: "default" },
