@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import packageJson from "@/package.json";
+import { LEGAL_LINKS } from "@/lib/site/legal";
 
 const REPO_URL = "https://github.com/MonkeyDNaara/MorgenMachIch";
 
@@ -34,6 +35,13 @@ export default function AboutCard() {
         Source on GitHub
         <ExternalLink size={12} />
       </a>
+      <p className="flex gap-3 text-xs">
+        {LEGAL_LINKS.map((link) => (
+          <Link key={link.href} href={link.href} className="text-subtle hover:text-base-content">
+            {link.label}
+          </Link>
+        ))}
+      </p>
     </section>
   );
 }
