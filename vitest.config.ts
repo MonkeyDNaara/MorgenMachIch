@@ -24,6 +24,7 @@ export default defineConfig({
         "components/**/*.{ts,tsx}",
         "features/**/*.{ts,tsx}",
         "app/**/_components/**/*.{ts,tsx}",
+        "server/**/*.ts",
       ],
       exclude: ["**/*.test.{ts,tsx}", "lib/test/**"],
       reporter: ["text-summary", "text"],
