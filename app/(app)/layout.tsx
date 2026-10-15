@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import AppNav from "@/components/layout/AppNav";
-import BottomTabBar from "@/components/layout/BottomTabBar";
-import AddTaskFab from "@/components/layout/AddTaskFab";
+import AppNav from "@/app/(app)/_components/AppNav";
+import BottomTabBar from "@/app/(app)/_components/BottomTabBar";
+import AddTaskFab from "@/app/(app)/_components/AddTaskFab";
 import { ToastProvider } from "@/components/ui/ToastProvider";
-import TitleCount from "@/components/layout/TitleCount";
+import TitleCount from "@/app/(app)/_components/TitleCount";
 import UpdateToast from "@/components/layout/UpdateToast";
 import MarkAppVisited from "@/components/layout/MarkAppVisited";
 import TaskDrawer from "@/components/task/TaskDrawer";

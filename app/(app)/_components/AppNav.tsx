@@ -10,7 +10,7 @@ import { useModKey } from "@/hooks/useModKey";
 import { useCommandPalette } from "@/components/palette/CommandPaletteProvider";
 import LogoMark from "@/components/ui/LogoMark";
 import ThemeToggle from "@/components/layout/ThemeToggle";
-import { MAIN_NAV, NAV_ITEMS, isActive, type NavItem } from "@/components/layout/navItems";
+import { MAIN_NAV, NAV_ITEMS, isActive, type NavItem } from "@/app/(app)/_components/navItems";
 
 function itemClasses(active: boolean): string {
   const base =

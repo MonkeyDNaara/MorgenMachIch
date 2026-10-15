@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { Ellipsis, Search } from "lucide-react";
 import { useDismiss } from "@/hooks/useDismiss";
 import { useCommandPalette } from "@/components/palette/CommandPaletteProvider";
-import { NAV_ITEMS, isActive, type NavItem } from "@/components/layout/navItems";
+import { NAV_ITEMS, isActive, type NavItem } from "@/app/(app)/_components/navItems";
 import ThemeToggle from "@/components/layout/ThemeToggle";
 
 const TABS: NavItem[] = [NAV_ITEMS.today, NAV_ITEMS.tasks, NAV_ITEMS.calendar, NAV_ITEMS.stats];

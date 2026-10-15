@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { getTasks } from "@/lib/db/tasks";
 import { countOpenToday } from "@/lib/utils/isDueToday";
-import { documentTitle } from "@/lib/utils/documentTitle";
+import { documentTitle } from "@/app/(app)/_components/documentTitle";
 
 type BadgingNavigator = Navigator & {
   setAppBadge?: (count?: number) => Promise<void>;

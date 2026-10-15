@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { documentTitle } from "@/lib/utils/documentTitle";
+import { documentTitle } from "@/app/(app)/_components/documentTitle";
 
 describe("documentTitle (#187)", () => {
   it("puts the count in front", () => {
