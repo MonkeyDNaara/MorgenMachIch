@@ -2,7 +2,7 @@ import type { Label } from "@/lib/types";
 import type { QuickAddToken } from "@/lib/utils/parseQuickAdd";
 import { PRIORITY_DOT_COLORS } from "@/lib/constants/priorityColors";
 import { formatQuickAddDue } from "@/lib/utils/formatQuickAddDue";
-import { formatRecurrenceRule } from "@/lib/utils/formatRecurrenceRule";
+import { formatRecurrenceRule } from "@/features/series/lib/formatRecurrenceRule";
 import { APP_LOCALE } from "@/lib/constants/locale";
 import { pickLabelColors } from "@/lib/domain/labelNames";
 

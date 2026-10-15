@@ -12,7 +12,7 @@ import { FIELD_FOCUS } from "@/lib/styles/fieldFocus";
 import { tintChipStyle } from "@/lib/styles/colorChip";
 import { PRIORITY_DOT_COLORS } from "@/lib/constants/priorityColors";
 import { formatQuickAddDue } from "@/lib/utils/formatQuickAddDue";
-import { formatRecurrenceRule } from "@/lib/utils/formatRecurrenceRule";
+import { formatRecurrenceRule } from "@/features/series/lib/formatRecurrenceRule";
 import type { QuickAddResult } from "@/lib/utils/parseQuickAdd";
 import { DEMO_EXAMPLES, DEMO_LABELS } from "@/lib/site/quickAddDemo";
 

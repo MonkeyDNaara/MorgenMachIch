@@ -7,11 +7,11 @@ import { ToastProvider } from "@/components/ui/ToastProvider";
 import TitleCount from "@/app/(app)/_components/TitleCount";
 import UpdateToast from "@/components/layout/UpdateToast";
 import MarkAppVisited from "@/components/layout/MarkAppVisited";
-import TaskDrawer from "@/components/task/TaskDrawer";
-import SeriesDrawer from "@/components/task/SeriesDrawer";
-import OccurrenceSync from "@/components/task/OccurrenceSync";
-import { TaskDrawerProvider } from "@/components/task/TaskDrawerProvider";
-import { SeriesDrawerProvider } from "@/components/task/SeriesDrawerProvider";
+import TaskDrawer from "@/features/tasks/components/drawer/TaskDrawer";
+import SeriesDrawer from "@/features/series/components/SeriesDrawer";
+import OccurrenceSync from "@/features/series/components/OccurrenceSync";
+import { TaskDrawerProvider } from "@/features/tasks/components/drawer/TaskDrawerProvider";
+import { SeriesDrawerProvider } from "@/features/series/components/SeriesDrawerProvider";
 import { CommandPaletteProvider } from "@/components/palette/CommandPaletteProvider";
 import CommandPalette from "@/components/palette/CommandPalette";
 

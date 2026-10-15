@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { Plus } from "lucide-react";
-import { useTaskDrawer } from "@/components/task/TaskDrawerProvider";
+import { useTaskDrawer } from "@/features/tasks/components/drawer/TaskDrawerProvider";
 
 /** Routes where "add a task" makes sense. Labels/Settings aren't about
  * tasks, so the FAB would be a dead end (or confusing) there. */

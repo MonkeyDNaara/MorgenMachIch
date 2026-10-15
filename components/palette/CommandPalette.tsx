@@ -13,7 +13,7 @@ import { useTagAutocomplete } from "@/components/quickadd/useTagAutocomplete";
 import { useCommandPalette } from "@/components/palette/CommandPaletteProvider";
 import { usePaletteItems } from "@/components/palette/usePaletteItems";
 import HighlightedText from "@/components/palette/HighlightedText";
-import PriorityDot from "@/components/task/PriorityDot";
+import PriorityDot from "@/features/tasks/components/card/PriorityDot";
 import type { PaletteItem } from "@/components/palette/types";
 import { groupPaletteResults } from "@/lib/utils/groupPaletteResults";
 import { useModKey } from "@/hooks/useModKey";

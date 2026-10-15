@@ -6,7 +6,7 @@ import {
   createTaskSeriesWithOccurrences,
   deleteTaskSeriesAndOccurrences,
 } from "@/lib/db/taskSeries";
-import { formatRecurrenceRule } from "@/lib/utils/formatRecurrenceRule";
+import { formatRecurrenceRule } from "@/features/series/lib/formatRecurrenceRule";
 import type { QuickAddResult } from "@/lib/utils/parseQuickAdd";
 import { seriesFromQuickAdd } from "@/lib/utils/quickAddSeries";
 import { useToast } from "@/components/ui/ToastProvider";

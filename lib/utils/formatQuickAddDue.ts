@@ -1,5 +1,5 @@
 import { APP_LOCALE } from "@/lib/constants/locale";
-import { formatTime } from "@/lib/utils/formatDueDate";
+import { formatTime } from "@/features/tasks/lib/formatDueDate";
 
 function startOfDay(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());

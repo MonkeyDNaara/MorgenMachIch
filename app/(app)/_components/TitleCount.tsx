@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { getTasks } from "@/lib/db/tasks";
-import { countOpenToday } from "@/lib/utils/isDueToday";
+import { countOpenToday } from "@/features/tasks/lib/isDueToday";
 import { documentTitle } from "@/app/(app)/_components/documentTitle";
 
 type BadgingNavigator = Navigator & {

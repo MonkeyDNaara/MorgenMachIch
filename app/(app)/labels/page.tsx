@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import LabelsView from "@/components/label/LabelsView";
+import LabelsView from "@/features/labels/components/LabelsView";
 
 export const metadata: Metadata = {
   title: "Labels",

@@ -1,5 +1,5 @@
-import PriorityDot from "@/components/task/PriorityDot";
-import { formatTime } from "@/lib/utils/formatDueDate";
+import PriorityDot from "@/features/tasks/components/card/PriorityDot";
+import { formatTime } from "@/features/tasks/lib/formatDueDate";
 import type { DraggedTask } from "@/components/dnd/types";
 
 /**

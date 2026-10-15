@@ -1,0 +1,319 @@
+"use client";
+
+import { useId, useState, useSyncExternalStore } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
+import { CalendarDays, CheckCheck, Inbox, ListTodo, Repeat, SlidersHorizontal } from "lucide-react";
+import type { Task } from "@/lib/types";
+import { getTasks, reorderBacklogTask } from "@/lib/db/tasks";
+import { getLabels } from "@/lib/db/labels";
+import { listTaskSeries } from "@/lib/db/taskSeries";
+import { filterTasksByLabels } from "@/features/tasks/lib/filterTasksByLabels";
+import { filterTasksByStatus, type StatusFilter } from "@/features/tasks/lib/filterTasksByStatus";
+import {
+  filterTasksByPriority,
+  type PriorityFilter,
+} from "@/features/tasks/lib/filterTasksByPriority";
+import { filterSeriesByPriority } from "@/features/series/lib/filterSeriesByPriority";
+import { filterSeriesByLabels } from "@/features/series/lib/filterSeriesByLabels";
+import { sortTasks, type TaskSortBy } from "@/features/tasks/lib/sortTasks";
+import { isBacklogTask, sortBacklogTasks } from "@/lib/domain/backlog";
+import { OLD_DONE_DAYS, splitOldDone } from "@/features/tasks/lib/oldDone";
+import {
+  readBacklogVisible,
+  subscribeBacklogVisible,
+  writeBacklogVisible,
+} from "@/features/backlog/lib/backlogVisible";
+import TaskListToolbar from "@/features/tasks/components/list/TaskListToolbar";
+import FilterPopover from "@/features/tasks/components/list/FilterPopover";
+import TaskCardList from "@/features/tasks/components/card/TaskCardList";
+import TaskQuickAdd, { type QuickAddVisibility } from "@/components/task/TaskQuickAdd";
+import SeriesRow from "@/features/series/components/SeriesRow";
+import EmptyState from "@/components/ui/EmptyState";
+import PageHeader from "@/components/ui/PageHeader";
+
+function excludeSeriesOccurrences(tasks: Task[]): Task[] {
+  return tasks.filter((task) => task.seriesId === null);
+}
+
+/**
+ * /tasks' own view (#62) — a two-column layout rather than the flat
+ * TaskList Today/Calendar use, so one shared toolbar (status/priority/
+ * label filters) can drive both the standalone-task list on the left
+ * and the Recurring column (one row per TaskSeries) on the right, side
+ * by side, instead of a daily/weekly series flooding a flat list with
+ * dozens of individual occurrence rows.
+ *
+ * Status and sort are task-only concepts with no equivalent on a
+ * TaskSeries (no status, no due date) — by design (see #62 discussion)
+ * they only affect the left column. Priority and labels apply to both,
+ * via filterSeriesByPriority/filterSeriesByLabels mirroring the task
+ * versions. The Recurring column always sorts active series first, then
+ * paused, regardless of the sort dropdown.
+ *
+ * A third, hideable Backlog column (#182) lists open standalone tasks
+ * without a due date (isBacklogTask), with an age marker on each card.
+ * It is hand-ordered since #73 (drag by the grip, keyboard, or the grip's
+ * move menu); tasks never moved keep the priority → age order below. They no longer appear in the Tasks column.
+ * Label and priority filters apply to it like to the Recurring column;
+ * status and sort don't. Whether it is shown is remembered per browser.
+ *
+ * One quick-add bar above the columns (#205) replaces the Backlog's own
+ * input from #184: text without a date lands in the Backlog, a date sends
+ * it to the Tasks column. It stays usable while the Backlog is hidden and
+ * says so when a new task ends up somewhere not currently visible.
+ *
+ * Done tasks completed more than 7 days ago (#289) are hidden from the
+ * Tasks column by default — after all other filters, in "All" and "Done"
+ * alike — behind a quiet "N done tasks older than 7 days hidden · Show"
+ * row under the last card. Plain state like the other filters, so it is
+ * hidden again on every visit. Nothing else (Today, calendar, stats,
+ * palette) is affected.
+ *
+ * Card rendering is shared with TaskList via TaskCardList; the toolbar
+ * and label filter bar are the same components TaskList itself uses,
+ * just rendered here directly since this view owns the filter state
+ * instead of letting TaskList own it privately.
+ */
+export default function TasksView() {
+  const tasks = useLiveQuery(() => getTasks(), []);
+  const labels = useLiveQuery(() => getLabels(), []);
+  const series = useLiveQuery(() => listTaskSeries(), []);
+
+  const [activeLabelIds, setActiveLabelIds] = useState<string[]>([]);
+  const [status, setStatus] = useState<StatusFilter>("all");
+  const [priority, setPriority] = useState<PriorityFilter>("all");
+  const [sortBy, setSortBy] = useState<TaskSortBy>("dueDate");
+  const [showOldDone, setShowOldDone] = useState(false);
+  const tasksListId = useId();
+  const backlogVisible = useSyncExternalStore(
+    subscribeBacklogVisible,
+    readBacklogVisible,
+    () => true,
+  );
+
+  function toggleLabelFilter(labelId: string) {
+    setActiveLabelIds((prev) =>
+      prev.includes(labelId) ? prev.filter((id) => id !== labelId) : [...prev, labelId],
+    );
+  }
+
+  if (tasks === undefined || series === undefined) {
+    return <p className="p-8 text-center text-faint">Loading…</p>;
+  }
+
+  const isEmpty = tasks.length === 0 && series.length === 0;
+
+  const standaloneTasks = excludeSeriesOccurrences(tasks);
+  const backlogTasks = standaloneTasks.filter(isBacklogTask);
+  const datedTasks = standaloneTasks.filter((task) => !isBacklogTask(task));
+  const filteredTasks = filterTasksByLabels(
+    filterTasksByPriority(filterTasksByStatus(datedTasks, status), priority),
+    activeLabelIds,
+  );
+  const { recent: recentTasks, old: oldDoneTasks } = splitOldDone(filteredTasks, new Date());
+  const visibleTasks = sortTasks(showOldDone ? filteredTasks : recentTasks, sortBy);
+  const visibleBacklog = sortBacklogTasks(
+    filterTasksByLabels(filterTasksByPriority(backlogTasks, priority), activeLabelIds),
+  );
+
+  function visibilityOf(task: Task): QuickAddVisibility {
+    const narrowed = filterTasksByLabels(filterTasksByPriority([task], priority), activeLabelIds);
+    // A new series (#275) shows as a row in the Recurring column, which
+    // only label and priority filters narrow.
+    if (task.seriesId !== null) return narrowed.length === 0 ? "filtered" : "visible";
+    if (isBacklogTask(task)) {
+      if (!backlogVisible) return "out-of-scope";
+      return narrowed.length === 0 ? "filtered" : "visible";
+    }
+    return filterTasksByStatus(narrowed, status).length === 0 ? "filtered" : "visible";
+  }
+
+  const openCount = datedTasks.filter((task) => task.status === "open").length;
+
+  const visibleSeries = [
+    ...filterSeriesByLabels(filterSeriesByPriority(series, priority), activeLabelIds),
+  ].sort((a, b) => Number(b.active) - Number(a.active));
+
+  return (
+    <div className="flex flex-col">
+      <PageHeader
+        className={`mx-auto w-full px-6 pt-8 pb-6 ${
+          backlogVisible ? "max-w-5xl lg:max-w-7xl" : "max-w-5xl"
+        }`}
+        title="Tasks"
+        meta={
+          <span className="font-mono text-meta">
+            {openCount} open · {backlogTasks.length} in backlog · {series.length} recurring
+          </span>
+        }
+      />
+      <TaskListToolbar
+        className={`mx-auto w-full px-6 ${backlogVisible ? "max-w-5xl lg:max-w-7xl" : "max-w-5xl"}`}
+        status={status}
+        onStatusChange={setStatus}
+        sortBy={sortBy}
+        onSortByChange={setSortBy}
+        filter={
+          <FilterPopover
+            labels={labels ?? []}
+            activeLabelIds={activeLabelIds}
+            onToggleLabel={toggleLabelFilter}
+            priority={priority}
+            onPriorityChange={setPriority}
+            onClear={() => {
+              setActiveLabelIds([]);
+              setPriority("all");
+            }}
+          />
+        }
+      />
+      <div
+        className={`mx-auto flex w-full flex-wrap items-start gap-3 px-6 pt-4 ${
+          backlogVisible ? "max-w-5xl lg:max-w-7xl" : "max-w-5xl"
+        }`}
+      >
+        <div className="min-w-0 flex-[1_1_16rem]">
+          <TaskQuickAdd defaultDate={null} visibilityOf={visibilityOf} />
+        </div>
+        <button
+          type="button"
+          onClick={() => writeBacklogVisible(!backlogVisible)}
+          aria-pressed={backlogVisible}
+          className={`mt-2 flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium outline-none! transition-colors ${
+            backlogVisible
+              ? "bg-base-300 text-base-content shadow-raised-sm"
+              : "text-muted hover:bg-line hover:text-base-content"
+          }`}
+        >
+          <Inbox size={14} />
+          Backlog · {backlogTasks.length}
+        </button>
+      </div>
+      <div
+        className={`mx-auto grid w-full grid-cols-1 md:grid-cols-[minmax(0,3fr)_1px_minmax(0,2fr)] ${
+          backlogVisible
+            ? "max-w-5xl lg:max-w-7xl lg:grid-cols-[minmax(0,3fr)_1px_minmax(0,2fr)_1px_minmax(0,2fr)]"
+            : "max-w-5xl"
+        }`}
+      >
+        <div className="p-6">
+          <div className="mx-auto w-full max-w-md">
+            <p className="mb-3 font-mono text-eyebrow text-subtle uppercase">Tasks</p>
+            <div id={tasksListId}>
+              <TaskCardList
+                tasks={visibleTasks}
+                labels={labels ?? []}
+                compactEmpty
+                empty={
+                  isEmpty
+                    ? {
+                        icon: ListTodo,
+                        title: "No tasks yet.",
+                        hint: "Type one above — try “Call mom fri 3pm #family”.",
+                      }
+                    : datedTasks.length === 0
+                      ? {
+                          icon: CalendarDays,
+                          title: "Nothing scheduled.",
+                          hint: "Plan a backlog task, or add one with a date.",
+                        }
+                      : oldDoneTasks.length > 0
+                        ? {
+                            icon: CheckCheck,
+                            title: "Only older done tasks here.",
+                            hint: `Finished more than ${OLD_DONE_DAYS} days ago — show them below.`,
+                          }
+                        : {
+                            icon: SlidersHorizontal,
+                            title: "No tasks match these filters.",
+                            hint: "Change or clear the filters to see more.",
+                          }
+                }
+              />
+            </div>
+            {oldDoneTasks.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowOldDone((shown) => !shown)}
+                aria-expanded={showOldDone}
+                aria-controls={tasksListId}
+                className="mt-3 w-full cursor-pointer rounded-lg px-2 py-1.5 text-center font-mono text-meta text-subtle outline-none! transition-colors hover:text-base-content focus-visible:shadow-focus"
+              >
+                {showOldDone ? (
+                  "Hide older done tasks"
+                ) : (
+                  <>
+                    {oldDoneTasks.length} done {oldDoneTasks.length === 1 ? "task" : "tasks"} older
+                    than {OLD_DONE_DAYS} days hidden · <span className="text-accent">Show</span>
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="hidden bg-line md:block" />
+        <div className="p-6">
+          <div className="mx-auto w-full max-w-xs">
+            <p className="mb-3 font-mono text-eyebrow text-subtle uppercase">Recurring</p>
+            {visibleSeries.length === 0 ? (
+              series.length === 0 ? (
+                <EmptyState
+                  compact
+                  icon={Repeat}
+                  title="No recurring tasks."
+                  hint="Turn on Repeat when creating a task."
+                />
+              ) : (
+                <EmptyState
+                  compact
+                  icon={SlidersHorizontal}
+                  title="No recurring tasks match."
+                  hint="Change or clear the filters."
+                />
+              )
+            ) : (
+              <div className="flex flex-col gap-2">
+                {visibleSeries.map((s) => (
+                  <SeriesRow key={s.id} series={s} labels={labels ?? []} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        {backlogVisible && (
+          <>
+            <div className="hidden bg-line lg:block" />
+            <div className="border-t border-line p-6 md:col-span-3 lg:col-span-1 lg:border-t-0">
+              <div className="mx-auto w-full max-w-xs">
+                <p className="mb-3 font-mono text-eyebrow text-subtle uppercase">
+                  Backlog · {visibleBacklog.length}
+                </p>
+                <TaskCardList
+                  tasks={visibleBacklog}
+                  labels={labels ?? []}
+                  showAge
+                  showPlan
+                  onReorder={reorderBacklogTask}
+                  compactEmpty
+                  empty={
+                    backlogTasks.length === 0
+                      ? {
+                          icon: Inbox,
+                          title: "Backlog is empty — everything has a day.",
+                          hint: "Tasks without a due date land here.",
+                        }
+                      : {
+                          icon: SlidersHorizontal,
+                          title: "No backlog tasks match.",
+                          hint: "Change or clear the filters.",
+                        }
+                  }
+                />
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}

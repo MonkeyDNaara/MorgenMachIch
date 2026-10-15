@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Search } from "lucide-react";
 import { getTasks } from "@/lib/db/tasks";
-import { countOpenToday } from "@/lib/utils/isDueToday";
+import { countOpenToday } from "@/features/tasks/lib/isDueToday";
 import { useModKey } from "@/hooks/useModKey";
 import { useCommandPalette } from "@/components/palette/CommandPaletteProvider";
 import LogoMark from "@/components/ui/LogoMark";
