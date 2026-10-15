@@ -7,7 +7,10 @@ import { getTasks } from "@/lib/db/tasks";
 import { getLabels } from "@/lib/db/labels";
 import { filterTasksByLabels } from "@/features/tasks/lib/filterTasksByLabels";
 import { filterTasksByStatus, type StatusFilter } from "@/features/tasks/lib/filterTasksByStatus";
-import { filterTasksByPriority, type PriorityFilter } from "@/features/tasks/lib/filterTasksByPriority";
+import {
+  filterTasksByPriority,
+  type PriorityFilter,
+} from "@/features/tasks/lib/filterTasksByPriority";
 import { sortTasks, type TaskSortBy } from "@/features/tasks/lib/sortTasks";
 import TaskCardList from "@/features/tasks/components/card/TaskCardList";
 import FilterPopover from "@/features/tasks/components/list/FilterPopover";
@@ -112,9 +115,7 @@ export default function TaskList({
   // tasks, so the bar keeps its place — and its focus — when the first task
   // is added.
   if (tasks.length === 0 && !header) {
-    return (
-      <EmptyState {...NO_TASKS_YET} hint="Hit the + button to add your first one." />
-    );
+    return <EmptyState {...NO_TASKS_YET} hint="Hit the + button to add your first one." />;
   }
 
   const scopedTasks = baseFilter ? baseFilter(tasks) : tasks;
@@ -152,13 +153,7 @@ export default function TaskList({
           tasks={visibleTasks}
           labels={labels ?? []}
           draggableToDays={draggableToDays}
-          empty={
-            tasks.length === 0
-              ? NO_TASKS_YET
-              : filtersActive
-                ? FILTERED
-                : (empty ?? FILTERED)
-          }
+          empty={tasks.length === 0 ? NO_TASKS_YET : filtersActive ? FILTERED : (empty ?? FILTERED)}
         />
       </div>
     </div>

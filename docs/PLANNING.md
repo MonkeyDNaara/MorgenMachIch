@@ -1,6 +1,7 @@
 # MorgenMachIch — Planning
 
 ## Decisions so far
+
 - Stack: TypeScript, Next.js (App Router), React, DaisyUI/Tailwind.
 - SPA with routed views under a shared layout (responsive navigation since #235: text sidebar ≥ lg, icon rail at md, bottom tab bar below md).
 - Design direction: dark-first, terminal/dev-tool inspired with Things 3-style tactile warmth. Chosen visual language = "Rounded Tags" palette/shapes (cyan accent, pill tags, circular checkboxes) + nav rail structure from "Two-Tone Split", FAB style from "Rounded Tags", pushed into a layered/3D depth treatment (inset highlights, soft drop shadows, glossy FAB). Locked in the design canvas artifact (Main.dc.html = merged direction). **Superseded by the Design polish epic (#230, "Dawn Tactile") — see below.**
@@ -14,7 +15,7 @@
 - Task editing: drawer/modal (`TaskDrawer`), not a dedicated route. Open/closed + create-vs-edit state lives in a `TaskDrawerProvider` React context (mounted in `app/layout.tsx`) so any component can open it without prop-drilling.
 - Task drawer FAB: no separate backlog issue for the floating "+" button from the mockup — folded into #25 since the drawer needed a create-trigger anyway.
 - Task drawer labels: assigning labels to a task from the drawer was deferred out of #25 into its own future Labels-epic issue ("Add label picker to task drawer", added below), so the picker can reuse the reusable label chip component instead of duplicating chip-rendering logic early.
-- Due date/time storage (added for #26): combined into a single ISO datetime string via `new Date(...).toISOString()`, interpreted as local time (single-timezone personal app, no server). All-day tasks store local midnight. Downstream "is this due today" logic (Today/Calendar epics) must convert back to *local* date parts, not UTC, when bucketing by day.
+- Due date/time storage (added for #26): combined into a single ISO datetime string via `new Date(...).toISOString()`, interpreted as local time (single-timezone personal app, no server). All-day tasks store local midnight. Downstream "is this due today" logic (Today/Calendar epics) must convert back to _local_ date parts, not UTC, when bucketing by day.
 - Task card interaction (added for #29): the status circle and the title/date area are sibling `<button>`s inside a plain wrapper `<div>` (not a button nested inside a button, which is invalid HTML) — the circle toggles `status`/`completedAt` in place via `updateTask()`, the title/date area opens the edit drawer.
 - Labels epic scope merge (added for #113): "Build labels management page," "Build label color picker," and "Build reusable label chip component" were 3 separate backlog bullets but are really one deliverable — merged into a single new issue, #113 (the pre-existing placeholder issues #31/#32/#33 from the original backlog seeding got closed as superseded). **Process note:** confirm the actual issue number GitHub assigns right after `gh issue create` runs, rather than assuming the next sequential number — this backlog already had #31-#35 reserved for Labels, so the new issue landed at #113, not #31.
 - Label color palette (added for #113): fixed set of 12 curated swatches, generated in OKLCH (L=0.75, C=0.14) spread across the hue wheel for a cohesive family on the dark theme. No free color picker. Defined once in `lib/constants/labelColors.ts`, imported by both the Zod schema (`Label.color` is a `z.enum` over the palette, not `z.string()`) and the swatch-picker UI.
@@ -47,19 +48,20 @@
 - Future direction — automation & second brain (added after #168, updated 2026-10-12): the app becomes part of a "second brain" with Claude and Obsidian, and n8n agents automate around it. Both use the same `/api/v1` with machine API keys (read/write scopes, no delete for agent keys): n8n polls `updatedSince` and receives outgoing webhooks (task.completed / task.overdue); an MCP endpoint on top of the API serves Claude and n8n's AI agent node. The Obsidian/Claude workflow itself is still open. The rule stays: domain logic in pure functions (`lib/utils`), data formats versioned.
 - Future direction — feedback & admin (decided 2026-10-12, after Auth & Machine Access): **open sign-up** once login exists, with an admin (Niko) who can block and delete accounts. **Bug reports:** a "Report a bug" action stores the text plus automatic context (app version, page, browser, theme — never task content) in a `bug_reports` table; the admin area lists them with a status and can turn one into a GitHub issue with one click (the server holds the GitHub token; users never trigger GitHub directly). **Admin role:** checked in the Neon Auth spike (#306) — Better Auth's admin plugin (roles, list users, ban/unban, remove) if the managed version has it, otherwise an own `role` column and a ban check in `requireUser()`. The admin sees **non-sensitive data only** (email, sign-up date, last active, counts of tasks/series/labels) — no task titles, notes or labels. **Privacy (GDPR):** with other people's data the app needs an Impressum and a privacy policy, self-service export and account deletion (all rows, cascade), and data in an EU region — Neon region to be chosen in #304 (the Render service currently runs in Oregon; moving it to Frankfurt means a new service). Planned as the epic Feedback & Admin (backlog below).
 - Deployment & Ops — error pages (done, #177): `app/not-found.tsx` (terminal-style 404 with "Back to Today"), `app/error.tsx` (client boundary: friendly message, "Try again" via `reset`, "Go to Today", collapsed "Technical details" with message/digest, `console.error` in an effect) and `app/global-error.tsx` (fallback for root-layout failures; replaces the root layout, so it renders its own `<html>`/`<body>`, imports `globals.css`, and uses a plain `<a>` instead of `next/link` because a full page load is the safest exit when routing itself broke). All three share `StatusPage` (`components/ui/StatusPage.tsx`: large mono code in the accent color, title, one sentence, actions). `isStorageError()` (`lib/utils/isStorageError.ts`, pure) recognises Dexie/IndexedDB failures (`OpenFailedError`, `DatabaseClosedError`, `MissingAPIError`, `QuotaExceededError`, `SecurityError`, `InvalidStateError`, `VersionError`, or an "IndexedDB" mention in the message) so a blocked-storage case (e.g. a private window) gets a targeted hint instead of a generic message — the one runtime failure this local-first app can realistically hit.
-- Deployment & Ops — CI (done, #178): `.github/workflows/ci.yml` runs on every pull request and on pushes to `main`: Node 22 with the npm cache, `npm ci`, `npx next typegen`, `npx tsc --noEmit`, `npm run lint`, `npm run build`, with a read-only token (`contents: read`), a 10-minute timeout, and concurrency that cancels superseded runs. It does not deploy — Render auto-deploys from `main`. The first run failed and caught a real gap: Next 16's global route types (`LayoutProps`, `PageProps`) are generated into the gitignored `.next/types`, so on a fresh checkout `tsc` failed with `Cannot find name 'LayoutProps'` (locally the folder exists after `next dev`). The fix is the `next typegen` step before the typecheck. A CI status badge is in the README. Making the check *required* is a repo setting (branch ruleset), not code; it was left optional. The same workflow will run Vitest once that epic lands.
+- Deployment & Ops — CI (done, #178): `.github/workflows/ci.yml` runs on every pull request and on pushes to `main`: Node 22 with the npm cache, `npm ci`, `npx next typegen`, `npx tsc --noEmit`, `npm run lint`, `npm run build`, with a read-only token (`contents: read`), a 10-minute timeout, and concurrency that cancels superseded runs. It does not deploy — Render auto-deploys from `main`. The first run failed and caught a real gap: Next 16's global route types (`LayoutProps`, `PageProps`) are generated into the gitignored `.next/types`, so on a fresh checkout `tsc` failed with `Cannot find name 'LayoutProps'` (locally the folder exists after `next dev`). The fix is the `next typegen` step before the typecheck. A CI status badge is in the README. Making the check _required_ is a repo setting (branch ruleset), not code; it was left optional. The same workflow will run Vitest once that epic lands.
 - Deployment & Ops — Render verification (checked 2026-10-07 via the Render connector, read-only): service `morgen-mach-ich` is a Node web service on the free plan (Oregon) built from `MonkeyDNaara/MorgenMachIch`, auto-deploy on commit for `main`, build `npm ci && npm run build`, start `npm run start` — matching `render.yaml`. Every merge to `main` deploys in about 75 seconds. No health-check path is configured. Free-tier spin-down (idle service sleeps and needs a few seconds to wake) was **accepted**: the README keeps its note, no keep-alive ping; revisit (e.g. a paid plan) if daily use makes it annoying. Because data lives in IndexedDB, the deployed app starts empty on each device/browser — Settings export/import is the way to move data until the Neon epic exists.
 - Migration path — Dexie to a hosted API (written for Deployment & Ops, updated 2026-10-12 for the hosted-database decision): the seam is already clean. Components and pages never import Dexie or `db`; everything goes through the async functions in `lib/db` (`tasks.ts`, `taskSeries.ts`, `labels.ts`, `occurrences.ts`, `backup.ts`), validated with the Zod schemas in `lib/types`. A hosted implementation (Neon/Postgres behind an API) should keep those function signatures and the Zod validation at the boundary. The one UI-side Dexie coupling is `useLiveQuery` from `dexie-react-hooks`, used in 10 components (`LabelsView`, `DangerZoneSection`, `DataSection`, `ImportSection`, `CalendarView`, `SeriesDrawerPanel`, `TaskDrawerPanel`, `TaskList`, `TasksView`, `WeekAheadStrip`). Status 2026-10-12 — each open point is decided and has an issue: (1) `useLiveQuery` → TanStack Query with optimistic updates; (2) the Dexie transactions in `importAll`, `deleteAllData`, `exportAll` and `updateTaskSeriesAndRegenerate` → Postgres transactions in the service layer; (3) `generateOccurrences()` (today run in the browser on every load, which would create duplicates against a shared database) moves to the server **and** gets a unique constraint on (series_id, occurrence date) — it needs the user's time zone, because occurrence dates are local days and Render runs in UTC; (4) the last-export timestamp stays per-browser localStorage (export remains a personal backup); (5) Neon Auth login + API keys, before any route is deployed; (6) one-time move: export from the current (Dexie) version, import through the new API (`parseBackup` stays the validator).
 - Testing (added 2026-09-14): Vitest, added at the end of development rather than test-driven alongside each epic — once the feature set is stable, write tests for the parts that most benefit from them (pure date-math/recurrence logic, the `lib/db` repository layer, filter/sort utilities), not a blanket coverage target. Exact scope gets nailed down when that epic is picked up.
-- Testing epic (done, epic #153; #339–#344, PRs #345–#351): **Vitest 5** + `@vitest/coverage-v8`, tests next to their source (`lib/utils/foo.test.ts`), explicit `vitest` imports, the `@/` alias via `resolve.alias`. **Time zones:** the CI `test` job is a matrix over Europe/Berlin, America/Los_Angeles, Asia/Kolkata and Pacific/Auckland (DST weekends and far-from-UTC dates; #279 only showed west of UTC); `TZ` defaults to Berlin in `vitest.config.ts`, `npm run test:tz` (`scripts/test-tz.mjs`) runs all four locally. **Scope:** every pure helper in `lib/utils` plus `lib/commands`, ported from the scratch suites in the Claude project and extended (recurrence intervals and nth/last weekdays, filters, sorting, `formatRecurrenceRule`, `backupNudge`, `isDueToday`); shared builders in `lib/test/factories.ts` (`localIso`/`localDate`/`dayKey` from local parts, `makeTask`, `makeSeries`, `makeLabel`, `rule`); React Testing Library + `user-event` + jsdom (per file) for `useRadioGroupKeys` and `DateField`. No Dexie tests — Dexie goes away with #298; the service layer gets its own tests there. Coverage is reported (Berlin job), not enforced; `lib/utils` ≈ 95 %. Result: 472 tests in 35 files. Setup needed `@types/node` 20 → 22 (Vitest 5's peer range; the app already runs on Node 22). Lessons kept in CONVENTIONS.md: fake only `Date` (`vi.useFakeTimers({ toFake: ["Date"] })`) so user-event's timers run, `afterEach(cleanup)` without globals, query by role and name. Writing the new recurrence and DateField tests caught two wrong *expectations* (first Monday of Oct 2026 is the 5th; en-GB long dates have a comma) — no code bugs.
+- Testing epic (done, epic #153; #339–#344, PRs #345–#351): **Vitest 5** + `@vitest/coverage-v8`, tests next to their source (`lib/utils/foo.test.ts`), explicit `vitest` imports, the `@/` alias via `resolve.alias`. **Time zones:** the CI `test` job is a matrix over Europe/Berlin, America/Los_Angeles, Asia/Kolkata and Pacific/Auckland (DST weekends and far-from-UTC dates; #279 only showed west of UTC); `TZ` defaults to Berlin in `vitest.config.ts`, `npm run test:tz` (`scripts/test-tz.mjs`) runs all four locally. **Scope:** every pure helper in `lib/utils` plus `lib/commands`, ported from the scratch suites in the Claude project and extended (recurrence intervals and nth/last weekdays, filters, sorting, `formatRecurrenceRule`, `backupNudge`, `isDueToday`); shared builders in `lib/test/factories.ts` (`localIso`/`localDate`/`dayKey` from local parts, `makeTask`, `makeSeries`, `makeLabel`, `rule`); React Testing Library + `user-event` + jsdom (per file) for `useRadioGroupKeys` and `DateField`. No Dexie tests — Dexie goes away with #298; the service layer gets its own tests there. Coverage is reported (Berlin job), not enforced; `lib/utils` ≈ 95 %. Result: 472 tests in 35 files. Setup needed `@types/node` 20 → 22 (Vitest 5's peer range; the app already runs on Node 22). Lessons kept in CONVENTIONS.md: fake only `Date` (`vi.useFakeTimers({ toFake: ["Date"] })`) so user-event's timers run, `afterEach(cleanup)` without globals, query by role and name. Writing the new recurrence and DateField tests caught two wrong _expectations_ (first Monday of Oct 2026 is the 5th; en-GB long dates have a comma) — no code bugs.
 - Dependency security (#350, PR #352): `npm audit` after adding the test tooling flagged a critical `next` 16.3.4 advisory (`next/og` RCE, `use cache` Draft Mode leak, SSG/ISR cache poisoning — none of these features are used) and `sharp`. Fixed with a **patch** update to `next`/`eslint-config-next` 16.3.8, kept as **exact pins** (`npm install --save-exact`; `npm audit fix` had silently moved `eslint-config-next` to 16.4.0 under a caret range, which broke `npm ci`), plus `npm audit fix` for `sharp` 0.35.5 and `brace-expansion`. **Accepted:** the dev-only `braces` → `micromatch` → `fast-glob` → `eslint-config-next` chain (5 × high, DoS via crafted globs, only in ESLint, no fixed `braces` release; `npm audit fix --force` would downgrade `eslint-config-next` to 14) — re-check on the next dependency update. Noticed: jsdom 30 wants Node ≥ 22.22.2 while `render.yaml` pins 22.11 (only an `EBADENGINE` warning, jsdom is dev-only) — raise Render's Node version on a later ops pass.
-- Drag & Drop epic (done, epic #11; #75, #355, #73, #74, #356, #357, PRs #358–#363; plan #354; visuals from `dnd-mockup.html`, variant A): **Library:** `@dnd-kit/core` 6 + `@dnd-kit/sortable` 10 + `@dnd-kit/utilities` — keyboard sensor and screen-reader announcements built in, separate mouse and touch sensors. Unlike the palette, charts and DateField it was not hand-built: touch-vs-scroll, collision detection, autoscroll and keyboard dragging are the hard part here; `@dnd-kit/react` 0.x was rejected as pre-1.0. **Manual order only in the Backlog** (the one list without a date; Today and the Tasks column stay time-sorted): `Task.sortOrder` is a fractional-index string from the hand-built `lib/domain/orderKey.ts` (`keyBetween`, `keysBetween`; base-62, compared as plain strings = Postgres `COLLATE "C"`, never `localeCompare`), `z.string().regex(…).nullable().default(null)` so old rows and backups parse unchanged; backup format **v3** (v1/v2 import with `null`); manual order replaces priority → oldest — tasks without a key keep that order below keyed ones, the first move gives the whole Backlog keys (`planBacklogReorder`, pure; also re-keys when two tasks share a key, e.g. a planned task that came back), new tasks land at the bottom; `reorderBacklogTask(id, prevId, nextId)` takes the *visible* neighbours, so a move with filters on lands between what you see. **Reorder UI (#73):** a grip left of the status circle (only the grip drags; hidden until hover/focus with a mouse, always visible and larger on touch), tilted lifted card with accent ring in a `DragOverlay`, sunken `drop-slot` gap, keyboard (Space/Enter, ↑/↓, Space/Enter, Escape) and a **move menu** on a plain click of the grip (Move to top / up / down / bottom — the WCAG 2.5.7 single-pointer alternative); drag and menu share pure `features/dnd/lib/listMove.ts`; the dropped order stays on screen until the live query catches up; no toast for reordering. **Rescheduling** (#74, #356, #357): only open, non-recurring tasks move (`canReschedule` — a moved occurrence would be recreated on its old date by `generateOccurrences`, done/skipped would rewrite on-time history), only onto today or later (`isDropDay`), the time of day is kept (`moveToDay`, local date parts); `useMoveTaskToDay` saves it with an Undo toast like "→ Morgen"; a backlog task dropped on a day is planned all-day ("Planned … for …", Undo sends it back). Surfaces: the **calendar month grid** (cells became droppable `div`s with a stretched day button; entries drag but are deliberately not tab stops — keyboard users go through the day view → DateField / "→ Morgen"; no pointer dragging below `md`), **/today → Coming up** (Today cards get a grip; all strip days show while dragging, empty ones dashed; strip entries drag too; arrows jump day to day via pure `nextDayTarget` + `dayKeyboardCoordinates`) and a **Backlog tray on /calendar** (lg+, "Backlog · N" pill, remembered per browser via the new `createStoredFlag`, which `backlogVisible` now uses too). **Visuals/tokens:** `--mm-shadow-lift` in both themes; utilities `drag-lifted`, `drop-slot`, `drop-target` (accent tint as background image + inset ring — swap a surface's shadow class off while targeted, since single-property shadow utilities sort after it), `drop-blocked` (hatched past days), `drop-preview`; no tilt/slide/drop animation with `prefers-reduced-motion`. **Shared:** `useAppSensors` (mouse 6 px, touch 250 ms hold), `DragHandle`, `DragChip`, `DraggedTask`, `dayCollision`, `useMediaQuery` (`MD_UP`, `LG_UP`, `REDUCED_MOTION`), English announcements in `features/dnd/lib/dndAnnouncements.ts`. Tested with Vitest (keys incl. 1,000-insert runs, reorder planning, menu helpers, reschedule date math in four time zones, RTL for the move menu) and checked in a real browser (Playwright against `next dev`) per issue. Result: 596 tests in 43 files.
-- PWA epic (done except the real-device test #371, epic #13; #174, #187, #80, #81, #82, PRs #366–#370; plan #365; logo chosen from `logo-mockup.html`): **Logo:** Niko's design (amber sun rising out of the notch of a dark card, cyan list + check) redrawn as SVG in `assets/brand/` — full mark for app icons, compact mark for the favicon and the in-app `LogoMark` (sidebar, error pages), always on the dark `#0b1214` tile (an amber tile swallowed the sun), never recoloured per theme. **Icons** are generated, not hand-exported: `npm run icons` (`scripts/generate-icons.mjs`, sharp as a devDependency, own PNG-in-ICO writer) writes `app/icon.svg`, `app/favicon.ico`, `app/apple-icon.png`, `public/icons/*` (192/512 any, 512 maskable, three 96 px shortcut icons); the output is committed and reproducible byte for byte. **Tab title:** `title.template` "%s · MorgenMachIch", pages set only their name; `TitleCount` prefixes the open Today count ("(3) Today · …", re-applied with a MutationObserver because Next resets the title on navigation) and sets the app badge (Badging API) when installed. **Manifest** (`app/manifest.ts`): name "MorgenMachIch", short name "Morgen", `id`/`start_url` `/today`, standalone, dark theme/background colour, shortcuts New task (`/today?new=1`, opened once by `NewTaskFromUrl`, flag removed from the URL) / Today / Calendar; `appleWebApp` with the default status bar (black-translucent would make the bar text unreadable in the light theme) and `viewportFit: "cover"` so the existing safe-area paddings take effect. **Service worker: hand-written**, no Serwist (it would need its own Turbopack/esbuild build step). Routing rules are pure TypeScript in `features/pwa/sw/strategy.ts` (unit-tested); the worker body is plain JS in `features/pwa/sw/worker.js`; `scripts/build-sw.mjs` (runs as `prebuild`) compiles the rules with the project's own `typescript`, stamps a per-deploy version (Render commit + build time) and writes the git-ignored `public/sw.js`, served with `Cache-Control: no-cache`. Strategies: `/_next/static` + `/icons` cache-first; page loads network-first with a 3 s timeout → cached page → `/offline` (so the app opens fast while Render wakes up); other same-origin GETs stale-while-revalidate; `/api`, RSC payloads, non-GET and cross-origin never cached. Caches are per version (`mm-static/pages/assets-<version>`, old ones deleted on activate, 25 pages max). Because a client-side navigation only fetches RSC data, the registrar reports every visited page (and the first visit's files) to the worker, so each page opened once works offline. Registered in production only. App-shell only — no offline *data* sync; tasks stay in IndexedDB until the hosted database (#298). **Install & update** (`lib/pwa`): `beforeinstallprompt` is caught at module load and the mini-infobar suppressed; Settings → App shows an Install button, the iPhone/iPad Share-menu steps (any iOS browser), "Installed" in the app, or a hint for other browsers. A new version waits (no automatic `skipWaiting`); a sticky toast "New version available · Reload" (plus a Reload row in Settings) sends `SKIP_WAITING` and reloads once on `controllerchange`; an open app checks for updates when it becomes visible, at most every 30 min. Tested with Vitest (strategy, install state, RTL for the panel; 628 tests in 48 files) and in Chromium against production builds (server stopped, slowed to 10 s, new build → update); the check on real phones is #371.
+- Drag & Drop epic (done, epic #11; #75, #355, #73, #74, #356, #357, PRs #358–#363; plan #354; visuals from `dnd-mockup.html`, variant A): **Library:** `@dnd-kit/core` 6 + `@dnd-kit/sortable` 10 + `@dnd-kit/utilities` — keyboard sensor and screen-reader announcements built in, separate mouse and touch sensors. Unlike the palette, charts and DateField it was not hand-built: touch-vs-scroll, collision detection, autoscroll and keyboard dragging are the hard part here; `@dnd-kit/react` 0.x was rejected as pre-1.0. **Manual order only in the Backlog** (the one list without a date; Today and the Tasks column stay time-sorted): `Task.sortOrder` is a fractional-index string from the hand-built `lib/domain/orderKey.ts` (`keyBetween`, `keysBetween`; base-62, compared as plain strings = Postgres `COLLATE "C"`, never `localeCompare`), `z.string().regex(…).nullable().default(null)` so old rows and backups parse unchanged; backup format **v3** (v1/v2 import with `null`); manual order replaces priority → oldest — tasks without a key keep that order below keyed ones, the first move gives the whole Backlog keys (`planBacklogReorder`, pure; also re-keys when two tasks share a key, e.g. a planned task that came back), new tasks land at the bottom; `reorderBacklogTask(id, prevId, nextId)` takes the _visible_ neighbours, so a move with filters on lands between what you see. **Reorder UI (#73):** a grip left of the status circle (only the grip drags; hidden until hover/focus with a mouse, always visible and larger on touch), tilted lifted card with accent ring in a `DragOverlay`, sunken `drop-slot` gap, keyboard (Space/Enter, ↑/↓, Space/Enter, Escape) and a **move menu** on a plain click of the grip (Move to top / up / down / bottom — the WCAG 2.5.7 single-pointer alternative); drag and menu share pure `features/dnd/lib/listMove.ts`; the dropped order stays on screen until the live query catches up; no toast for reordering. **Rescheduling** (#74, #356, #357): only open, non-recurring tasks move (`canReschedule` — a moved occurrence would be recreated on its old date by `generateOccurrences`, done/skipped would rewrite on-time history), only onto today or later (`isDropDay`), the time of day is kept (`moveToDay`, local date parts); `useMoveTaskToDay` saves it with an Undo toast like "→ Morgen"; a backlog task dropped on a day is planned all-day ("Planned … for …", Undo sends it back). Surfaces: the **calendar month grid** (cells became droppable `div`s with a stretched day button; entries drag but are deliberately not tab stops — keyboard users go through the day view → DateField / "→ Morgen"; no pointer dragging below `md`), **/today → Coming up** (Today cards get a grip; all strip days show while dragging, empty ones dashed; strip entries drag too; arrows jump day to day via pure `nextDayTarget` + `dayKeyboardCoordinates`) and a **Backlog tray on /calendar** (lg+, "Backlog · N" pill, remembered per browser via the new `createStoredFlag`, which `backlogVisible` now uses too). **Visuals/tokens:** `--mm-shadow-lift` in both themes; utilities `drag-lifted`, `drop-slot`, `drop-target` (accent tint as background image + inset ring — swap a surface's shadow class off while targeted, since single-property shadow utilities sort after it), `drop-blocked` (hatched past days), `drop-preview`; no tilt/slide/drop animation with `prefers-reduced-motion`. **Shared:** `useAppSensors` (mouse 6 px, touch 250 ms hold), `DragHandle`, `DragChip`, `DraggedTask`, `dayCollision`, `useMediaQuery` (`MD_UP`, `LG_UP`, `REDUCED_MOTION`), English announcements in `features/dnd/lib/dndAnnouncements.ts`. Tested with Vitest (keys incl. 1,000-insert runs, reorder planning, menu helpers, reschedule date math in four time zones, RTL for the move menu) and checked in a real browser (Playwright against `next dev`) per issue. Result: 596 tests in 43 files.
+- PWA epic (done except the real-device test #371, epic #13; #174, #187, #80, #81, #82, PRs #366–#370; plan #365; logo chosen from `logo-mockup.html`): **Logo:** Niko's design (amber sun rising out of the notch of a dark card, cyan list + check) redrawn as SVG in `assets/brand/` — full mark for app icons, compact mark for the favicon and the in-app `LogoMark` (sidebar, error pages), always on the dark `#0b1214` tile (an amber tile swallowed the sun), never recoloured per theme. **Icons** are generated, not hand-exported: `npm run icons` (`scripts/generate-icons.mjs`, sharp as a devDependency, own PNG-in-ICO writer) writes `app/icon.svg`, `app/favicon.ico`, `app/apple-icon.png`, `public/icons/*` (192/512 any, 512 maskable, three 96 px shortcut icons); the output is committed and reproducible byte for byte. **Tab title:** `title.template` "%s · MorgenMachIch", pages set only their name; `TitleCount` prefixes the open Today count ("(3) Today · …", re-applied with a MutationObserver because Next resets the title on navigation) and sets the app badge (Badging API) when installed. **Manifest** (`app/manifest.ts`): name "MorgenMachIch", short name "Morgen", `id`/`start_url` `/today`, standalone, dark theme/background colour, shortcuts New task (`/today?new=1`, opened once by `NewTaskFromUrl`, flag removed from the URL) / Today / Calendar; `appleWebApp` with the default status bar (black-translucent would make the bar text unreadable in the light theme) and `viewportFit: "cover"` so the existing safe-area paddings take effect. **Service worker: hand-written**, no Serwist (it would need its own Turbopack/esbuild build step). Routing rules are pure TypeScript in `features/pwa/sw/strategy.ts` (unit-tested); the worker body is plain JS in `features/pwa/sw/worker.js`; `scripts/build-sw.mjs` (runs as `prebuild`) compiles the rules with the project's own `typescript`, stamps a per-deploy version (Render commit + build time) and writes the git-ignored `public/sw.js`, served with `Cache-Control: no-cache`. Strategies: `/_next/static` + `/icons` cache-first; page loads network-first with a 3 s timeout → cached page → `/offline` (so the app opens fast while Render wakes up); other same-origin GETs stale-while-revalidate; `/api`, RSC payloads, non-GET and cross-origin never cached. Caches are per version (`mm-static/pages/assets-<version>`, old ones deleted on activate, 25 pages max). Because a client-side navigation only fetches RSC data, the registrar reports every visited page (and the first visit's files) to the worker, so each page opened once works offline. Registered in production only. App-shell only — no offline _data_ sync; tasks stay in IndexedDB until the hosted database (#298). **Install & update** (`lib/pwa`): `beforeinstallprompt` is caught at module load and the mini-infobar suppressed; Settings → App shows an Install button, the iPhone/iPad Share-menu steps (any iOS browser), "Installed" in the app, or a hint for other browsers. A new version waits (no automatic `skipWaiting`); a sticky toast "New version available · Reload" (plus a Reload row in Settings) sends `SKIP_WAITING` and reloads once on `controllerchange`; an open app checks for updates when it becomes visible, at most every 30 min. Tested with Vitest (strategy, install state, RTL for the panel; 628 tests in 48 files) and in Chromium against production builds (server stopped, slowed to 10 s, new build → update); the check on real phones is #371.
 - Public Landing Page epic (done, epic #14; #83, #84, #85, #86, #375, #376, #377, #378, PRs #379–#386; plan #374; layout from `landing-mockup.html`): **Audience:** both, product first — hero, live demo, features and screenshots, then "How it's built" and "Built by" for employers. English only; the legal pages are German. **Routing (#83):** route groups — `app/(app)/` holds the app shell (navigation, FAB, drawers, palette, toasts, everything that reads IndexedDB), `app/(site)/` the public pages; the root layout keeps only html/body, fonts, theme and the service worker, so `/` loads no IndexedDB. `/` is the landing page; a browser that has opened the app before (`morgenmachich:visited`, set by `MarkAppVisited`) is sent to `/today` by a `<head>` script before the first paint (`SKIP_LANDING_SCRIPT`, pathname check), `/?landing` shows the page anyway, and "About" in the nav, the More menu, the palette and Settings → About links there. The installed app keeps starting at `/today`. **Sample data (#84):** pure `buildSampleData(now, makeId, horizonDays)` in `features/demo/lib/` builds labels, four series, today/overdue/upcoming/backlog tasks and 30 days of history relative to now (current streak 9, best 11, ~90 % on time), already containing every occurrence the generator would add; `loadSampleData()` writes it in one transaction and only into an empty app; triggered by `/today?sample=1` ("Try it with sample data"). **Page (#85, #86, #375):** server components in `features/site/components/`, all copy in `features/site/lib/content.ts`, the numbers row in `features/site/lib/stats.ts` (updated at each docs sync, rounded down with "+"). The quick-add demo runs the real parser with demo labels and is lazy-loaded (`next/dynamic` + IntersectionObserver), so chrono-node (~380 KB) stays out of the first load. "Built by": real photo, remote-first availability, career path from the CV, skill cards marking the skills used in this app, certificates, LinkedIn + GitHub — contact via LinkedIn. **Screenshots (#376):** `npm run screenshots` (Playwright, `scripts/screenshots.mjs`) starts the production build on a free port, loads the sample data per theme and writes four views × light/dark at 1280×800 as WebP to `public/site/screens/` (committed, 33–52 KB each); a tablist shows dark and light side by side, the hero shows the `/today` shot matching the page theme (`.theme-dark-only` / `.theme-light-only`). Images are made on the Mac — the cloud has no Google Fonts. **SEO (#377):** `metadataBase` from `NEXT_PUBLIC_SITE_URL` (fallback: the Render URL), shared `openGraph`/`twitter` defaults in the root layout (pages never set their own `openGraph` — it would replace the image), canonical `/`, `app/opengraph-image.jpg` rendered by the same script from `scripts/og-card.html` with the real fonts and the Today shot, `sitemap.ts` (only `/`) and `robots.ts` (nothing blocked); app routes are `noindex`. Checked with the LinkedIn Post Inspector. **Legal (#378):** `/impressum` (§ 5 DDG, § 18 Abs. 2 MStV) and a short `/datenschutz` (local data only, Render server logs, no cookies or tracking, GDPR rights) go live now because the host keeps IP logs; German, `noindex`, not in the sitemap; name, address and email only in `features/site/lib/legal.ts`; linked from the footer and Settings → About. The full privacy policy for login and sync stays with #330. **Fix along the way:** the full-screen 404/error pages sat at the left edge since #83 (body is a flex row) — now `w-full`.
 - Deployment target: Render (Node Web Service, not Vercel).
 - Milestones: no v1/v1.1 split — single flat backlog.
 
 ## Route map
+
 - `/` — public landing page (returning browsers go straight to `/today`; `/?landing` shows it anyway)
 - `/impressum`, `/datenschutz` — legal pages (German, noindex)
 - `/today` — today + overdue tasks (start page of the app and the installed PWA), with a date header and the streak badge
@@ -74,15 +76,15 @@
 ## Data model (TypeScript)
 
 ```ts
-type Priority = 'none' | 'low' | 'medium' | 'high';
-type TaskStatus = 'open' | 'done' | 'skipped';
+type Priority = "none" | "low" | "medium" | "high";
+type TaskStatus = "open" | "done" | "skipped";
 
 type RecurrenceRule = {
-  frequency: 'daily' | 'weekly' | 'monthly';
+  frequency: "daily" | "weekly" | "monthly";
   interval: number;
-  daysOfWeek?: number[];       // 0=Sun..6=Sat, required for weekly
-  monthlyMode?: 'dayOfMonth' | 'nthWeekday'; // required for monthly
-  dayOfMonth?: number;         // 1-31, for monthlyMode: 'dayOfMonth'
+  daysOfWeek?: number[]; // 0=Sun..6=Sat, required for weekly
+  monthlyMode?: "dayOfMonth" | "nthWeekday"; // required for monthly
+  dayOfMonth?: number; // 1-31, for monthlyMode: 'dayOfMonth'
   nthWeekday?: { n: number; weekday: number }; // n: 1-4 or -1 (last)
   endDate?: string | null;
 };
@@ -92,18 +94,18 @@ type Subtask = { id: string; title: string; done: boolean };
 type Task = {
   id: string;
   title: string;
-  notes?: string;             // Markdown
+  notes?: string; // Markdown
   status: TaskStatus;
   priority: Priority;
-  dueDate: string | null;     // ISO datetime
+  dueDate: string | null; // ISO datetime
   allDay: boolean;
   labelIds: string[];
   subtasks: Subtask[];
-  seriesId: string | null;    // set if generated from a recurring series
+  seriesId: string | null; // set if generated from a recurring series
   createdAt: string;
   updatedAt: string;
   completedAt: string | null;
-  sortOrder: string | null;   // manual Backlog order key (#75), fractional index
+  sortOrder: string | null; // manual Backlog order key (#75), fractional index
 };
 
 type TaskSeries = {
@@ -115,7 +117,7 @@ type TaskSeries = {
   subtaskTemplate: { title: string }[];
   recurrence: RecurrenceRule;
   startDate: string;
-  active: boolean;             // pause without deleting
+  active: boolean; // pause without deleting
   createdAt: string;
   updatedAt: string;
 };
@@ -123,7 +125,7 @@ type TaskSeries = {
 type Label = { id: string; name: string; color: string; createdAt: string };
 
 // added in #226 — single row, id "app"
-type AppSettings = { id: 'app'; statsSince: string | null };
+type AppSettings = { id: "app"; statsSince: string | null };
 ```
 
 Implemented as Zod schemas in `lib/types/index.ts` (issue #19), with `New*`
@@ -132,11 +134,13 @@ repository-generated fields (id, timestamps, derived state) for use when
 creating records.
 
 ## Feature scope (all confirmed in-scope, no priority tiers)
+
 Task CRUD, card-view list, calendar view, labels + filtering, priority levels, subtasks with progress bar, recurring tasks (independent occurrences), command palette (⌘K), natural-language quick-add, drag & drop, streak/stats, PWA installability, public landing page, settings (data export/import). Backlog (dateless tasks), the command palette, natural-language quick-add, stats & streaks the design polish (incl. "→ Morgen" snooze) and the light theme (System / Light / Dark) and quick-add recurrence ("every mon 7am" → series) and drag & drop (Backlog order, rescheduling on the calendar and Coming up, Backlog tray) and the PWA (logo and icons, manifest, offline app shell, install and update) are done. Planned later (decided 2026-10-12): Hosted Database & API (Neon + Drizzle, online-first), Auth & Machine Access (Neon Auth, API keys), Automation & Second Brain (n8n, Claude + Obsidian).
 
 ## GitHub issue backlog (flat, no milestones)
 
 ### Epic: Foundations & Project Setup — done
+
 - Set up project folder structure and conventions (app router, components, lib, types)
 - Configure Tailwind + DaisyUI with the approved dark theme tokens (colors, radii, shadows)
 - Define core TypeScript types (Task, TaskSeries, Subtask, Label)
@@ -147,6 +151,7 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Initial deploy to Render (get a live URL early)
 
 ### Epic: Task CRUD — done
+
 - Build task drawer/modal component (shared create + edit form) — done, includes the FAB
 - Implement create task (validation, save to DB)
 - Implement edit task (prefill drawer, save changes)
@@ -155,32 +160,38 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Build task card component (title, due date/time, priority indicator, label chips, subtask progress bar)
 
 ### Epic: Labels — done
+
 - Build labels page: list/create/edit/delete, with the reusable label chip component and the 12-swatch color picker built as part of it — done (#113, superseded placeholders #31/#32/#33)
 - Add label picker to task drawer — done (#116)
 - Display label chips on task card — done (#118, added after #30 deferred it)
 - Label-based filtering: shared utility + filter bar on /tasks — done (#120, merged the original "filtering logic" and "filter UI" bullets; /today reuses these once the Today View epic builds that page)
 
 ### Epic: List View (/tasks) — done
+
 - Build full task list page (card view, all tasks) — done early (interim TaskList/TaskCard built during Task CRUD, #25-#30) rather than as a separate step here
 - Build empty state — done early, same as above
 - Sorting + status filter — done (#123, merged; due date/created only — priority dropped until the Priority epic ships a selector; status filter is All/Open/Overdue/Done — "Skipped" swapped for the derived "Overdue" since nothing sets skipped yet)
 - Hide done tasks older than 7 days in the Tasks column, with a "N hidden · Show" row — done (#289, PR #290)
 
 ### Epic: Today View (/today) — done
+
 - Today/overdue core view — done (#126; extended TaskList with baseFilter + emptyMessage props so /today reuses it directly, scoped to tasks due today (any status, done ones struck through) or overdue-and-not-done; same status/label filters and sorting as /tasks come along for free)
 - Week-ahead strip — done (#130; "Coming up" section below the list, one column per day from tomorrow through Sunday, hidden past Sunday and on days with no open tasks, capped at 3 tasks + overflow; clicking a day drills the list into that date with a "Back to Today" control; introduced a priority-dot component reusing the label-palette green/yellow-green + the existing overdue red — the theme's warning/error slots stay reserved for the Priority epic's own design pass, #7)
 - Week preview on the weekend: Saturday shows Sunday + next Mon–Sun, Sunday shows next Mon–Sun, "Plan for…" follows — done (#282, PR #286)
 - Coming up day cards get a clear header (weekday 15 px + mono date over a divider, "Tomorrow" in accent) — done (#331, PR #334)
 
 ### Epic: Subtasks — done
+
 - Subtask editor in task drawer: add/edit/remove/reorder (plain up/down arrows; the Drag & Drop epic #11 left subtasks as they are) and a done/undone checkbox per row — done (#133)
 - Subtask progress bar on task card: thin fill bar + "done/total" fraction together, capped at 192px width; hidden entirely when a task has no subtasks — done (#134)
 
 ### Epic: Priority — done
+
 - Priority selector in task drawer (None/Low/Medium/High, single-select chip row reusing the label-chip toggle interaction) and a colored dot indicator on the task card (no dot for None; green/yellow-green/red for Low/Medium/High, matching the week-ahead-strip dot introduced in #130) — done (#138; also factored the label chip's soft-tint style into a shared `tintChipStyle()` helper so `LabelChip` and the new `PriorityChip` don't duplicate the styling logic)
 - Priority filter dropdown in the /tasks toolbar (All priorities/High/Medium/Low/None), same filter chain pattern as status and labels — done (#140)
 
 ### Epic: Calendar View (/calendar) — done except optional week view (#145, #168, #171)
+
 - Month grid (Mon-Sun weeks, dynamic 4-6 rows) with prev/next navigation and a "Today" reset — done (#145)
 - Tasks plotted per day as a compact mini-list (PriorityDot + truncated title, capped at 3 + "+N" overflow), same idiom as the week-ahead strip's day columns — done (#145)
 - Day click drills into the shared TaskList scoped to that date (any status), reusing TodayView's selectedDay/baseFilter pattern, with a "Back to month" control — done (#145)
@@ -189,6 +200,7 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - (Stretch, not yet scoped) week view toggle — separate issue once we've used the month view for a while
 
 ### Epic: Recurring Tasks — done
+
 - Build recurrence rule builder UI (frequency + interval; weekly: day-of-week multi-select; monthly: choice of a fixed day-of-month **or** an "Nth weekday of month" pattern like "first Monday"; end date) — done (#58)
 - Build occurrence-generation engine (lazily materialize upcoming Task rows, 60-day rolling horizon on app load), including monthly day-of-month/Nth-weekday math (e.g. months without a 31st) — done (#60)
 - Implement TaskSeries repository (create/edit/delete/pause) — base CRUD done in #21 (`lib/db/taskSeries.ts`); pause/resume done (#62); edit-with-regeneration done (#63); delete done (#148)
@@ -198,12 +210,14 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Handle deleting a series — done (#148): delete button in the series drawer with a three-way choice (series + upcoming open tasks / series only, keep tasks / series + everything); kept tasks are detached; recurring occurrences can't be deleted individually from the task drawer (Skip instead)
 
 ### Epic: Command Palette — done (epic #9: #194, #195, #196, #197; old placeholders #64–#67 closed as not planned)
+
 - Fuzzy-match utility (DP alignment, bonuses/penalties, keyword fallback) — done (#194, PR #198)
 - Palette shell: native `<dialog>`, Cmd/Ctrl+K on every route, nav-rail button, combobox ARIA, grouped results with keyboard navigation — done (#195, PR #199)
 - Command registry (framework-free) with page navigation and New task — done (#196, PR #200)
 - Task search, Cmd/Ctrl+Enter to complete, pinned "Add to backlog" row with toast — done (#197, PR #201)
 
 ### Epic: Natural-language Quick-Add — done (epic #10: #202–#206; old placeholders #68–#71 closed as not planned)
+
 - Pure parser `parseQuickAdd` with chrono-node (English + German), `#label`, `!priority`, false-positive filter — done (#202, PR #208)
 - `QuickAddInput`: live token colors, preview chips with ignore, `#`/`!` autocomplete — done (#203, PR #209)
 - Command palette Add row uses the parser; `#`/`!` suggestions in the palette — done (#204, PR #210)
@@ -213,6 +227,7 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Create a label from an unknown `#tag` ("New label" chip, ignorable; capitalized name, next unused color) — done (#283, PR #287)
 
 ### Epic: Drag & Drop — done (epic #11: #75, #355, #73, #74, #356, #357; plan #354)
+
 - Manual order keys: `sortOrder` field, hand-built fractional keys, backup v3 — done (#75, PR #358)
 - Foundations: dnd-kit, sensors, grip handle, drag tokens, announcements — done (#355, PR #359)
 - Drag to reorder the Backlog, with keyboard and move menu — done (#73, PR #360)
@@ -221,6 +236,7 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Backlog tray on /calendar: drag undated tasks onto a day — done (#357, PR #363)
 
 ### Epic: Stats & Streaks — done (epic #12: #214–#219, #226; old placeholders #76–#79 closed as not planned)
+
 - Pure stats functions (completions per day, streaks, period totals, heatmap grid, per-label counts, on-time rate) — done (#214, PR #220)
 - `/stats` page with streak hero and stat cards, nav rail item, palette command — done (#215, PR #221)
 - Year heatmap (SVG, tooltip, keyboard) — done (#216, PR #222)
@@ -230,6 +246,7 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Stats start date ("reset stats") with settings table and backup v2 — done (#226, PR #227)
 
 ### Epic: Design Polish — done (epic #230: #231–#243, #254)
+
 - Theme tokens: semantic colors, `--mm-*` extras, no hardcoded colors/shadows — done (#231, PR #245)
 - Color roles: amber primary for actions, cyan accent for data/focus, neutral done state, priority ring — done (#232, PR #246)
 - Type scale + shared `PageHeader`, /today editorial header with day progress — done (#233, PR #247)
@@ -245,12 +262,14 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Empty states and copy — done (#243, PR #262)
 
 ### Backlog ideas (planned, not scheduled)
+
 - Custom date field so the drawer shows English date formats instead of the browser-language native picker — done (#258, PR #296); recurrence end date + Plan for… picker done (#294, PR #336)
 - Plan my day with time blocks ("9–12 Working", "12–12:30 Break", "12:30–13 Fitness") — idea issue created, design open (own entity vs. tasks with start/end, timeline on /today vs. calendar day view, quick-add syntax, templates) (#256; builds on the planned date, #332)
 - Planned date: when you'll work on a task, separate from its due date (Things 3's "When" vs. "Deadline") — idea (#332). Today "Plan for…" sets a due date, so a task you only intend to do on Friday is overdue on Saturday; with a planned date, /today and Coming up show planned tasks and the due date stays the deadline. Open: data model + backup version, carry-over of missed plans, quick-add syntax (planned vs. due), calendar and stats
 - Google Calendar connection + task kinds (to-do with a due date vs. appointment at a fixed time, which never becomes overdue) — idea (#333), planned after the Automation & Second Brain epic (#300); needs the hosted backend and auth (#298, #299). Open: kind as a field vs. own entity, sync direction, in-app vs. an n8n workflow, overlap with planned dates (#332) and time blocks (#256)
 
 ### Epic: PWA — done except the device test (epic #13: #174, #187, #80, #81, #82, #371; plan #365)
+
 - Logo as SVG, generated icon set, in-app logo — done (#174, PR #366)
 - Tab title template with the open Today count and app badge — done (#187, PR #367)
 - Web app manifest, shortcuts, iOS meta, safe-area viewport — done (#80, PR #368)
@@ -259,6 +278,7 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Device test on the deployed app (Android, iPhone, desktop) — open (#371)
 
 ### Epic: Public Landing Page — done (epic #14: #83, #84, #85, #86, #375, #376, #377, #378; plan #374)
+
 - Route groups, site layout, returning-user redirect, About entry in the app — done (#83, PR #379)
 - Sample data relative to today, `/today?sample=1` — done (#84, PR #380)
 - Header, hero, features, final call to action, footer — done (#85, PR #381)
@@ -269,6 +289,7 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Impressum and privacy notice — done (#378, PR #386)
 
 ### Epic: Settings — done (light theme moved to its own epic, #90)
+
 - Build settings page skeleton — done (#161, with export)
 - Implement data export (JSON download) — done (#161): versioned envelope, last-backup timestamp + 30-day nudge
 - Implement data import (JSON upload + validation) — done (#162): all-or-nothing validation, preview + confirm, replace-everything in one transaction, safety backup before replacing
@@ -276,6 +297,7 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - (Deferred) light theme toggle placeholder (#90) — closed; shipped as the Light Theme epic (#264, below)
 
 ### Epic: Backlog (tasks without a due date) — done (epic #185: #182, #183, #184)
+
 - Make "no due date" a first-class, visible concept: backlog tasks (`dueDate === null`) in their own hideable/showable third column on `/tasks`, sorted by priority then oldest first, with an age marker and persisted visibility — done (#182)
 - "Plan for…" menu to promote a backlog task to a due task (today / tomorrow / rest of this week / pick a date) — done (#183)
 - Inline quick-add input in the Backlog column — done (#184); replaced by the /tasks quick-add bar (#205)
@@ -283,16 +305,19 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Check that Today/Calendar/filters treat dateless tasks consistently — done: they only appear in the Backlog on `/tasks`; every date-based view requires a due date
 
 ### Follow-up: shared app locale — done (#191, PR #193)
+
 - All date/weekday formatting uses one shared `APP_LOCALE` constant (`lib/constants/locale.ts`) — done
 - Decided: English everywhere (`en-GB`), not the browser language (that would need a full i18n feature)
 
 ### Epic: Light Theme — done (epic #264: #265, #266, #267; replaces placeholder #90)
+
 - Light theme tokens: "Dawn Paper" theme block `morgen-light`, label chip ink, tab-bar shadow token; follows the OS without JS — done (#265, PR #269)
 - Theme preference: Settings → Appearance (System / Light / Dark), nav toggle, palette commands, no flash on load — done (#266, PR #270)
 - Visual pass: semantic text greys (`text-faint`/`-subtle`/`-muted`), `bg-track`, small border fixes — done (#267, PR #271)
 - Follow-up: arrow-key navigation for the status segmented control — done as #272 (PR #292), widened to every radiogroup via the shared `useRadioGroupKeys` hook
 
 ### Epic: Hosted Database & API (future, decided 2026-10-12)
+
 - Neon project + Drizzle setup, env vars on Render (spike: connection pooling / cold start — Neon's and Render's free-tier wake-ups stack); choose an EU region for Neon (GDPR, see Feedback & Admin) and decide whether the Render service moves from Oregon to Frankfurt
 - Schema + migrations: tasks, task_series, labels, app_settings; decide label relation (join table vs array) and subtasks (table vs jsonb); `user_id` on every row; `source` column (ui / n8n / claude, set from the session or API key, never from the request body); `updated_at` + soft delete (`deleted_at`) so `updatedSince` also reports deletions; `occurrence_date` + unique constraint (series_id, occurrence_date); the user's time zone in app_settings — design discussion before building
 - Server-side service layer with the same function signatures as `lib/db`
@@ -304,6 +329,7 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Order: setup → schema (after the Neon Auth spike) → service layer → routes (only behind auth) → server recurrence + import → client migration last
 
 ### Epic: Auth & Machine Access (future)
+
 - Spike first: what Neon Auth (Better Auth) offers — session check in Route Handlers, and whether API keys / the API-key plugin exist in the managed version (may change the API-key design)
 - Login UI + route protection (Next 16 proxy) + protected API
 - API keys for machines: hashed, scopes (read / write, no delete for agent keys), revocable
@@ -311,6 +337,7 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - OpenAPI spec generated from the Zod schemas (the error contract itself is defined with the routes)
 
 ### Epic: Automation & Second Brain (future — n8n, Claude + Obsidian)
+
 - Decide n8n Cloud trial vs. self-hosted (learning goal: n8n)
 - First n8n workflow: Schedule trigger polls `updatedSince`, e.g. a daily summary of overdue tasks
 - Outgoing webhooks (task.completed / task.overdue)
@@ -319,6 +346,7 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Needs the Hosted Database & API and Auth & Machine Access epics first
 
 ### Epic: Feedback & Admin (future, decided 2026-10-12)
+
 - "Report a bug" button (Settings, mobile More menu, palette command): text + automatic context, stored in `bug_reports`
 - Admin role + protected `/admin` area (Neon Auth admin plugin or own `role` column — from the spike #306)
 - Admin users list with non-sensitive data only (email, sign-up date, last active, counts — no task content)
@@ -328,6 +356,7 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Needs the Auth & Machine Access epic (login, roles); open sign-up needs rate limits on sign-up (#309)
 
 ### Epic: Testing (Vitest) — done (epic #153: #339–#344)
+
 - Set up Vitest, scripts and a four-time-zone CI matrix — done (#339, PR #345; `@types/node` 22)
 - Port the date and recurrence scratch tests (+ new recurrence cases) — done (#340, PR #346)
 - Port the quick-add scratch tests — done (#341, PR #347)
@@ -338,6 +367,7 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Follow-up: Next.js 16.3.8 security update — done (#350, PR #352)
 
 ### Epic: Deployment & Ops — done
+
 - Set up Render Web Service for the Next.js app — done (initial deploy in Foundations; verified 2026-10-07)
 - Configure build/start commands and environment variables — done (`render.yaml` Blueprint: `npm ci && npm run build`, `npm run start`, Node 22.11)
 - Set up auto-deploy from main branch — done and verified: auto-deploy on commit, every merge to `main` goes live in about 75 seconds
@@ -347,4 +377,5 @@ Task CRUD, card-view list, calendar view, labels + filtering, priority levels, s
 - Free-tier spin-down — accepted, README note stays
 
 ### Final task: interview preparation (very last step)
+
 - When the project is finished: an overview in German (technical terms in English) of every tool, library and concept used in MorgenMachIch — what it is and why it is used here — so every "why did you use X?" question in an interview has a short, confident answer

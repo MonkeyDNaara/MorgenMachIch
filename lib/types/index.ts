@@ -34,9 +34,12 @@ export const RecurrenceRuleSchema = z
     dayOfMonth: z.number().int().min(1).max(31).optional(), // monthlyMode: "dayOfMonth"
     nthWeekday: z
       .object({
-        n: z.number().int().refine((n) => n === -1 || (n >= 1 && n <= 4), {
-          message: "n must be 1-4 or -1 (last)",
-        }),
+        n: z
+          .number()
+          .int()
+          .refine((n) => n === -1 || (n >= 1 && n <= 4), {
+            message: "n must be 1-4 or -1 (last)",
+          }),
         weekday: z.number().int().min(0).max(6),
       })
       .optional(), // monthlyMode: "nthWeekday"
@@ -51,11 +54,17 @@ export const RecurrenceRuleSchema = z
     path: ["monthlyMode"],
   })
   .refine(
-    (rule) => rule.frequency !== "monthly" || rule.monthlyMode !== "dayOfMonth" || rule.dayOfMonth !== undefined,
+    (rule) =>
+      rule.frequency !== "monthly" ||
+      rule.monthlyMode !== "dayOfMonth" ||
+      rule.dayOfMonth !== undefined,
     { message: 'Monthly "day of month" mode needs a day', path: ["dayOfMonth"] },
   )
   .refine(
-    (rule) => rule.frequency !== "monthly" || rule.monthlyMode !== "nthWeekday" || rule.nthWeekday !== undefined,
+    (rule) =>
+      rule.frequency !== "monthly" ||
+      rule.monthlyMode !== "nthWeekday" ||
+      rule.nthWeekday !== undefined,
     { message: 'Monthly "nth weekday" mode needs a weekday', path: ["nthWeekday"] },
   );
 export type RecurrenceRule = z.infer<typeof RecurrenceRuleSchema>;

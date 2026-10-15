@@ -91,7 +91,9 @@ export default function RecurrenceRuleBuilder({ value, onChange }: RecurrenceRul
           type="number"
           min={1}
           value={value.interval}
-          onChange={(event) => onChange({ ...value, interval: Math.max(1, Number(event.target.value)) })}
+          onChange={(event) =>
+            onChange({ ...value, interval: Math.max(1, Number(event.target.value)) })
+          }
           className={`input input-sm w-16 ${FIELD_FOCUS}`}
         />
         {intervalUnit(value.frequency)}
@@ -144,7 +146,10 @@ export default function RecurrenceRuleBuilder({ value, onChange }: RecurrenceRul
                 max={31}
                 value={value.dayOfMonth ?? 1}
                 onChange={(event) =>
-                  onChange({ ...value, dayOfMonth: Math.min(31, Math.max(1, Number(event.target.value))) })
+                  onChange({
+                    ...value,
+                    dayOfMonth: Math.min(31, Math.max(1, Number(event.target.value))),
+                  })
                 }
                 className={`input input-sm w-16 ${FIELD_FOCUS}`}
               />
@@ -159,7 +164,10 @@ export default function RecurrenceRuleBuilder({ value, onChange }: RecurrenceRul
                 onChange={(event) =>
                   onChange({
                     ...value,
-                    nthWeekday: { n: Number(event.target.value), weekday: value.nthWeekday?.weekday ?? 1 },
+                    nthWeekday: {
+                      n: Number(event.target.value),
+                      weekday: value.nthWeekday?.weekday ?? 1,
+                    },
                   })
                 }
                 className={`select select-sm ${FIELD_FOCUS}`}
@@ -175,7 +183,10 @@ export default function RecurrenceRuleBuilder({ value, onChange }: RecurrenceRul
                 onChange={(event) =>
                   onChange({
                     ...value,
-                    nthWeekday: { n: value.nthWeekday?.n ?? 1, weekday: Number(event.target.value) },
+                    nthWeekday: {
+                      n: value.nthWeekday?.n ?? 1,
+                      weekday: Number(event.target.value),
+                    },
                   })
                 }
                 className={`select select-sm ${FIELD_FOCUS}`}

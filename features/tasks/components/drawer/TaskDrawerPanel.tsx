@@ -134,10 +134,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
     if (result.newLabels.length > 0) {
       withNewLabels(result).then(
         ({ result: resolved, created }) => {
-          setLabelIds((prev) => [
-            ...prev,
-            ...resolved.labelIds.filter((id) => !prev.includes(id)),
-          ]);
+          setLabelIds((prev) => [...prev, ...resolved.labelIds.filter((id) => !prev.includes(id))]);
           if (created.length > 0) {
             const names = created.map((label) => `“${label.name}”`).join(", ");
             notify(`New label${created.length > 1 ? "s" : ""} ${names}`);
@@ -149,7 +146,9 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
   }
 
   function toggleLabel(id: string) {
-    setLabelIds((prev) => (prev.includes(id) ? prev.filter((labelId) => labelId !== id) : [...prev, id]));
+    setLabelIds((prev) =>
+      prev.includes(id) ? prev.filter((labelId) => labelId !== id) : [...prev, id],
+    );
   }
 
   // Repeat only offered when creating (see TaskDrawerPanel scope note
@@ -267,7 +266,9 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
         className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col gap-6 border-l border-line bg-base-200 p-6 shadow-overlay"
       >
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold tracking-tight">{isEditing ? "Edit Task" : "New Task"}</h2>
+          <h2 className="text-xl font-semibold tracking-tight">
+            {isEditing ? "Edit Task" : "New Task"}
+          </h2>
           <button
             type="button"
             onClick={onClose}
@@ -279,9 +280,7 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
           </button>
         </div>
 
-        {loadState === "loading" && (
-          <p className="flex-1 text-sm text-faint">Loading task…</p>
-        )}
+        {loadState === "loading" && <p className="flex-1 text-sm text-faint">Loading task…</p>}
 
         {loadState === "not-found" && (
           <p className="flex-1 text-sm text-faint">
@@ -440,8 +439,8 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
             <div>
               {isEditing && loadState === "ready" && seriesId !== null && (
                 <p className="max-w-[16rem] text-xs text-faint">
-                  Recurring occurrences can&apos;t be deleted one by one — use Skip to drop this one, or delete the
-                  whole series from /tasks.
+                  Recurring occurrences can&apos;t be deleted one by one — use Skip to drop this
+                  one, or delete the whole series from /tasks.
                 </p>
               )}
               {isEditing && loadState === "ready" && seriesId === null && (

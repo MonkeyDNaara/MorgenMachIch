@@ -7,7 +7,11 @@ import { exportAll, getDataCounts } from "@/lib/db/backup";
 import { buildBackup, backupFileName, serializeBackup } from "@/lib/domain/backup";
 import { getBackupNudge } from "@/features/settings/lib/backupNudge";
 import { downloadTextFile } from "@/features/settings/lib/downloadFile";
-import { readLastExportedAt, subscribeLastExportedAt, writeLastExportedAt } from "@/features/settings/lib/lastExported";
+import {
+  readLastExportedAt,
+  subscribeLastExportedAt,
+  writeLastExportedAt,
+} from "@/features/settings/lib/lastExported";
 import { APP_LOCALE } from "@/lib/constants/locale";
 import StatsResetPanel from "@/features/settings/components/StatsResetPanel";
 
@@ -24,7 +28,11 @@ export default function DataSection() {
   const counts = useLiveQuery(() => getDataCounts(), []);
   // undefined on the server / first client render, then the stored value —
   // useSyncExternalStore keeps that hydration-safe.
-  const lastExportedAt = useSyncExternalStore(subscribeLastExportedAt, readLastExportedAt, () => undefined);
+  const lastExportedAt = useSyncExternalStore(
+    subscribeLastExportedAt,
+    readLastExportedAt,
+    () => undefined,
+  );
 
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,8 +60,8 @@ export default function DataSection() {
       <div className="flex flex-col gap-1">
         <h2 className="font-mono text-eyebrow text-muted uppercase">Data</h2>
         <p className="text-xs text-subtle">
-          Everything lives in this browser only. Export a backup so it can be restored if the browser data is ever
-          cleared.
+          Everything lives in this browser only. Export a backup so it can be restored if the
+          browser data is ever cleared.
         </p>
       </div>
 
@@ -72,7 +80,12 @@ export default function DataSection() {
       )}
 
       <div className="flex flex-wrap items-center gap-3">
-        <button type="button" onClick={handleExport} disabled={exporting} className="btn btn-primary btn-sm gap-1">
+        <button
+          type="button"
+          onClick={handleExport}
+          disabled={exporting}
+          className="btn btn-primary btn-sm gap-1"
+        >
           <Download size={14} />
           {exporting ? "Exporting…" : "Export backup"}
         </button>

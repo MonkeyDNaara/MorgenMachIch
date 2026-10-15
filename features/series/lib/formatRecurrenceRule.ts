@@ -5,13 +5,22 @@ import { parseDateOnly } from "@/lib/date/parseDateOnly";
 const WEEKDAY_ABBR = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 /** 1/2/3/4 -> "first".."fourth", -1 -> "last" (nthWeekday's supported values). */
-const NTH_LABELS: Record<number, string> = { 1: "first", 2: "second", 3: "third", 4: "fourth", [-1]: "last" };
+const NTH_LABELS: Record<number, string> = {
+  1: "first",
+  2: "second",
+  3: "third",
+  4: "fourth",
+  [-1]: "last",
+};
 
 function ordinal(n: number): string {
   const category = new Intl.PluralRules(APP_LOCALE, { type: "ordinal" }).select(n);
-  const suffix = ({ one: "st", two: "nd", few: "rd", other: "th" } as Partial<Record<Intl.LDMLPluralRule, string>>)[
-    category
-  ] ?? "th";
+  const suffix =
+    (
+      { one: "st", two: "nd", few: "rd", other: "th" } as Partial<
+        Record<Intl.LDMLPluralRule, string>
+      >
+    )[category] ?? "th";
   return `${n}${suffix}`;
 }
 
@@ -36,7 +45,8 @@ export function formatRecurrenceRule(rule: RecurrenceRule): string {
     base = rule.interval === 1 ? "Every day" : `Every ${rule.interval} days`;
   } else if (rule.frequency === "weekly") {
     const days = formatDaysOfWeek(rule.daysOfWeek ?? []);
-    base = rule.interval === 1 ? `Every week on ${days}` : `Every ${rule.interval} weeks on ${days}`;
+    base =
+      rule.interval === 1 ? `Every week on ${days}` : `Every ${rule.interval} weeks on ${days}`;
   } else {
     const every = rule.interval === 1 ? "Every month" : `Every ${rule.interval} months`;
     if (rule.monthlyMode === "dayOfMonth" && rule.dayOfMonth !== undefined) {

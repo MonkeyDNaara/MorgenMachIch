@@ -73,7 +73,11 @@ function startOfDayMs(now: Date): number {
  * series edit regenerates (#63) and a series delete can remove (#148).
  * Completed, skipped and already-overdue rows are history and stay. */
 function isUpcomingOpen(task: Task, startOfToday: number): boolean {
-  return task.status === "open" && task.dueDate !== null && new Date(task.dueDate).getTime() >= startOfToday;
+  return (
+    task.status === "open" &&
+    task.dueDate !== null &&
+    new Date(task.dueDate).getTime() >= startOfToday
+  );
 }
 
 /**
@@ -103,7 +107,9 @@ export async function updateTaskSeriesAndRegenerate(
   const updated = await db.transaction("rw", db.tasks, db.taskSeries, async () => {
     const result = await updateTaskSeries(id, patch);
     const occurrences = await db.tasks.where("seriesId").equals(id).toArray();
-    const staleIds = occurrences.filter((task) => isUpcomingOpen(task, startOfToday)).map((task) => task.id);
+    const staleIds = occurrences
+      .filter((task) => isUpcomingOpen(task, startOfToday))
+      .map((task) => task.id);
     await db.tasks.bulkDelete(staleIds);
     return result;
   });
@@ -132,7 +138,10 @@ export async function countSeriesOccurrences(
  * normal standalone task. Without this they'd be hidden orphans: /tasks
  * excludes every task that still carries a seriesId from its Tasks column. */
 async function detachOccurrences(id: string): Promise<void> {
-  await db.tasks.where("seriesId").equals(id).modify({ seriesId: null, updatedAt: new Date().toISOString() });
+  await db.tasks
+    .where("seriesId")
+    .equals(id)
+    .modify({ seriesId: null, updatedAt: new Date().toISOString() });
 }
 
 /** Deletes the series template only; every existing occurrence (open,
@@ -147,11 +156,16 @@ export async function deleteTaskSeriesKeepingTasks(id: string): Promise<void> {
 /** Deletes the series template and its upcoming open occurrences (due
  * today-or-later). Completed, skipped and already-overdue occurrences are
  * kept as standalone history (#148). */
-export async function deleteTaskSeriesAndUpcoming(id: string, now: Date = new Date()): Promise<void> {
+export async function deleteTaskSeriesAndUpcoming(
+  id: string,
+  now: Date = new Date(),
+): Promise<void> {
   const startOfToday = startOfDayMs(now);
   await db.transaction("rw", db.tasks, db.taskSeries, async () => {
     const occurrences = await db.tasks.where("seriesId").equals(id).toArray();
-    await db.tasks.bulkDelete(occurrences.filter((task) => isUpcomingOpen(task, startOfToday)).map((task) => task.id));
+    await db.tasks.bulkDelete(
+      occurrences.filter((task) => isUpcomingOpen(task, startOfToday)).map((task) => task.id),
+    );
     await detachOccurrences(id);
     await db.taskSeries.delete(id);
   });

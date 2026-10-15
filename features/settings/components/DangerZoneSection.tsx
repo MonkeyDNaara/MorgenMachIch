@@ -15,14 +15,19 @@ import { readLastExportedAt, subscribeLastExportedAt } from "@/features/settings
  */
 export default function DangerZoneSection() {
   const counts = useLiveQuery(() => getDataCounts(), []);
-  const lastExportedAt = useSyncExternalStore(subscribeLastExportedAt, readLastExportedAt, () => undefined);
+  const lastExportedAt = useSyncExternalStore(
+    subscribeLastExportedAt,
+    readLastExportedAt,
+    () => undefined,
+  );
 
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isEmpty = counts !== undefined && counts.tasks === 0 && counts.taskSeries === 0 && counts.labels === 0;
+  const isEmpty =
+    counts !== undefined && counts.tasks === 0 && counts.taskSeries === 0 && counts.labels === 0;
   const nudge = lastExportedAt === undefined ? null : getBackupNudge(lastExportedAt);
 
   async function handleDelete() {
@@ -66,8 +71,8 @@ export default function DangerZoneSection() {
           <p className="text-xs text-base-content/70">
             This permanently deletes{" "}
             <span className="font-mono text-base-content">
-              {counts.tasks} {counts.tasks === 1 ? "task" : "tasks"}, {counts.taskSeries} recurring series and{" "}
-              {counts.labels} {counts.labels === 1 ? "label" : "labels"}
+              {counts.tasks} {counts.tasks === 1 ? "task" : "tasks"}, {counts.taskSeries} recurring
+              series and {counts.labels} {counts.labels === 1 ? "label" : "labels"}
             </span>
             . It can&apos;t be undone.
           </p>
@@ -81,7 +86,12 @@ export default function DangerZoneSection() {
           )}
 
           <div className="flex items-center gap-2">
-            <button type="button" onClick={handleDelete} disabled={deleting} className="btn btn-error btn-sm">
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={deleting}
+              className="btn btn-error btn-sm"
+            >
               {deleting ? "Deleting…" : "Yes, delete everything"}
             </button>
             <button

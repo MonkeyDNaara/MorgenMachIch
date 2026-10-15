@@ -47,9 +47,7 @@ export default function ColorSwatchPicker({ value, onChange }: ColorSwatchPicker
             className="relative h-7 w-7 flex-shrink-0 rounded-full outline-none transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-[6px] focus-visible:outline-accent"
             style={{
               backgroundColor: hex,
-              boxShadow: selected
-                ? `0 0 0 2px var(--color-base-100), 0 0 0 4px ${hex}`
-                : undefined,
+              boxShadow: selected ? `0 0 0 2px var(--color-base-100), 0 0 0 4px ${hex}` : undefined,
             }}
           >
             {selected && (
