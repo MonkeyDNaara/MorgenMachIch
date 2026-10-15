@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { THEME_COLORS } from "@/lib/ui/themePreference";
+import { THEME_COLORS } from "@/features/theme/lib/themePreference";
 
 // Served at /manifest.webmanifest; Next adds the <link rel="manifest"> itself (#80).
 // Icons come from `npm run icons` (scripts/generate-icons.mjs).

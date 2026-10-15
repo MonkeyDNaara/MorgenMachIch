@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import StatusPage from "@/components/layout/StatusPage";
-import ThemeSync from "@/components/layout/ThemeSync";
+import StatusPage from "@/components/ui/StatusPage";
+import ThemeSync from "@/features/theme/components/ThemeSync";
 import "./globals.css";
 
 /**

@@ -4,7 +4,7 @@ import { getLabels } from "@/lib/db/labels";
 import { listTaskSeries } from "@/lib/db/taskSeries";
 import { getTasks } from "@/lib/db/tasks";
 import { getSettings } from "@/lib/db/settings";
-import type { BackupData } from "@/lib/utils/backup";
+import type { BackupData } from "@/lib/domain/backup";
 
 /**
  * Reads everything the app stores, for a JSON backup (#161). Goes through

@@ -1,0 +1,388 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useLiveQuery } from "dexie-react-hooks";
+import { X } from "lucide-react";
+import {
+  countSeriesOccurrences,
+  deleteTaskSeriesAndOccurrences,
+  deleteTaskSeriesAndUpcoming,
+  deleteTaskSeriesKeepingTasks,
+  getTaskSeries,
+  updateTaskSeriesAndRegenerate,
+} from "@/lib/db/taskSeries";
+import { getLabels } from "@/lib/db/labels";
+import { buildDueDateIso, splitDueDateIso } from "@/features/tasks/lib/dueDate";
+import { computeMonthlyDefaults } from "@/lib/domain/recurrence";
+import { FIELD_FOCUS } from "@/lib/styles/fieldFocus";
+import { FIELD_LABEL } from "@/lib/styles/fieldLabel";
+import type { Priority, RecurrenceRule, Subtask } from "@/lib/types";
+import LabelChip from "@/features/labels/components/LabelChip";
+import SubtaskEditor from "@/features/tasks/components/drawer/SubtaskEditor";
+import PrioritySelector from "@/features/tasks/components/drawer/PrioritySelector";
+import RecurrenceRuleBuilder from "@/features/series/components/RecurrenceRuleBuilder";
+import { APP_LOCALE } from "@/lib/constants/locale";
+
+type SeriesDrawerPanelProps = {
+  seriesId: string;
+  onClose: () => void;
+};
+
+type LoadState = "loading" | "ready" | "not-found";
+
+/**
+ * The series-edit form (#63) — mounted fresh by SeriesDrawer on every
+ * open, same pattern as TaskDrawerPanel. Edits the template only
+ * (title, priority, notes, labels, subtasks, time of day, recurrence
+ * rule); the anchor date is shown read-only because it fixes which days
+ * the recurrence pattern counts from and past occurrences already
+ * reflect it. Saving also regenerates the series' open future
+ * occurrences (see updateTaskSeriesAndRegenerate).
+ */
+export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPanelProps) {
+  const [title, setTitle] = useState("");
+  const [priority, setPriority] = useState<Priority>("none");
+  const [notes, setNotes] = useState("");
+  const [labelIds, setLabelIds] = useState<string[]>([]);
+  const [subtasks, setSubtasks] = useState<Subtask[]>([]);
+  const [anchorDate, setAnchorDate] = useState("");
+  const [startDateIso, setStartDateIso] = useState("");
+  const [dueTime, setDueTime] = useState("");
+  const [allDay, setAllDay] = useState(false);
+  const [recurrence, setRecurrence] = useState<RecurrenceRule>({
+    frequency: "weekly",
+    interval: 1,
+    daysOfWeek: [],
+  });
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  // null = not choosing; otherwise the counts shown on the delete choice
+  // panel (#148), loaded when the panel opens.
+  const [deleteCounts, setDeleteCounts] = useState<{ upcoming: number; total: number } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loadState, setLoadState] = useState<LoadState>("loading");
+
+  useEffect(() => {
+    let cancelled = false;
+    getTaskSeries(seriesId).then((series) => {
+      if (cancelled) return;
+      if (!series) {
+        setLoadState("not-found");
+        return;
+      }
+      setTitle(series.title);
+      setPriority(series.priority);
+      setNotes(series.notes ?? "");
+      setLabelIds(series.labelIds);
+      setSubtasks(
+        series.subtaskTemplate.map((template) => ({
+          id: crypto.randomUUID(),
+          title: template.title,
+          done: false,
+        })),
+      );
+      const { date, time } = splitDueDateIso(series.startDate);
+      setAnchorDate(date);
+      setStartDateIso(series.startDate);
+      setDueTime(time);
+      setAllDay(series.allDay);
+      setRecurrence(series.recurrence);
+      setLoadState("ready");
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [seriesId]);
+
+  const labels = useLiveQuery(() => getLabels(), []);
+
+  function toggleLabel(id: string) {
+    setLabelIds((prev) => (prev.includes(id) ? prev.filter((labelId) => labelId !== id) : [...prev, id]));
+  }
+
+  // Same guard as the task drawer: switching to monthly seeds a valid
+  // mode/day (derived from the series' anchor date) so the builder never
+  // shows an unset monthly rule.
+  function handleRecurrenceChange(rule: RecurrenceRule) {
+    if (rule.frequency === "monthly" && rule.monthlyMode === undefined) {
+      setRecurrence({ ...rule, monthlyMode: "dayOfMonth", ...computeMonthlyDefaults(startDateIso) });
+      return;
+    }
+    setRecurrence(rule);
+  }
+
+  const recurrenceValid = recurrence.frequency !== "weekly" || (recurrence.daysOfWeek?.length ?? 0) > 0;
+  const busy = saving || deleting;
+  const canSave = loadState === "ready" && title.trim().length > 0 && !busy && recurrenceValid;
+
+  async function handleSave() {
+    if (!canSave) return;
+    setSaving(true);
+    setError(null);
+    try {
+      await updateTaskSeriesAndRegenerate(seriesId, {
+        title: title.trim(),
+        notes: notes.trim() || undefined,
+        priority,
+        labelIds,
+        subtaskTemplate: subtasks.map((subtask) => ({ title: subtask.title })),
+        recurrence,
+        // Only the time-of-day changes; the date part stays the original
+        // anchor so the recurrence pattern never shifts.
+        startDate: buildDueDateIso(anchorDate, dueTime, allDay) ?? startDateIso,
+        allDay,
+      });
+      onClose();
+    } catch {
+      setSaving(false);
+      setError("Couldn't save this series — check the fields and try again.");
+    }
+  }
+
+  async function handleDeleteClick() {
+    if (busy) return;
+    setError(null);
+    try {
+      setDeleteCounts(await countSeriesOccurrences(seriesId));
+    } catch {
+      setError("Couldn't load this series' tasks — try again.");
+    }
+  }
+
+  async function handleDelete(mode: "upcoming" | "keep" | "all") {
+    if (busy) return;
+    setDeleting(true);
+    setError(null);
+    try {
+      if (mode === "upcoming") {
+        await deleteTaskSeriesAndUpcoming(seriesId);
+      } else if (mode === "keep") {
+        await deleteTaskSeriesKeepingTasks(seriesId);
+      } else {
+        await deleteTaskSeriesAndOccurrences(seriesId);
+      }
+      onClose();
+    } catch {
+      setDeleting(false);
+      setError("Couldn't delete this series — try again.");
+    }
+  }
+
+  const anchorLabel = anchorDate
+    ? new Date(`${anchorDate}T00:00`).toLocaleDateString(APP_LOCALE, {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : "";
+
+  return (
+    <>
+      <div className="fixed inset-0 z-40 bg-scrim" onClick={onClose} aria-hidden="true" />
+      <aside
+        role="dialog"
+        aria-modal="true"
+        aria-label="Edit series"
+        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col gap-6 border-l border-line bg-base-200 p-6 shadow-overlay"
+      >
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold tracking-tight">Edit Series</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={busy}
+            aria-label="Close"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl bg-base-300 text-muted shadow-raised-sm outline-none! transition-colors hover:text-base-content focus-visible:shadow-focus disabled:opacity-40"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        {loadState === "loading" && <p className="flex-1 text-sm text-faint">Loading series…</p>}
+
+        {loadState === "not-found" && (
+          <p className="flex-1 text-sm text-faint">
+            This series couldn&apos;t be found — it may have been deleted.
+          </p>
+        )}
+
+        {loadState === "ready" && (
+          <div className="flex flex-1 flex-col gap-5 overflow-y-auto">
+            <label className="flex flex-col gap-1.5">
+              <span className={FIELD_LABEL}>Title</span>
+              <input
+                type="text"
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                placeholder="What needs to be done?"
+                className={`input w-full ${FIELD_FOCUS}`}
+              />
+            </label>
+
+            <div className="flex flex-col gap-1.5">
+              <span className={FIELD_LABEL}>Priority</span>
+              <PrioritySelector value={priority} onChange={setPriority} />
+            </div>
+
+            <label className="flex flex-col gap-1.5">
+              <span className={FIELD_LABEL}>Notes</span>
+              <textarea
+                value={notes}
+                onChange={(event) => setNotes(event.target.value)}
+                rows={4}
+                placeholder="Add notes (Markdown supported)…"
+                className={`textarea w-full ${FIELD_FOCUS}`}
+              />
+            </label>
+
+            <div className="flex flex-col gap-1.5">
+              <span className={FIELD_LABEL}>Subtasks</span>
+              <SubtaskEditor subtasks={subtasks} onChange={setSubtasks} />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <span className={FIELD_LABEL}>Labels</span>
+              {labels === undefined ? (
+                <p className="text-sm text-faint">Loading…</p>
+              ) : labels.length === 0 ? (
+                <p className="text-sm text-faint">
+                  No labels yet —{" "}
+                  <Link href="/labels" className="text-accent hover:underline">
+                    create one
+                  </Link>
+                  .
+                </p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {labels.map((label) => {
+                    const selected = labelIds.includes(label.id);
+                    return (
+                      <button
+                        key={label.id}
+                        type="button"
+                        onClick={() => toggleLabel(label.id)}
+                        aria-pressed={selected}
+                        className={`cursor-pointer rounded-full outline-none! transition-opacity ${
+                          selected ? "opacity-100" : "opacity-40 hover:opacity-70"
+                        }`}
+                      >
+                        <LabelChip name={label.name} color={label.color} />
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <span className={FIELD_LABEL}>Time</span>
+              <div className="flex flex-col gap-2">
+                <input
+                  type="time"
+                  value={dueTime}
+                  onChange={(event) => setDueTime(event.target.value)}
+                  disabled={allDay}
+                  aria-label="Time of day"
+                  className={`input w-full disabled:opacity-40 ${FIELD_FOCUS}`}
+                />
+                <label className="flex w-full cursor-pointer items-center justify-between gap-2 text-sm text-base-content/70">
+                  All day
+                  <input
+                    type="checkbox"
+                    role="switch"
+                    checked={allDay}
+                    onChange={(event) => setAllDay(event.target.checked)}
+                    className="toggle toggle-sm toggle-accent"
+                  />
+                </label>
+              </div>
+              <p className="text-xs text-faint">Series started {anchorLabel} — the start date can&apos;t be changed.</p>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <span className={FIELD_LABEL}>Repeat</span>
+              <RecurrenceRuleBuilder value={recurrence} onChange={handleRecurrenceChange} />
+            </div>
+
+            <p className="rounded-lg surface-sunken p-3 text-xs text-subtle">
+              Saving updates every upcoming open occurrence of this series. Completed and skipped ones stay as they
+              are.
+            </p>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-2 border-t border-line pt-4">
+          {deleteCounts !== null && (
+            <div className="flex flex-col gap-2 rounded-lg bg-base-300 p-3 shadow-raised-sm">
+              <p className="text-xs text-muted">Delete this series?</p>
+              <button
+                type="button"
+                onClick={() => handleDelete("upcoming")}
+                disabled={busy}
+                className="btn btn-error btn-sm h-auto justify-start whitespace-normal py-2 text-left"
+              >
+                {deleting
+                  ? "Deleting…"
+                  : `Delete series + ${deleteCounts.upcoming} upcoming open ${
+                      deleteCounts.upcoming === 1 ? "task" : "tasks"
+                    }`}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDelete("keep")}
+                disabled={busy}
+                className="btn btn-ghost btn-sm h-auto justify-start whitespace-normal py-2 text-left text-error"
+              >
+                Delete series only — keep all {deleteCounts.total} {deleteCounts.total === 1 ? "task" : "tasks"} as
+                standalone
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDelete("all")}
+                disabled={busy || deleteCounts.total === 0}
+                className="btn btn-outline btn-error btn-sm h-auto justify-start whitespace-normal py-2 text-left"
+              >
+                Delete series + all {deleteCounts.total} {deleteCounts.total === 1 ? "task" : "tasks"}, including
+                completed history
+              </button>
+              <p className="text-xs text-faint">
+                Unless you delete everything, completed, skipped and overdue tasks are kept as standalone tasks.
+                Deleting everything can&apos;t be undone.
+              </p>
+              <button
+                type="button"
+                onClick={() => setDeleteCounts(null)}
+                disabled={busy}
+                className="btn btn-ghost btn-xs self-end"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              {loadState === "ready" && deleteCounts === null && (
+                <button type="button" onClick={handleDeleteClick} disabled={busy} className="btn btn-ghost btn-sm text-error">
+                  Delete series
+                </button>
+              )}
+            </div>
+            <div className="flex items-center justify-end gap-2">
+            <button type="button" onClick={onClose} disabled={busy} className="btn btn-ghost btn-sm">
+              {loadState === "not-found" ? "Close" : "Cancel"}
+            </button>
+            {loadState !== "not-found" && (
+              <button type="button" onClick={handleSave} disabled={!canSave} className="btn btn-primary btn-sm">
+                {saving ? "Saving…" : "Save"}
+              </button>
+            )}
+            </div>
+          </div>
+          {error && <p className="text-right text-xs text-error">{error}</p>}
+        </div>
+      </aside>
+    </>
+  );
+}

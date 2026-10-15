@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import CalendarView from "@/components/task/CalendarView";
+import CalendarView from "@/features/calendar/components/CalendarView";
 
 export const metadata: Metadata = {
   title: "Calendar",

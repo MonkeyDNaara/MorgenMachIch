@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { SITE_URL } from "@/lib/site/siteUrl";
+import { SITE_URL } from "@/features/site/lib/siteUrl";
 
 /**
  * `/robots.txt` (#377). Nothing is blocked: crawlers must be able to load

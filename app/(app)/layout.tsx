@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import AppNav from "@/components/layout/AppNav";
-import BottomTabBar from "@/components/layout/BottomTabBar";
-import AddTaskFab from "@/components/layout/AddTaskFab";
-import { ToastProvider } from "@/components/layout/ToastProvider";
-import TitleCount from "@/components/layout/TitleCount";
-import UpdateToast from "@/components/layout/UpdateToast";
-import MarkAppVisited from "@/components/layout/MarkAppVisited";
-import TaskDrawer from "@/components/task/TaskDrawer";
-import SeriesDrawer from "@/components/task/SeriesDrawer";
-import OccurrenceSync from "@/components/task/OccurrenceSync";
-import { TaskDrawerProvider } from "@/components/task/TaskDrawerProvider";
-import { SeriesDrawerProvider } from "@/components/task/SeriesDrawerProvider";
-import { CommandPaletteProvider } from "@/components/palette/CommandPaletteProvider";
-import CommandPalette from "@/components/palette/CommandPalette";
+import AppNav from "@/app/(app)/_components/AppNav";
+import BottomTabBar from "@/app/(app)/_components/BottomTabBar";
+import AddTaskFab from "@/app/(app)/_components/AddTaskFab";
+import { ToastProvider } from "@/components/ui/ToastProvider";
+import TitleCount from "@/app/(app)/_components/TitleCount";
+import UpdateToast from "@/features/pwa/components/UpdateToast";
+import MarkAppVisited from "@/features/site/components/MarkAppVisited";
+import TaskDrawer from "@/features/tasks/components/drawer/TaskDrawer";
+import SeriesDrawer from "@/features/series/components/SeriesDrawer";
+import OccurrenceSync from "@/features/series/components/OccurrenceSync";
+import { TaskDrawerProvider } from "@/features/tasks/components/drawer/TaskDrawerProvider";
+import { SeriesDrawerProvider } from "@/features/series/components/SeriesDrawerProvider";
+import { CommandPaletteProvider } from "@/features/command-palette/components/CommandPaletteProvider";
+import CommandPalette from "@/features/command-palette/components/CommandPalette";
 
 // The app pages show nothing without local data — keep them out of search
 // results (#377). They stay crawlable, so the noindex is seen.

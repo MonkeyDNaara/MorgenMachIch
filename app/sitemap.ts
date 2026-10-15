@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { SITE_URL } from "@/lib/site/siteUrl";
+import { SITE_URL } from "@/features/site/lib/siteUrl";
 
 /**
  * `/sitemap.xml` (#377): only the landing page. The app routes show

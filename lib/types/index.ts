@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { LABEL_COLOR_HEXES } from "@/lib/constants/labelColors";
-import { ORDER_KEY_PATTERN } from "@/lib/utils/orderKey";
+import { ORDER_KEY_PATTERN } from "@/lib/domain/orderKey";
 
 /**
  * Shared domain schemas + types (Task, TaskSeries, Subtask, Label).
@@ -22,7 +22,7 @@ export type TaskStatus = z.infer<typeof TaskStatusSchema>;
  * Monthly recurrence needs two modes because "the same day every month"
  * (dayOfMonth) and "the same weekday pattern every month" (nthWeekday,
  * e.g. "last Friday") behave differently across months of different
- * lengths — see occurrencesBetween in lib/utils/recurrence.ts for how
+ * lengths — see occurrencesBetween in lib/domain/recurrence.ts for how
  * each is actually computed. n=-1 means "last", 1-4 mean first..fourth.
  */
 export const RecurrenceRuleSchema = z
@@ -81,7 +81,7 @@ export const TaskSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
   completedAt: z.string().nullable(),
-  // Manual Backlog order (#75): a fractional key from lib/utils/orderKey,
+  // Manual Backlog order (#75): a fractional key from lib/domain/orderKey,
   // compared as a plain string. `default(null)` lets rows and backups from
   // before this field parse unchanged; only the Backlog reads it.
   sortOrder: z.string().regex(ORDER_KEY_PATTERN).nullable().default(null),

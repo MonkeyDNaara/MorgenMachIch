@@ -61,7 +61,7 @@ npm run test:coverage  # coverage summary
 
 The app is a PWA: it can be installed (Chrome/Edge install icon, iPhone
 "Share → Add to Home Screen") and opens without a connection. A hand-written
-service worker (`lib/sw/`, built into `public/sw.js` by `npm run sw`, which runs
+service worker (`features/pwa/sw/`, built into `public/sw.js` by `npm run sw`, which runs
 before every build) caches the app shell: build files cache-first, pages
 network-first with a 3 s timeout, and an offline page for pages not cached yet.
 Your tasks themselves live in the browser (IndexedDB) and are always available.
@@ -103,11 +103,11 @@ public address. It defaults to `https://morgen-mach-ich.onrender.com`; set
 
 ## Project structure & conventions
 
-See [CONVENTIONS.md](./CONVENTIONS.md) for folder layout and naming rules.
+See [CONVENTIONS.md](./docs/CONVENTIONS.md) for folder layout and naming rules.
 
 ## Planning
 
-See [PLANNING.md](./PLANNING.md) for the full data model, route map, and
+See [PLANNING.md](./docs/PLANNING.md) for the full data model, route map, and
 GitHub issue backlog. Decisions and scope get updated there as the
 project evolves.
 

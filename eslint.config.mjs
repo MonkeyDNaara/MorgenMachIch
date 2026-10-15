@@ -5,6 +5,34 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  // Layer boundaries (#373): shared layers never import features or app code,
+  // and client-side code never imports server/. See docs/CONVENTIONS.md.
+  {
+    files: ["components/**", "hooks/**", "lib/**"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/features/*", "@/app/*"],
+              message: "Shared layers must not import features or app code.",
+            },
+            { group: ["@/server/*"], message: "server/ is server-only." },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ["features/**", "app/**/_components/**"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        { patterns: [{ group: ["@/server/*"], message: "server/ is server-only." }] },
+      ],
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

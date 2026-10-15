@@ -1,6 +1,6 @@
 import { db } from "@/lib/db/db";
 import { TaskSchema, type Task, type NewTask } from "@/lib/types";
-import { isBacklogTask, planBacklogReorder } from "@/lib/utils/backlog";
+import { isBacklogTask, planBacklogReorder } from "@/lib/domain/backlog";
 
 /** Fields callers may change after creation. id/createdAt/updatedAt are
  * managed by this file so a caller can never accidentally overwrite them. */
