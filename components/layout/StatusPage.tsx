@@ -29,7 +29,7 @@ export default function StatusPage({
   return (
     <div
       className={`flex flex-col items-center justify-center gap-4 p-8 text-center ${
-        fullScreen ? "min-h-screen" : "min-h-[70vh]"
+        fullScreen ? "min-h-screen w-full" : "min-h-[70vh]"
       }`}
     >
       <LogoMark size={48} />
