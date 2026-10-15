@@ -44,6 +44,18 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000) for the landing page; once a browser has
 opened the app, `/` goes straight to `/today` (`/?landing` shows the landing page anyway).
 
+### Database (in progress)
+
+The hosted database (Neon Postgres in Frankfurt + Drizzle ORM, epic #298) is being built; the app
+itself still keeps tasks in the browser. To work on the server side, copy `.env.example` to
+`.env.local`, fill in the connection strings of the Neon `dev` branch, then:
+
+```bash
+npm run db:check     # one query against the database, prints the timing
+npm run db:generate  # create a migration from server/db/schema.ts
+npm run db:migrate   # apply migrations (direct connection)
+```
+
 ## Tests
 
 Unit tests use [Vitest](https://vitest.dev) and live next to the code they test
