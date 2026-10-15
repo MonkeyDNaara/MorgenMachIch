@@ -77,12 +77,26 @@ app/  →  features/  →  components/ui, hooks/, lib/
   `taskRepository.ts`).
 - **Route folders**: lowercase, matching the URL segment (`app/(app)/today/`).
 - **Feature folders**: kebab-case (`quick-add/`, `command-palette/`).
-- **Formatting**: Prettier with `printWidth: 100` (`.prettierrc`; everything
-  else is Prettier's default).
+- **Formatting**: Prettier, see [Formatting](#formatting).
 - **Imports**: always use the `@/` path alias instead of relative
   `../../../` chains (already configured in `tsconfig.json`), e.g.
   `import { TaskCard } from "@/features/tasks/components/card/TaskCard"`.
   A test may import the file next to it with `./`.
+
+## Formatting
+
+Prettier formats every file type in the repo (TS/TSX, JS, JSON, CSS, Markdown, YAML) with
+`printWidth: 100` (`.prettierrc`; everything else is Prettier's default). It is an exact-pinned
+devDependency (#389), so the editor, the scripts and CI use the same version.
+
+- `npm run format` — format everything; `npm run format:check` — check only (CI runs this
+  before Lint and fails on any unformatted file)
+- VS Code formats on save (`.vscode/settings.json`, Prettier extension recommended in
+  `.vscode/extensions.json`)
+- Skipped: everything in `.gitignore` (e.g. the generated `public/sw.js`) and `package-lock.json`
+  (`.prettierignore`)
+- ESLint checks code quality only; `eslint-config-next` has no formatting rules, so the two never
+  disagree
 
 ## Landing page content
 
