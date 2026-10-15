@@ -8,9 +8,15 @@ import HowItsBuilt from "@/components/site/HowItsBuilt";
 import BuiltBy from "@/components/site/BuiltBy";
 import FinalCta from "@/components/site/FinalCta";
 import SiteFooter from "@/components/site/SiteFooter";
+import { SEO } from "@/lib/site/content";
 
+// og:title, og:description and the image (app/opengraph-image.jpg, made by
+// `npm run screenshots`) come from the root layout's openGraph (#377). Don't
+// add an openGraph object here — it would replace the root one, image included.
 export const metadata: Metadata = {
-  title: { absolute: "MorgenMachIch — a to-do app for today and Morgen" },
+  title: { absolute: SEO.title },
+  description: SEO.description,
+  alternates: { canonical: "/" },
 };
 
 /**

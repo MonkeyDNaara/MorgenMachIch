@@ -27,6 +27,14 @@ export const SITE_LINKS = {
   linkedin: "https://www.linkedin.com/in/niko-klam/",
 } as const;
 
+/** Title and description for search results and link previews (#377). */
+export const SEO = {
+  siteName: "MorgenMachIch",
+  title: "MorgenMachIch — a to-do app for today and Morgen",
+  description:
+    "A to-do app with a calendar, repeating routines and a quick-add that understands “Call mom fri 3pm”. Installable, works offline, your data stays in your browser.",
+};
+
 /** Anchor links in the site header. */
 export const SITE_NAV: { href: string; label: string }[] = [
   { href: "#features", label: "Features" },

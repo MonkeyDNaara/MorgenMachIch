@@ -1,11 +1,12 @@
 // Recreates the landing page screenshots (#376) from the sample data:
-// four views × light and dark, as WebP in public/site/screens (committed).
+// four views × light and dark, as WebP in public/site/screens, plus the
+// link-preview image app/opengraph-image.jpg (#377). All are committed.
 // Run `npm run build` first, then `npm run screenshots`. The script starts
 // the production build itself on a free port; set SCREENSHOT_URL to use a
 // server that is already running instead.
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createServer } from "node:net";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -32,6 +33,8 @@ const WEBP_QUALITY = 85;
 const MAX_BYTES = 150 * 1024;
 const THEME_KEY = "morgenmachich:theme"; // lib/ui/themePreference.ts
 const SAMPLE_LOADED = "Sample data loaded";
+const OG_SIZE = { width: 1200, height: 630 };
+const OG_FILE = "app/opengraph-image.jpg";
 
 function freePort() {
   return new Promise((resolve, reject) => {
@@ -110,10 +113,46 @@ async function capture(browser, baseUrl, theme) {
     const webp = await sharp(png).webp({ quality: WEBP_QUALITY }).toBuffer();
     const file = `${view.id}-${theme}.webp`;
     await writeFile(join(outDir, file), webp);
-    files.push({ file, bytes: webp.length });
+    files.push({ file: `public/site/screens/${file}`, data: webp });
   }
   await context.close();
   return files;
+}
+
+/**
+ * The Open Graph card (#377): the landing page brings the fonts and theme
+ * tokens, scripts/og-card.html replaces its body, the Today shot goes in.
+ */
+async function captureOgImage(browser, baseUrl, todayShot) {
+  const context = await browser.newContext({
+    viewport: OG_SIZE,
+    colorScheme: "dark",
+    reducedMotion: "reduce",
+  });
+  await context.addInitScript(
+    ([key, value]) => window.localStorage.setItem(key, value),
+    [THEME_KEY, "dark"],
+  );
+  const page = await context.newPage();
+  await page.goto(`${baseUrl}/?landing`);
+  await settle(page);
+  const card = (await readFile(join(root, "scripts/og-card.html"), "utf8")).replaceAll(
+    "{{TODAY_SCREENSHOT}}",
+    `data:image/webp;base64,${todayShot.toString("base64")}`,
+  );
+  await page.evaluate((html) => {
+    document.body.className = "";
+    document.body.innerHTML = html;
+  }, card);
+  // decode() rejects for an image that fails to load, so a broken card fails the run.
+  await page.evaluate(() => Promise.all([...document.images].map((image) => image.decode())));
+  await settle(page);
+  const jpg = await sharp(await page.screenshot())
+    .jpeg({ quality: 88, mozjpeg: true })
+    .toBuffer();
+  await writeFile(join(root, OG_FILE), jpg);
+  await context.close();
+  return { file: OG_FILE, data: jpg };
 }
 
 async function main() {
@@ -124,18 +163,20 @@ async function main() {
   let tooBig = 0;
   try {
     browser = await chromium.launch();
-    for (const theme of THEMES) {
-      for (const { file, bytes } of await capture(browser, server.baseUrl, theme)) {
-        const warn = bytes > MAX_BYTES ? "  ← over 150 KB" : "";
-        if (warn) tooBig++;
-        console.log(`public/site/screens/${file}  ${Math.round(bytes / 1024)} KB${warn}`);
-      }
+    const files = [];
+    for (const theme of THEMES) files.push(...(await capture(browser, server.baseUrl, theme)));
+    const todayShot = files.find(({ file }) => file.endsWith("today-dark.webp")).data;
+    files.push(await captureOgImage(browser, server.baseUrl, todayShot));
+    for (const { file, data } of files) {
+      const warn = data.length > MAX_BYTES ? "  ← over 150 KB" : "";
+      if (warn) tooBig++;
+      console.log(`${file}  ${Math.round(data.length / 1024)} KB${warn}`);
     }
   } finally {
     await browser?.close();
     server.stop();
   }
-  if (tooBig) console.warn(`${tooBig} image(s) over the budget — try a lower WEBP_QUALITY.`);
+  if (tooBig) console.warn(`${tooBig} image(s) over the budget — try a lower quality.`);
 }
 
 main().catch((error) => {

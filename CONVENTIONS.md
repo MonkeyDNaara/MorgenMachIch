@@ -72,8 +72,10 @@ rules below.
 Copy, links, profile and skills of the landing page live in `lib/site/content.ts`;
 the numbers row ("19 epics, 270+ issues …") in `lib/site/stats.ts`. Update the
 numbers at every docs sync, rounded down with a "+" so they stay true in between.
-Screenshots in `public/site/screens/` are generated (`npm run screenshots`, see
-the README) — never edit or replace them by hand.
+Screenshots in `public/site/screens/` and `app/opengraph-image.jpg` are
+generated (`npm run screenshots`, see the README) — never edit or replace them
+by hand. Change the preview card in `scripts/og-card.html`. Pages don't set
+their own `openGraph` object: it would replace the root layout's, image included.
 
 ## Data layer
 

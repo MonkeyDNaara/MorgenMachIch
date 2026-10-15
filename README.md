@@ -77,8 +77,9 @@ checkbox. Open a few pages, go offline and reload.
 ## Landing page screenshots
 
 The screenshots on the landing page (`public/site/screens/`, four views in
-light and dark) are made by a script from the sample data, so they never
-drift from the real app. Regenerate them after any visible design change:
+light and dark) and the link-preview image (`app/opengraph-image.jpg`, from
+`scripts/og-card.html`) are made by a script from the sample data, so they
+never drift from the real app. Regenerate them after any visible design change:
 
 ```bash
 npx playwright install chromium   # once per machine
@@ -90,6 +91,13 @@ into a fresh browser profile per theme, captures `/today`, `/tasks`,
 `/calendar` and `/stats` at 1280×800 and writes WebP files (each well under
 150 KB). Set `SCREENSHOT_URL=http://localhost:3000` to use a server that is
 already running. Commit the new images with the change that caused them.
+
+### Site URL
+
+Link previews, canonical links, `/sitemap.xml` and `/robots.txt` need the
+public address. It defaults to `https://morgen-mach-ich.onrender.com`; set
+`NEXT_PUBLIC_SITE_URL` (at build time) for another domain. App routes are
+`noindex` — only the landing page is meant for search results.
 
 ## Project structure & conventions
 
