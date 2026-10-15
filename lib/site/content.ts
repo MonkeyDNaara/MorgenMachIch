@@ -1,5 +1,8 @@
 import {
+  Braces,
   CalendarDays,
+  CodeXml,
+  Cog,
   ChartNoAxesColumn,
   Command,
   Download,
@@ -8,6 +11,7 @@ import {
   SunMoon,
   Sunrise,
   Tag,
+  Wrench,
   type LucideIcon,
 } from "lucide-react";
 
@@ -19,11 +23,15 @@ export const SITE_LINKS = {
   app: "/today",
   sampleData: "/today?sample=1",
   repo: "https://github.com/MonkeyDNaara/MorgenMachIch",
+  github: "https://github.com/MonkeyDNaara",
+  linkedin: "https://www.linkedin.com/in/niko-klam/",
 } as const;
 
-/** Anchor links in the site header; "How it's built" and "About me" follow with #375. */
+/** Anchor links in the site header. */
 export const SITE_NAV: { href: string; label: string }[] = [
   { href: "#features", label: "Features" },
+  { href: "#built", label: "How it's built" },
+  { href: "#about", label: "About me" },
 ];
 
 export const HERO = {
@@ -94,3 +102,156 @@ export const FEATURES: Feature[] = [
 ];
 
 export const FINAL_CTA = { title: "Ready when you are. Or Morgen." };
+
+// --- How it's built (#375) ---------------------------------------------------
+
+export const BUILD = {
+  eyebrow: "How it's built",
+  title: "Planned like a team project. Built with AI, one issue at a time.",
+  text: "Every feature started as an epic with issues, got its own branch and pull request, and passed type checks, lint, a build and tests in four time zones before it was merged.",
+};
+
+/** Each tool with the reason it was chosen — not just a logo wall. */
+export const STACK: { name: string; why: string }[] = [
+  {
+    name: "Next.js + React",
+    why: "App Router, one route per view, server components for static parts.",
+  },
+  {
+    name: "TypeScript + Zod",
+    why: "One schema per entity: types at compile time, validation at the storage boundary.",
+  },
+  {
+    name: "Dexie (IndexedDB)",
+    why: "Local-first. Only lib/db talks to storage, so a hosted API can replace it.",
+  },
+  {
+    name: "Tailwind + DaisyUI",
+    why: "Two themes built on semantic tokens, no hard-coded colours.",
+  },
+  { name: "chrono-node", why: "Natural-language dates in quick-add, English and German." },
+  { name: "dnd-kit", why: "Drag & drop with keyboard and touch support built in." },
+  { name: "Service worker", why: "Hand-written: offline app shell and an update toast." },
+  {
+    name: "Vitest + GitHub Actions",
+    why: "Tests next to the code, CI on every pull request, deploys on Render.",
+  },
+];
+
+export const DECISIONS: { tag: string; title: string; text: string }[] = [
+  {
+    tag: "Build vs. buy",
+    title: "Hand-built where it's small, a library where it's hard",
+    text: "Command palette, charts and service worker are own code; drag & drop uses dnd-kit, because touch, collisions and keyboard dragging are the hard part.",
+  },
+  {
+    tag: "Ordering",
+    title: "Fractional indexing",
+    text: "Moving a task writes one short key between its neighbours instead of renumbering the list — ready for a database later.",
+  },
+  {
+    tag: "Testing",
+    title: "Four time zones",
+    text: "Most of the logic is calendar-day math, so every test runs in Berlin, Los Angeles, Kolkata and Auckland.",
+  },
+];
+
+// --- Built by (#375) ---------------------------------------------------------
+
+export const PROFILE = {
+  name: "Niko Klam",
+  photo: "/site/niko.webp",
+  role: "Junior Software Developer in training · Full-Stack / Back-End",
+  badge: "Open to remote junior roles",
+  location: "Remote-first · on site around Neustrelitz possible",
+  about:
+    "Transitioning from automation and mechanical engineering to full-stack and back-end development. Python, React, TypeScript and C# — and I love coding. This app is my proof: planned like a team project, built step by step with AI, tested and shipped.",
+};
+
+export const CAREER: { years: string; title: string; text: string; current?: boolean }[] = [
+  {
+    years: "2012–22",
+    title: "BMW AG · production",
+    text: "Industrial mechanic → shift leader in crankshaft production, leading 10+ people · state-certified technician (mech. engineering)",
+  },
+  {
+    years: "2022–23",
+    title: "BMW AG · maintenance & IT",
+    text: "Programmed visualisations of machines, production and databases",
+  },
+  {
+    years: "2023–25",
+    title: "Automation technician",
+    text: "OLKO Maschinentechnik · Siemens TIA Portal projects, on-site commissioning, functional safety",
+  },
+  {
+    years: "2026–27",
+    title: "Software Engineering & AI",
+    text: "WBS Coding School · computer science, front-end, back-end & AI",
+    current: true,
+  },
+];
+
+/** `usedHere`: part of MorgenMachIch — marked with the accent dot. */
+export const SKILL_GROUPS: {
+  name: string;
+  icon: LucideIcon;
+  skills: { name: string; usedHere?: boolean }[];
+}[] = [
+  {
+    name: "Languages",
+    icon: Braces,
+    skills: [
+      { name: "Python" },
+      { name: "TypeScript", usedHere: true },
+      { name: "JavaScript", usedHere: true },
+      { name: "C#" },
+      { name: "SQL" },
+    ],
+  },
+  {
+    name: "Web & back-end",
+    icon: CodeXml,
+    skills: [
+      { name: "React", usedHere: true },
+      { name: "Next.js", usedHere: true },
+      { name: "HTML & CSS", usedHere: true },
+      { name: "Tailwind", usedHere: true },
+      { name: "Flask" },
+      { name: "ASP.NET" },
+      { name: "REST APIs" },
+      { name: "PostgreSQL" },
+      { name: "MongoDB" },
+    ],
+  },
+  {
+    name: "Tools & practice",
+    icon: Wrench,
+    skills: [
+      { name: "Git & GitHub", usedHere: true },
+      { name: "Testing & debugging", usedHere: true },
+      { name: "Data structures & algorithms" },
+      { name: "Docker" },
+      { name: "Azure" },
+      { name: "Generative & agentic AI", usedHere: true },
+      { name: "Scrum / agile" },
+      { name: "Jira" },
+    ],
+  },
+  {
+    name: "From automation",
+    icon: Cog,
+    skills: [
+      { name: "Siemens S7 / TIA Portal" },
+      { name: "Functional safety · EN 62061" },
+      { name: "HMI visualisation" },
+      { name: "SAP" },
+    ],
+  },
+];
+
+export const CERTIFICATES: { name: string; note: string; done: boolean }[] = [
+  { name: "PCEP", note: "Python Institute", done: true },
+  { name: "PCAP", note: "in progress", done: false },
+  { name: "AZ-900", note: "in progress", done: false },
+];
