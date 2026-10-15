@@ -67,6 +67,12 @@ rules below.
   `../../../` chains (already configured in `tsconfig.json`), e.g.
   `import { TaskCard } from "@/components/task/TaskCard"`.
 
+## Landing page content
+
+Copy, links, profile and skills of the landing page live in `lib/site/content.ts`;
+the numbers row ("19 epics, 270+ issues …") in `lib/site/stats.ts`. Update the
+numbers at every docs sync, rounded down with a "+" so they stay true in between.
+
 ## Data layer
 
 `lib/db` is the only place that talks to storage (Dexie/IndexedDB today).
