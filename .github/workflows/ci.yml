@@ -1,4 +1,4 @@
-# Continuous integration: type-check, lint and build every pull request
+# Continuous integration: type-check, format-check, lint and build every pull request
 # (and every push to main) so a type/lint error can't be merged just
 # because Render's own build happened to pass. Deploys are NOT done here —
 # Render auto-deploys from main (see render.yaml).
@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   check:
-    name: Typecheck, lint, build
+    name: Typecheck, format, lint, build
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -45,6 +45,11 @@ jobs:
 
       - name: Typecheck
         run: npx tsc --noEmit
+
+      # Prettier is pinned in devDependencies (#389), so CI checks with the
+      # same version the editor formats with. Fix a failure with `npm run format`.
+      - name: Format check
+        run: npm run format:check
 
       - name: Lint
         run: npm run lint
