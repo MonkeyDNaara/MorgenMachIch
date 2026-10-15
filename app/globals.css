@@ -286,3 +286,24 @@
 body {
   font-family: var(--font-sans), sans-serif;
 }
+
+/* Theme-matched images (#376): the landing page shows the dark or the light
+   screenshot to match the page. Same rules as the themes themselves: an
+   explicit data-theme wins, without one the OS setting decides. */
+.theme-dark-only {
+  display: none;
+}
+:root[data-theme="morgen"] .theme-dark-only {
+  display: block;
+}
+:root[data-theme="morgen"] .theme-light-only {
+  display: none;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .theme-dark-only {
+    display: block;
+  }
+  :root:not([data-theme]) .theme-light-only {
+    display: none;
+  }
+}

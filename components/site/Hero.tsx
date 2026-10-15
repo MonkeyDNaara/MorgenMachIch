@@ -1,8 +1,8 @@
 import CallToActions from "@/components/site/CallToActions";
-import HeroPreview from "@/components/site/HeroPreview";
+import HeroShot from "@/components/site/HeroShot";
 import { HERO } from "@/lib/site/content";
 
-/** First screen of the landing page (#85): promise, two ways in, a look at Today. */
+/** First screen of the landing page (#85): promise, two ways in, the real Today screen (#376). */
 export default function Hero() {
   return (
     <section className="site-glow">
@@ -18,7 +18,7 @@ export default function Hero() {
           <CallToActions className="mt-8 mb-3" />
           <p className="text-meta text-subtle">{HERO.note}</p>
         </div>
-        <HeroPreview />
+        <HeroShot />
       </div>
     </section>
   );

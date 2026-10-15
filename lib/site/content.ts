@@ -101,6 +101,42 @@ export const FEATURES: Feature[] = [
   },
 ];
 
+// --- Screenshots (#376) --------------------------------------------------------
+
+/** Where the screenshots live; `npm run screenshots` writes `{id}-{theme}.webp`. */
+export const SCREENS_PATH = "/site/screens";
+
+/** Address shown in the drawn browser frames around the screenshots. */
+export const FRAME_HOST = "morgen-mach-ich.onrender.com";
+
+export const SCREENSHOTS = {
+  eyebrow: "Screenshots",
+  title: "Same calm, day or night.",
+  text: "Real screenshots of the app with the sample data, in both themes — recreated by a script whenever the design changes.",
+  views: [
+    {
+      id: "today",
+      label: "Today",
+      text: "Overdue first, then today in order — with a day-progress bar and your streak.",
+    },
+    {
+      id: "tasks",
+      label: "Tasks",
+      text: "Open tasks by due date, your routines, and a backlog you sort by hand.",
+    },
+    {
+      id: "calendar",
+      label: "Calendar",
+      text: "The month at a glance — repeats included, drag a task to another day.",
+    },
+    {
+      id: "stats",
+      label: "Stats",
+      text: "Streaks, a year of activity, tasks per day and per label, on-time rate.",
+    },
+  ],
+} as const;
+
 export const FINAL_CTA = { title: "Ready when you are. Or Morgen." };
 
 // --- How it's built (#375) ---------------------------------------------------

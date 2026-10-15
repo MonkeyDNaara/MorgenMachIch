@@ -9,8 +9,8 @@ workflow — planned epic-by-epic through GitHub issues, one branch and PR
 per issue — while doubling as a to-do app I actually use day to day.
 
 **Live app:** https://morgen-mach-ich.onrender.com
-*(free-tier Render service — may take a few seconds to wake up if it's
-been idle)*
+_(free-tier Render service — may take a few seconds to wake up if it's
+been idle)_
 
 ## Tech stack
 
@@ -73,6 +73,23 @@ npm run build && npm run start
 Then open DevTools → Application → Service workers (status, "Update on
 reload"), Cache storage (the `mm-*` caches) and the Network tab's **Offline**
 checkbox. Open a few pages, go offline and reload.
+
+## Landing page screenshots
+
+The screenshots on the landing page (`public/site/screens/`, four views in
+light and dark) are made by a script from the sample data, so they never
+drift from the real app. Regenerate them after any visible design change:
+
+```bash
+npx playwright install chromium   # once per machine
+npm run build && npm run screenshots
+```
+
+The script starts the production build on a free port, loads the sample data
+into a fresh browser profile per theme, captures `/today`, `/tasks`,
+`/calendar` and `/stats` at 1280×800 and writes WebP files (each well under
+150 KB). Set `SCREENSHOT_URL=http://localhost:3000` to use a server that is
+already running. Commit the new images with the change that caused them.
 
 ## Project structure & conventions
 
