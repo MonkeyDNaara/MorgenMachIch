@@ -103,11 +103,11 @@ public address. It defaults to `https://morgen-mach-ich.onrender.com`; set
 
 ## Project structure & conventions
 
-See [CONVENTIONS.md](./CONVENTIONS.md) for folder layout and naming rules.
+See [CONVENTIONS.md](./docs/CONVENTIONS.md) for folder layout and naming rules.
 
 ## Planning
 
-See [PLANNING.md](./PLANNING.md) for the full data model, route map, and
+See [PLANNING.md](./docs/PLANNING.md) for the full data model, route map, and
 GitHub issue backlog. Decisions and scope get updated there as the
 project evolves.
 
