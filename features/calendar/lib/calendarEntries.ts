@@ -1,6 +1,6 @@
 import type { Priority, Task, TaskStatus } from "@/lib/types";
 import type { GhostOccurrence } from "@/features/series/lib/projectOccurrences";
-import { canReschedule } from "@/lib/utils/reschedule";
+import { canReschedule } from "@/features/dnd/lib/reschedule";
 
 /**
  * What one line in a /calendar day cell needs to render (#168) — a

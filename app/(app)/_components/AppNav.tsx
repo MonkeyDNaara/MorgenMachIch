@@ -7,9 +7,9 @@ import { Search } from "lucide-react";
 import { getTasks } from "@/lib/db/tasks";
 import { countOpenToday } from "@/features/tasks/lib/isDueToday";
 import { useModKey } from "@/hooks/useModKey";
-import { useCommandPalette } from "@/components/palette/CommandPaletteProvider";
+import { useCommandPalette } from "@/features/command-palette/components/CommandPaletteProvider";
 import LogoMark from "@/components/ui/LogoMark";
-import ThemeToggle from "@/components/layout/ThemeToggle";
+import ThemeToggle from "@/features/theme/components/ThemeToggle";
 import { MAIN_NAV, NAV_ITEMS, isActive, type NavItem } from "@/app/(app)/_components/navItems";
 
 function itemClasses(active: boolean): string {

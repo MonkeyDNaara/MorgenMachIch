@@ -3,9 +3,9 @@
 import { useDraggable } from "@dnd-kit/core";
 import type { Label, Task } from "@/lib/types";
 import TaskCard from "@/features/tasks/components/card/TaskCard";
-import DragHandle from "@/components/dnd/DragHandle";
-import type { DraggedTask } from "@/components/dnd/types";
-import { canReschedule, dragTaskId } from "@/lib/utils/reschedule";
+import DragHandle from "@/features/dnd/components/DragHandle";
+import type { DraggedTask } from "@/features/dnd/types";
+import { canReschedule, dragTaskId } from "@/features/dnd/lib/reschedule";
 
 type DraggableTaskCardProps = {
   task: Task;

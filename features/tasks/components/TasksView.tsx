@@ -26,7 +26,9 @@ import {
 import TaskListToolbar from "@/features/tasks/components/list/TaskListToolbar";
 import FilterPopover from "@/features/tasks/components/list/FilterPopover";
 import TaskCardList from "@/features/tasks/components/card/TaskCardList";
-import TaskQuickAdd, { type QuickAddVisibility } from "@/components/task/TaskQuickAdd";
+import TaskQuickAdd, {
+  type QuickAddVisibility,
+} from "@/features/quick-add/components/TaskQuickAdd";
 import SeriesRow from "@/features/series/components/SeriesRow";
 import EmptyState from "@/components/ui/EmptyState";
 import PageHeader from "@/components/ui/PageHeader";

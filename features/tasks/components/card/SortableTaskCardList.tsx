@@ -17,13 +17,13 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import type { Label, Task } from "@/lib/types";
 import TaskCard from "@/features/tasks/components/card/TaskCard";
-import DragHandle from "@/components/dnd/DragHandle";
-import MoveMenu from "@/components/dnd/MoveMenu";
+import DragHandle from "@/features/dnd/components/DragHandle";
+import MoveMenu from "@/features/dnd/components/MoveMenu";
 import { useToast } from "@/components/ui/ToastProvider";
-import { useAppSensors } from "@/lib/ui/dnd/useAppSensors";
-import { createListAnnouncements } from "@/lib/ui/dnd/announcements";
+import { useAppSensors } from "@/features/dnd/hooks/useAppSensors";
+import { createListAnnouncements } from "@/features/dnd/lib/announcements";
 import { REDUCED_MOTION, useMediaQuery } from "@/hooks/useMediaQuery";
-import { LIST_DRAG_INSTRUCTIONS } from "@/lib/utils/dndAnnouncements";
+import { LIST_DRAG_INSTRUCTIONS } from "@/features/dnd/lib/dndAnnouncements";
 import {
   applyOrder,
   moveId,
@@ -31,7 +31,7 @@ import {
   neighboursOf,
   sameOrder,
   type MoveAction,
-} from "@/lib/utils/listMove";
+} from "@/features/dnd/lib/listMove";
 
 type SortableTaskCardListProps = {
   /** Already filtered and sorted; the order shown is the order saved. */

@@ -4,10 +4,10 @@ import { Repeat } from "lucide-react";
 import { useDndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import type { CalendarEntry } from "@/features/calendar/lib/calendarEntries";
 import { APP_LOCALE } from "@/lib/constants/locale";
-import { formatDropDay } from "@/lib/utils/dndAnnouncements";
-import { dragTaskId, dropDayId, isOnDay } from "@/lib/utils/reschedule";
+import { formatDropDay } from "@/features/dnd/lib/dndAnnouncements";
+import { dragTaskId, dropDayId, isOnDay } from "@/features/dnd/lib/reschedule";
 import PriorityDot from "@/features/tasks/components/card/PriorityDot";
-import type { DraggedTask } from "@/components/dnd/types";
+import type { DraggedTask } from "@/features/dnd/types";
 
 const MAX_VISIBLE_TASKS = 3;
 

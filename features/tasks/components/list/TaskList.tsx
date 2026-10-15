@@ -25,7 +25,7 @@ const FILTERED: EmptyCopy = {
   title: "No tasks match these filters.",
   hint: "Change or clear the filters to see more.",
 };
-import type { QuickAddVisibility } from "@/components/task/TaskQuickAdd";
+import type { QuickAddVisibility } from "@/features/quick-add/components/TaskQuickAdd";
 
 type TaskListProps = {
   /**

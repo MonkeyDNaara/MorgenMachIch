@@ -12,13 +12,13 @@ import { computeMonthlyDefaults } from "@/lib/domain/recurrence";
 import { FIELD_FOCUS } from "@/lib/styles/fieldFocus";
 import { FIELD_LABEL } from "@/lib/styles/fieldLabel";
 import type { Label, Priority, RecurrenceRule, Subtask } from "@/lib/types";
-import type { QuickAddResult } from "@/lib/utils/parseQuickAdd";
+import type { QuickAddResult } from "@/features/quick-add/lib/parseQuickAdd";
 import LabelChip from "@/features/labels/components/LabelChip";
 import SubtaskEditor from "@/features/tasks/components/drawer/SubtaskEditor";
 import PrioritySelector from "@/features/tasks/components/drawer/PrioritySelector";
 import RecurrenceRuleBuilder from "@/features/series/components/RecurrenceRuleBuilder";
-import QuickAddTitleField from "@/components/quickadd/QuickAddTitleField";
-import { withNewLabels } from "@/components/quickadd/newLabels";
+import QuickAddTitleField from "@/features/quick-add/components/QuickAddTitleField";
+import { withNewLabels } from "@/features/quick-add/lib/newLabels";
 import { useToast } from "@/components/ui/ToastProvider";
 import DateField from "@/components/ui/date-field/DateField";
 

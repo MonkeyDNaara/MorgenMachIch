@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
-import ServiceWorkerRegistrar from "@/components/layout/ServiceWorkerRegistrar";
-import ThemeSync from "@/components/layout/ThemeSync";
-import { THEME_COLORS, THEME_INIT_SCRIPT } from "@/lib/ui/themePreference";
-import { SKIP_LANDING_SCRIPT } from "@/lib/ui/appVisited";
-import { SEO } from "@/lib/site/content";
-import { SITE_URL } from "@/lib/site/siteUrl";
+import ServiceWorkerRegistrar from "@/features/pwa/components/ServiceWorkerRegistrar";
+import ThemeSync from "@/features/theme/components/ThemeSync";
+import { THEME_COLORS, THEME_INIT_SCRIPT } from "@/features/theme/lib/themePreference";
+import { SKIP_LANDING_SCRIPT } from "@/features/site/lib/appVisited";
+import { SEO } from "@/features/site/lib/content";
+import { SITE_URL } from "@/features/site/lib/siteUrl";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({

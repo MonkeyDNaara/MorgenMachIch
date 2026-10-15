@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import SiteHeader from "@/components/site/SiteHeader";
-import Hero from "@/components/site/Hero";
-import QuickAddDemoSection from "@/components/site/QuickAddDemoSection";
-import FeatureGrid from "@/components/site/FeatureGrid";
-import Screenshots from "@/components/site/Screenshots";
-import HowItsBuilt from "@/components/site/HowItsBuilt";
-import BuiltBy from "@/components/site/BuiltBy";
-import FinalCta from "@/components/site/FinalCta";
-import SiteFooter from "@/components/site/SiteFooter";
-import { SEO } from "@/lib/site/content";
+import SiteHeader from "@/features/site/components/SiteHeader";
+import Hero from "@/features/site/components/Hero";
+import QuickAddDemoSection from "@/features/site/components/QuickAddDemoSection";
+import FeatureGrid from "@/features/site/components/FeatureGrid";
+import Screenshots from "@/features/site/components/Screenshots";
+import HowItsBuilt from "@/features/site/components/HowItsBuilt";
+import BuiltBy from "@/features/site/components/BuiltBy";
+import FinalCta from "@/features/site/components/FinalCta";
+import SiteFooter from "@/features/site/components/SiteFooter";
+import { SEO } from "@/features/site/lib/content";
 
 // og:title, og:description and the image (app/opengraph-image.jpg, made by
 // `npm run screenshots`) come from the root layout's openGraph (#377). Don't

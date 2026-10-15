@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import LegalPage from "@/components/site/LegalPage";
-import { PRIVACY_UPDATED, PROVIDER } from "@/lib/site/legal";
+import LegalPage from "@/features/site/components/LegalPage";
+import { PRIVACY_UPDATED, PROVIDER } from "@/features/site/lib/legal";
 
 export const metadata: Metadata = {
   title: "Datenschutz",

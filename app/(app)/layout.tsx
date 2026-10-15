@@ -5,15 +5,15 @@ import BottomTabBar from "@/app/(app)/_components/BottomTabBar";
 import AddTaskFab from "@/app/(app)/_components/AddTaskFab";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 import TitleCount from "@/app/(app)/_components/TitleCount";
-import UpdateToast from "@/components/layout/UpdateToast";
-import MarkAppVisited from "@/components/layout/MarkAppVisited";
+import UpdateToast from "@/features/pwa/components/UpdateToast";
+import MarkAppVisited from "@/features/site/components/MarkAppVisited";
 import TaskDrawer from "@/features/tasks/components/drawer/TaskDrawer";
 import SeriesDrawer from "@/features/series/components/SeriesDrawer";
 import OccurrenceSync from "@/features/series/components/OccurrenceSync";
 import { TaskDrawerProvider } from "@/features/tasks/components/drawer/TaskDrawerProvider";
 import { SeriesDrawerProvider } from "@/features/series/components/SeriesDrawerProvider";
-import { CommandPaletteProvider } from "@/components/palette/CommandPaletteProvider";
-import CommandPalette from "@/components/palette/CommandPalette";
+import { CommandPaletteProvider } from "@/features/command-palette/components/CommandPaletteProvider";
+import CommandPalette from "@/features/command-palette/components/CommandPalette";
 
 // The app pages show nothing without local data — keep them out of search
 // results (#377). They stay crawlable, so the noindex is seen.

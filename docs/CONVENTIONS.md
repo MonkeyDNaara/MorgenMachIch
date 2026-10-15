@@ -69,8 +69,8 @@ rules below.
 
 ## Landing page content
 
-Copy, links, profile and skills of the landing page live in `lib/site/content.ts`;
-the numbers row ("19 epics, 270+ issues …") in `lib/site/stats.ts`. Update the
+Copy, links, profile and skills of the landing page live in `features/site/lib/content.ts`;
+the numbers row ("19 epics, 270+ issues …") in `features/site/lib/stats.ts`. Update the
 numbers at every docs sync, rounded down with a "+" so they stay true in between.
 Screenshots in `public/site/screens/` and `app/opengraph-image.jpg` are
 generated (`npm run screenshots`, see the README) — never edit or replace them
@@ -78,8 +78,8 @@ by hand. Change the preview card in `scripts/og-card.html`. Pages don't set
 their own `openGraph` object: it would replace the root layout's, image included.
 
 Legal pages (`/impressum`, `/datenschutz`) are German, `noindex` and built on
-`components/site/LegalPage.tsx`. Name, address and email live only in
-`lib/site/legal.ts` — nowhere else on the site. Update `PRIVACY_UPDATED` with
+`features/site/components/LegalPage.tsx`. Name, address and email live only in
+`features/site/lib/legal.ts` — nowhere else on the site. Update `PRIVACY_UPDATED` with
 every change to the privacy notice.
 
 ## Data layer
@@ -99,7 +99,7 @@ redeclaring shapes locally.
 ## Tests
 
 Vitest (#153, set up in #339). Tests live **next to the code they test**
-(`lib/utils/stats.ts` → `lib/utils/stats.test.ts`), import from `vitest`
+(`features/stats/lib/stats.ts` → `features/stats/lib/stats.test.ts`), import from `vitest`
 explicitly (no globals) and use the `@/` alias like the app.
 
 - `npm test` — run once (time zone Europe/Berlin unless `TZ` is set)

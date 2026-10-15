@@ -4,10 +4,10 @@ import { useDraggable } from "@dnd-kit/core";
 import { Inbox, SlidersHorizontal } from "lucide-react";
 import type { Task } from "@/lib/types";
 import { formatTaskAge } from "@/lib/domain/backlog";
-import { dragTaskId } from "@/lib/utils/reschedule";
+import { dragTaskId } from "@/features/dnd/lib/reschedule";
 import { PRIORITY_DOT_COLORS } from "@/lib/constants/priorityColors";
-import DragHandle from "@/components/dnd/DragHandle";
-import type { DraggedTask } from "@/components/dnd/types";
+import DragHandle from "@/features/dnd/components/DragHandle";
+import type { DraggedTask } from "@/features/dnd/types";
 import EmptyState from "@/components/ui/EmptyState";
 import { useTaskDrawer } from "@/features/tasks/components/drawer/TaskDrawerProvider";
 

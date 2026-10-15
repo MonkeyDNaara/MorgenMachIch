@@ -5,9 +5,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Ellipsis, Search } from "lucide-react";
 import { useDismiss } from "@/hooks/useDismiss";
-import { useCommandPalette } from "@/components/palette/CommandPaletteProvider";
+import { useCommandPalette } from "@/features/command-palette/components/CommandPaletteProvider";
 import { NAV_ITEMS, isActive, type NavItem } from "@/app/(app)/_components/navItems";
-import ThemeToggle from "@/components/layout/ThemeToggle";
+import ThemeToggle from "@/features/theme/components/ThemeToggle";
 
 const TABS: NavItem[] = [NAV_ITEMS.today, NAV_ITEMS.tasks, NAV_ITEMS.calendar, NAV_ITEMS.stats];
 const MORE_ITEMS: NavItem[] = [NAV_ITEMS.labels, NAV_ITEMS.settings, NAV_ITEMS.about];

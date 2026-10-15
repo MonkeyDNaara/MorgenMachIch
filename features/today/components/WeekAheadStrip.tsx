@@ -7,9 +7,9 @@ import { getTasks } from "@/lib/db/tasks";
 import { upcomingWeekDays } from "@/lib/date/upcomingWeekDays";
 import { filterTasksByDay } from "@/features/tasks/lib/filterTasksByDay";
 import { formatTime } from "@/features/tasks/lib/formatDueDate";
-import { canReschedule, dragTaskId, dropDayId, isOnDay } from "@/lib/utils/reschedule";
+import { canReschedule, dragTaskId, dropDayId, isOnDay } from "@/features/dnd/lib/reschedule";
 import PriorityDot from "@/features/tasks/components/card/PriorityDot";
-import type { DraggedTask } from "@/components/dnd/types";
+import type { DraggedTask } from "@/features/dnd/types";
 import { APP_LOCALE } from "@/lib/constants/locale";
 
 const MAX_VISIBLE_TASKS = 3;
