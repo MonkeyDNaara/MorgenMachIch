@@ -160,7 +160,9 @@ The server-side twin of `lib/db`, in `server/services/`. A route builds one obje
   which skips invalid rows with a warning.
 - **Soft delete:** `delete*` sets `deleted_at` and reads filter it out; a soft delete doesn't fire the
   database cascade, so the service removes link rows itself and bumps `updated_at` of what changed.
-  `deleteAllData` is the one hard delete.
+  `deleteAllData` is the one hard delete (it keeps the settings row with the time zone).
+- **Backup import** (#408) replaces everything in one transaction and gives every row a fresh uuid
+  (references rewritten through one map), so the public demo file works for any number of accounts.
 - **Transactions** for everything that writes more than one table (`db.transaction`).
 - **Rules the schema can't enforce** (label names unique per user #405, Backlog order keys #406) take
   a per-user advisory lock (`lockUserScope` in `server/services/shared.ts`) at the start of the
