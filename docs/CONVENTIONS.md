@@ -128,6 +128,21 @@ the label row is removed. Rules the repository needs (recurrence, backlog
 order, label names, backup format) come from `lib/domain`, so the server-side
 services (#308) can reuse them.
 
+### Server and database (#304)
+
+- `server/db/client.ts` — `getDb()` returns the Drizzle client (postgres.js over the **pooled**
+  `DATABASE_URL`, `prepare: false` for Neon's transaction-mode pooler). Created lazily on the first
+  query and cached on `globalThis`, so `next build`, CI and hot reloads never open extra connections.
+- `server/env/` — `getServerEnv()` validates the server variables with Zod on first use; errors name
+  the variable, never its value. Every new server variable goes into `parseServerEnv` and
+  `.env.example`.
+- `server/db/schema.ts` — our tables (schema `public`). Migrations live in `server/db/migrations/`,
+  are generated with `npm run db:generate` and applied with `npm run db:migrate` over the **direct**
+  `DATABASE_URL_UNPOOLED`, on the `dev` branch first. Neon Auth's `neon_auth` schema is never
+  migrated by us (`schemaFilter: ["public"]`).
+- Every module under `server/` starts with `import "server-only"`, except pure helpers that tests
+  import (like `parseServerEnv`).
+
 ## Types
 
 `lib/types` holds the shared domain schemas (Zod) and their inferred types
