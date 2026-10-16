@@ -146,6 +146,25 @@ services (#308) can reuse them.
 - Every module under `server/` starts with `import "server-only"`, except pure helpers that tests
   import (like `parseServerEnv`).
 
+### Services (#308)
+
+The server-side twin of `lib/db`, in `server/services/`. A route builds one object per request:
+`services({ db: getDb(), userId, source })` — same function names and arguments as `lib/db`.
+
+- **User scope:** every query filters by `ctx.userId`; ids from the request (labels on a task, a
+  series id) are checked to belong to the same user (`ForbiddenError`). Another user's record looks
+  exactly like a missing one (`NotFoundError`).
+- `userId` and `source` come from the session or API key, never from the request body.
+- **Validation:** inputs are parsed with the `lib/types` Zod schemas (`ValidationError` with the issue
+  paths); rows read back are mapped (`server/services/mappers.ts`) and validated with `parseRows`,
+  which skips invalid rows with a warning.
+- **Soft delete:** `delete*` sets `deleted_at` and reads filter it out; a soft delete doesn't fire the
+  database cascade, so the service removes link rows itself and bumps `updated_at` of what changed.
+  `deleteAllData` is the one hard delete.
+- **Transactions** for everything that writes more than one table (`db.transaction`).
+- **Tests** run against PGlite (`server/test/db.ts`): a fresh in-memory Postgres per test file with the
+  real migrations and a `neon_auth.user` stand-in; `server-only` is aliased to a stub in Vitest.
+
 ## Types
 
 `lib/types` holds the shared domain schemas (Zod) and their inferred types
