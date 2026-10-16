@@ -2,10 +2,12 @@ import "server-only";
 import type { ServiceContext } from "@/server/services/context";
 import { labelServices } from "@/server/services/labels";
 import { settingsServices } from "@/server/services/settings";
+import { taskServices } from "@/server/services/tasks";
 
 export type { RecordSource, ServiceContext } from "@/server/services/context";
 export type { LabelPatch } from "@/server/services/labels";
 export type { SettingsPatch } from "@/server/services/settings";
+export type { TaskPatch } from "@/server/services/tasks";
 
 /**
  * The server-side service layer (#308): one object per request, with the same function
@@ -14,10 +16,10 @@ export type { SettingsPatch } from "@/server/services/settings";
  *   const s = services({ db: getDb(), userId: session.user.id, source: "ui" });
  *   const tasks = await s.getTasks();
  *
- * Labels and settings since #405; tasks (#406), series (#407) and backup (#408) follow.
+ * Labels and settings (#405), tasks (#406); series (#407) and backup (#408) follow.
  */
 export function services(ctx: ServiceContext) {
-  return { ctx, ...labelServices(ctx), ...settingsServices(ctx) };
+  return { ctx, ...labelServices(ctx), ...settingsServices(ctx), ...taskServices(ctx) };
 }
 
 export type Services = ReturnType<typeof services>;
