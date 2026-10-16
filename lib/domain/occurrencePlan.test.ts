@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { localDayIn, planOccurrences } from "@/lib/domain/occurrencePlan";
+import { localDayIn, planOccurrences, startOfLocalDay } from "@/lib/domain/occurrencePlan";
 import type { RecurrenceRule } from "@/lib/types";
 
 /**
@@ -91,5 +91,16 @@ describe("localDayIn", () => {
     expect(localDayIn("Europe/Berlin", now)).toBe("2026-10-17");
     expect(localDayIn("America/New_York", now)).toBe("2026-10-16");
     expect(localDayIn("UTC", now)).toBe("2026-10-16");
+  });
+});
+
+describe("startOfLocalDay", () => {
+  it("is local midnight of the user's day as an instant", () => {
+    const now = at("2026-10-16T22:30:00Z");
+    expect(startOfLocalDay("Europe/Berlin", now).toISOString()).toBe("2026-10-16T22:00:00.000Z");
+    expect(startOfLocalDay("Asia/Kolkata", now).toISOString()).toBe("2026-10-16T18:30:00.000Z");
+    expect(startOfLocalDay("America/Los_Angeles", now).toISOString()).toBe(
+      "2026-10-16T07:00:00.000Z",
+    );
   });
 });

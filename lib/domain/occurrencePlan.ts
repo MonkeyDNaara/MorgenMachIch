@@ -61,3 +61,11 @@ export function localDayIn(timeZone: string, now: Date): string {
   const local = new TZDate(now.getTime(), timeZone);
   return `${local.getFullYear()}-${pad(local.getMonth() + 1)}-${pad(local.getDate())}`;
 }
+
+/** The instant the user's current local day began in `timeZone` ("today or later", #407). */
+export function startOfLocalDay(timeZone: string, now: Date): Date {
+  const local = new TZDate(now.getTime(), timeZone);
+  return new Date(
+    new TZDate(local.getFullYear(), local.getMonth(), local.getDate(), 0, 0, timeZone).getTime(),
+  );
+}

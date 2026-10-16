@@ -1,11 +1,11 @@
 import "server-only";
-import { and, asc, eq, inArray, isNull, type SQL } from "drizzle-orm";
+import { and, asc, eq, isNull, type SQL } from "drizzle-orm";
 import { isBacklogTask, planBacklogReorder } from "@/lib/domain/backlog";
 import { NewTaskSchema, TaskSchema, type NewTask, type Subtask, type Task } from "@/lib/types";
 import { labels, subtasks, taskLabels, tasks } from "@/server/db/schema";
 import type { Database } from "@/server/db/types";
 import type { ServiceContext } from "@/server/services/context";
-import { ForbiddenError, NotFoundError, ValidationError } from "@/server/services/errors";
+import { NotFoundError, ValidationError } from "@/server/services/errors";
 import {
   parseRows,
   rowToTask,
@@ -14,7 +14,7 @@ import {
   type SubtaskRow,
 } from "@/server/services/mappers";
 import { occurrenceServices } from "@/server/services/occurrences";
-import { isUuid, lockUserScope } from "@/server/services/shared";
+import { checkLabelIds, isUuid, lockUserScope } from "@/server/services/shared";
 
 /** Fields callers may change after creation (same as `lib/db`). */
 export type TaskPatch = Partial<Omit<Task, "id" | "createdAt" | "updatedAt">>;
@@ -70,25 +70,6 @@ export function taskServices(ctx: ServiceContext) {
     return isUuid(id) ? (await loadTasks(tx, eq(tasks.id, id)))[0] : undefined;
   }
 
-  /**
-   * Label ids for a task: another user's or an unknown id is refused, an own label that
-   * was deleted meanwhile (stale tab, second device) is dropped silently. Keeps the order.
-   */
-  async function checkLabelIds(tx: Database, labelIds: string[]): Promise<string[]> {
-    const unique = [...new Set(labelIds)];
-    const foreign = unique.find((id) => !isUuid(id));
-    if (foreign !== undefined) throw new ForbiddenError(`Unknown label ${foreign}`);
-    if (unique.length === 0) return [];
-    const owned = await tx
-      .select({ id: labels.id, deletedAt: labels.deletedAt })
-      .from(labels)
-      .where(and(eq(labels.userId, userId), inArray(labels.id, unique)));
-    const byId = new Map(owned.map((label) => [label.id, label]));
-    const unknown = unique.find((id) => !byId.has(id));
-    if (unknown !== undefined) throw new ForbiddenError(`Unknown label ${unknown}`);
-    return unique.filter((id) => byId.get(id)?.deletedAt === null);
-  }
-
   async function writeLabelLinks(tx: Database, taskId: string, labelIds: string[]) {
     await tx.delete(taskLabels).where(eq(taskLabels.taskId, taskId));
     if (labelIds.length > 0) {
@@ -140,7 +121,7 @@ export function taskServices(ctx: ServiceContext) {
       updatedAt: now,
     };
     return db.transaction(async (tx) => {
-      const labelIds = await checkLabelIds(tx, task.labelIds);
+      const labelIds = await checkLabelIds(tx, userId, task.labelIds);
       await tx.insert(tasks).values(taskToRow(task, { userId, source }));
       await writeSubtasks(tx, task.id, task.subtasks);
       await writeLabelLinks(tx, task.id, labelIds);
@@ -184,7 +165,7 @@ export function taskServices(ctx: ServiceContext) {
       const next = result.data;
 
       if (changes.labelIds !== undefined) {
-        await writeLabelLinks(tx, id, await checkLabelIds(tx, next.labelIds));
+        await writeLabelLinks(tx, id, await checkLabelIds(tx, userId, next.labelIds));
       }
       if (changes.subtasks !== undefined) await writeSubtasks(tx, id, next.subtasks);
 
