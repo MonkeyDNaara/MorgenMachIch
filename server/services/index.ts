@@ -1,4 +1,5 @@
 import "server-only";
+import { backupServices } from "@/server/services/backup";
 import type { ServiceContext } from "@/server/services/context";
 import { labelServices } from "@/server/services/labels";
 import { occurrenceServices } from "@/server/services/occurrences";
@@ -6,6 +7,7 @@ import { seriesServices } from "@/server/services/series";
 import { settingsServices } from "@/server/services/settings";
 import { taskServices } from "@/server/services/tasks";
 
+export type { DataCounts } from "@/server/services/backup";
 export type { RecordSource, ServiceContext } from "@/server/services/context";
 export type { LabelPatch } from "@/server/services/labels";
 export type { TaskSeriesPatch } from "@/server/services/series";
@@ -19,8 +21,7 @@ export type { TaskPatch } from "@/server/services/tasks";
  *   const s = services({ db: getDb(), userId: session.user.id, source: "ui" });
  *   const tasks = await s.getTasks();
  *
- * Labels and settings (#405), tasks (#406), occurrences (#312), series (#407); backup (#408)
- * follows.
+ * Labels and settings (#405), tasks (#406), occurrences (#312), series (#407), backup (#408).
  */
 export function services(ctx: ServiceContext) {
   return {
@@ -30,6 +31,7 @@ export function services(ctx: ServiceContext) {
     ...taskServices(ctx),
     ...occurrenceServices(ctx),
     ...seriesServices(ctx),
+    ...backupServices(ctx),
   };
 }
 
