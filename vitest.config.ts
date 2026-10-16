@@ -10,7 +10,11 @@ const root = fileURLToPath(new URL("./", import.meta.url));
 export default defineConfig({
   resolve: {
     // Same `@/` alias as tsconfig.json, without an extra plugin.
-    alias: [{ find: /^@\//, replacement: root }],
+    alias: [
+      { find: /^@\//, replacement: root },
+      // `server-only` throws outside Next's server bundle; tests of `server/` use a stub (#404).
+      { find: /^server-only$/, replacement: `${root}server/test/serverOnlyStub.ts` },
+    ],
   },
   test: {
     environment: "node",
@@ -26,7 +30,7 @@ export default defineConfig({
         "app/**/_components/**/*.{ts,tsx}",
         "server/**/*.ts",
       ],
-      exclude: ["**/*.test.{ts,tsx}", "lib/test/**"],
+      exclude: ["**/*.test.{ts,tsx}", "lib/test/**", "server/test/**"],
       reporter: ["text-summary", "text"],
     },
   },
