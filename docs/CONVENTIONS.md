@@ -140,6 +140,9 @@ services (#308) can reuse them.
   are generated with `npm run db:generate` and applied with `npm run db:migrate` over the **direct**
   `DATABASE_URL_UNPOOLED`, on the `dev` branch first. Neon Auth's `neon_auth` schema is never
   migrated by us (`schemaFilter: ["public"]`).
+- New columns: add them to `server/db/schema.ts`, run `npm run db:generate`, review the generated SQL,
+  commit it with the schema change, then `npm run db:migrate` (dev branch). Never edit an applied
+  migration. `schema.test.ts` checks that every field of the `lib/types` schemas has a column.
 - Every module under `server/` starts with `import "server-only"`, except pure helpers that tests
   import (like `parseServerEnv`).
 
