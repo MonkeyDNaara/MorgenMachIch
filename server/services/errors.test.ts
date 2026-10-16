@@ -28,4 +28,9 @@ describe("service errors", () => {
     expect(error.code).toBe("validation");
     expect(error.issues.map((i) => i.path).sort()).toEqual(["due", "title"]);
   });
+
+  it("ValidationError also takes issues a Zod schema can't check", () => {
+    const issues = [{ path: "name", message: "A label with this name already exists" }];
+    expect(new ValidationError("label", issues).issues).toEqual(issues);
+  });
 });

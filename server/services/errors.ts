@@ -22,14 +22,19 @@ export class NotFoundError extends ServiceError {
   }
 }
 
+export type ValidationIssue = { path: string; message: string };
+
+/**
+ * Invalid input: from a Zod error, or from a rule Zod can't check alone
+ * (e.g. a label name that already exists — #405).
+ */
 export class ValidationError extends ServiceError {
-  readonly issues: { path: string; message: string }[];
-  constructor(entity: string, error: ZodError) {
+  readonly issues: ValidationIssue[];
+  constructor(entity: string, error: ZodError | ValidationIssue[]) {
     super("validation", `Invalid ${entity}`);
-    this.issues = error.issues.map((issue) => ({
-      path: issue.path.join("."),
-      message: issue.message,
-    }));
+    this.issues = Array.isArray(error)
+      ? error
+      : error.issues.map((issue) => ({ path: issue.path.join("."), message: issue.message }));
   }
 }
 
