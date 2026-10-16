@@ -165,6 +165,10 @@ The server-side twin of `lib/db`, in `server/services/`. A route builds one obje
 - **Rules the schema can't enforce** (label names unique per user #405, Backlog order keys #406) take
   a per-user advisory lock (`lockUserScope` in `server/services/shared.ts`) at the start of the
   transaction, so parallel requests run one after another.
+- **Occurrences** (#312) are generated on the server in the user's time zone
+  (`lib/domain/occurrencePlan.ts`, `@date-fns/tz` only at the edges): after series writes and
+  lazily in `getTasks`, once per local day. Insert with `on conflict do nothing` on
+  `(series_id, occurrence_date)` — a deleted occurrence stays a tombstone and is never recreated.
 - **Ids** are uuids: a malformed id is treated like a missing record (`isUuid`), never passed to
   Postgres.
 - **Server-owned fields:** `id`, `createdAt`, `updatedAt`, `source` and a task's `completedAt` (set

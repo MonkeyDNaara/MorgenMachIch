@@ -198,6 +198,8 @@ export const appSettings = pgTable("app_settings", {
   statsSince: timestamptz("stats_since"),
   /** IANA zone (e.g. "Europe/Berlin"): occurrence dates are local days, Render runs in UTC. */
   timeZone: text("time_zone").notNull(),
+  /** The user's local day of the last occurrence top-up — lazy generation runs once a day (#312). */
+  occurrencesGeneratedOn: date("occurrences_generated_on", { mode: "string" }),
   updatedAt: timestamptz("updated_at")
     .notNull()
     .defaultNow()

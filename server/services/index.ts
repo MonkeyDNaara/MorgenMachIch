@@ -1,6 +1,7 @@
 import "server-only";
 import type { ServiceContext } from "@/server/services/context";
 import { labelServices } from "@/server/services/labels";
+import { occurrenceServices } from "@/server/services/occurrences";
 import { settingsServices } from "@/server/services/settings";
 import { taskServices } from "@/server/services/tasks";
 
@@ -16,10 +17,17 @@ export type { TaskPatch } from "@/server/services/tasks";
  *   const s = services({ db: getDb(), userId: session.user.id, source: "ui" });
  *   const tasks = await s.getTasks();
  *
- * Labels and settings (#405), tasks (#406); series (#407) and backup (#408) follow.
+ * Labels and settings (#405), tasks (#406), occurrences (#312); series (#407) and backup (#408)
+ * follow.
  */
 export function services(ctx: ServiceContext) {
-  return { ctx, ...labelServices(ctx), ...settingsServices(ctx), ...taskServices(ctx) };
+  return {
+    ctx,
+    ...labelServices(ctx),
+    ...settingsServices(ctx),
+    ...taskServices(ctx),
+    ...occurrenceServices(ctx),
+  };
 }
 
 export type Services = ReturnType<typeof services>;

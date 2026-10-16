@@ -13,6 +13,7 @@ import {
   taskToRow,
   type SubtaskRow,
 } from "@/server/services/mappers";
+import { occurrenceServices } from "@/server/services/occurrences";
 import { isUuid, lockUserScope } from "@/server/services/shared";
 
 /** Fields callers may change after creation (same as `lib/db`). */
@@ -110,7 +111,9 @@ export function taskServices(ctx: ServiceContext) {
     if (list.length > 0) await tx.insert(subtasks).values(subtasksToRows(taskId, userId, list));
   }
 
+  /** Tops up series occurrences first, at most once per local day (#312). */
   async function getTasks(): Promise<Task[]> {
+    await occurrenceServices(ctx).ensureOccurrences();
     return loadTasks(db);
   }
 
