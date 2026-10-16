@@ -1,6 +1,15 @@
 import type { RecurrenceRule, TaskSeries } from "@/lib/types";
 import { parseDateOnly } from "@/lib/date/parseDateOnly";
 
+/** How far ahead occurrences are kept generated, from whenever generation
+ * runs (in the browser: every app load; on the server: once per local day,
+ * #312). Regenerated rather than tracked with a persistent cursor —
+ * self-healing if the app isn't opened for a while, at the cost of not
+ * backfilling occurrences for days that passed while it was closed
+ * (deliberate: nobody wants 14 "overdue" daily-task instances appearing
+ * after a week away). */
+export const GENERATION_HORIZON_DAYS = 60;
+
 function startOfDay(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }

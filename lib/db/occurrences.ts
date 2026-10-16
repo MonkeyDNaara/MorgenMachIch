@@ -1,16 +1,14 @@
 import { db } from "@/lib/db/db";
 import { createTask } from "@/lib/db/tasks";
 import type { TaskSeries } from "@/lib/types";
-import { occurrencesBetween, occurrenceDueIso } from "@/lib/domain/recurrence";
+import {
+  GENERATION_HORIZON_DAYS,
+  occurrencesBetween,
+  occurrenceDueIso,
+} from "@/lib/domain/recurrence";
 import { dateKey } from "@/lib/domain/groupTasksByDate";
 
-/** How far ahead occurrences are kept generated, from whenever this
- * runs. Regenerated on every app load (see OccurrenceSync) rather than
- * tracked with a persistent cursor — self-healing if the app isn't
- * opened for a while, at the cost of not backfilling occurrences for
- * days that passed while it was closed (deliberate: nobody wants 14
- * "overdue" daily-task instances appearing after a week away). */
-export const GENERATION_HORIZON_DAYS = 60;
+export { GENERATION_HORIZON_DAYS };
 
 function startOfDay(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
