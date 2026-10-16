@@ -1,5 +1,5 @@
 import "server-only";
-import { and, asc, count, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, asc, count, eq, inArray, isNull } from "drizzle-orm";
 import { normalizeLabelName, pickLabelColors } from "@/lib/domain/labelNames";
 import { LabelSchema, NewLabelSchema, type Label, type NewLabel } from "@/lib/types";
 import { labels, seriesLabels, taskLabels, taskSeries, tasks } from "@/server/db/schema";
@@ -7,6 +7,7 @@ import type { Database } from "@/server/db/types";
 import type { ServiceContext } from "@/server/services/context";
 import { NotFoundError, ValidationError } from "@/server/services/errors";
 import { labelToRow, parseRows, rowToLabel } from "@/server/services/mappers";
+import { isUuid, lockUserScope } from "@/server/services/shared";
 
 export type LabelPatch = Partial<Omit<Label, "id" | "createdAt">>;
 
@@ -25,14 +26,8 @@ export function labelServices(ctx: ServiceContext) {
     return parseRows(LabelSchema, "label", rows.map(rowToLabel));
   }
 
-  /**
-   * Serialises label writes of one user: Postgres runs transactions in parallel, so two
-   * quick adds with `#family` could otherwise both create the label (Dexie never could).
-   * Released automatically at the end of the transaction.
-   */
-  async function lockLabels(tx: Database): Promise<void> {
-    await tx.execute(sql`select pg_advisory_xact_lock(hashtextextended(${`labels:${userId}`}, 0))`);
-  }
+  /** Two quick adds with `#family` must not both create the label (#405). */
+  const lockLabels = (tx: Database) => lockUserScope(tx, "labels", userId);
 
   /** Names are unique per user the way a `#tag` matches (#202): "Deep work" = "deep-work". */
   function assertNameFree(existing: Label[], name: string, exceptId?: string): void {
@@ -63,6 +58,7 @@ export function labelServices(ctx: ServiceContext) {
   }
 
   async function getLabel(id: string): Promise<Label | undefined> {
+    if (!isUuid(id)) return undefined;
     const [row] = await db
       .select()
       .from(labels)
@@ -113,6 +109,7 @@ export function labelServices(ctx: ServiceContext) {
   }
 
   async function updateLabel(id: string, patch: LabelPatch): Promise<Label> {
+    if (!isUuid(id)) throw new NotFoundError("label", id);
     return db.transaction(async (tx) => {
       await lockLabels(tx);
       const existing = await selectLabels(tx);
@@ -136,6 +133,7 @@ export function labelServices(ctx: ServiceContext) {
 
   /** Not-deleted tasks of this user that carry the label (shown in the delete dialog). */
   async function countTasksWithLabel(id: string): Promise<number> {
+    if (!isUuid(id)) return 0;
     const [{ value }] = await db
       .select({ value: count() })
       .from(taskLabels)
@@ -150,6 +148,7 @@ export function labelServices(ctx: ServiceContext) {
    * new `updated_at` so `updatedSince` (#310) reports the change.
    */
   async function deleteLabel(id: string): Promise<void> {
+    if (!isUuid(id)) throw new NotFoundError("label", id);
     await db.transaction(async (tx) => {
       const now = new Date();
       const deleted = await tx
