@@ -169,6 +169,8 @@ The server-side twin of `lib/db`, in `server/services/`. A route builds one obje
   (`lib/domain/occurrencePlan.ts`, `@date-fns/tz` only at the edges): after series writes and
   lazily in `getTasks`, once per local day. Insert with `on conflict do nothing` on
   `(series_id, occurrence_date)` — a deleted occurrence stays a tombstone and is never recreated.
+  Editing a series regenerates **in place** (#407): open today-or-later occurrences keep their id;
+  dates the new rule drops are soft-deleted, open tombstones on dates it contains are restored.
 - **Ids** are uuids: a malformed id is treated like a missing record (`isUuid`), never passed to
   Postgres.
 - **Server-owned fields:** `id`, `createdAt`, `updatedAt`, `source` and a task's `completedAt` (set
