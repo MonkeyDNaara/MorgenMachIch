@@ -20,6 +20,7 @@ export type LabelInsert = typeof labels.$inferInsert;
 export type SeriesRow = typeof taskSeries.$inferSelect;
 export type SeriesInsert = typeof taskSeries.$inferInsert;
 export type SettingsRow = typeof appSettings.$inferSelect;
+export type SettingsInsert = typeof appSettings.$inferInsert;
 
 const iso = (date: Date) => date.toISOString();
 const isoOrNull = (date: Date | null) => (date ? date.toISOString() : null);
@@ -167,7 +168,16 @@ export function seriesToRow(
 
 /** One row per user replaces the old fixed id "app"; no row yet = defaults. */
 export function rowToSettings(row: SettingsRow | undefined): AppSettings {
-  return { id: "app", statsSince: row ? isoOrNull(row.statsSince) : null };
+  if (!row) return { id: "app", statsSince: null };
+  return { id: "app", statsSince: isoOrNull(row.statsSince), timeZone: row.timeZone };
+}
+
+/** The settings row; the caller makes sure `timeZone` is set (the column is `not null`). */
+export function settingsToRow(
+  settings: AppSettings & { timeZone: string },
+  userId: string,
+): SettingsInsert {
+  return { userId, statsSince: dateOrNull(settings.statsSince), timeZone: settings.timeZone };
 }
 
 /* ── Reading ── */
