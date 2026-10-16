@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { LABEL_COLOR_HEXES } from "@/lib/constants/labelColors";
 import { ORDER_KEY_PATTERN } from "@/lib/domain/orderKey";
+import { isValidTimeZone } from "@/lib/date/timeZone";
 
 /**
  * Shared domain schemas + types (Task, TaskSeries, Subtask, Label).
@@ -126,10 +127,13 @@ export type Label = z.infer<typeof LabelSchema>;
  * `statsSince` is the stats start date ("reset stats"): an ISO datetime at
  * local midnight, or null to count all history. Kept in the database (not
  * localStorage) so it travels with backups and a future hosted database.
+ * `timeZone` (IANA) exists only on the server (#405): the browser sends it at
+ * first sign-in, and series occurrences are generated in it (#312).
  */
 export const AppSettingsSchema = z.object({
   id: z.literal("app"),
   statsSince: z.string().nullable(),
+  timeZone: z.string().refine(isValidTimeZone, "Unknown time zone").optional(),
 });
 export type AppSettings = z.infer<typeof AppSettingsSchema>;
 

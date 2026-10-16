@@ -162,6 +162,9 @@ The server-side twin of `lib/db`, in `server/services/`. A route builds one obje
   database cascade, so the service removes link rows itself and bumps `updated_at` of what changed.
   `deleteAllData` is the one hard delete.
 - **Transactions** for everything that writes more than one table (`db.transaction`).
+- **Rules the schema can't enforce** (label names unique per user, #405) take a per-user advisory
+  lock (`pg_advisory_xact_lock`) at the start of the transaction, so parallel requests run one after
+  another.
 - **Tests** run against PGlite (`server/test/db.ts`): a fresh in-memory Postgres per test file with the
   real migrations and a `neon_auth.user` stand-in; `server-only` is aliased to a stub in Vitest.
 

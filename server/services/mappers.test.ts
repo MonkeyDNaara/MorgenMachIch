@@ -13,6 +13,7 @@ import {
   rowToSettings,
   rowToTask,
   seriesToRow,
+  settingsToRow,
   subtasksToRows,
   taskToRow,
 } from "@/server/services/mappers";
@@ -97,12 +98,16 @@ describe("mappers round-trip through Postgres", () => {
     expect(TaskSeriesSchema.parse(rowToSeries(row, series.labelIds))).toEqual(series);
   });
 
-  it("settings: no row means defaults, a row maps statsSince", async () => {
+  it("settings: no row means defaults, a row round-trips statsSince and timeZone", async () => {
     expect(rowToSettings(undefined)).toEqual({ id: "app", statsSince: null });
-    const since = new Date(2026, 9, 1);
-    await db.insert(appSettings).values({ userId, statsSince: since, timeZone: "Europe/Berlin" });
+    const settings = {
+      id: "app" as const,
+      statsSince: new Date(2026, 9, 1).toISOString(),
+      timeZone: "Europe/Berlin",
+    };
+    await db.insert(appSettings).values(settingsToRow(settings, userId));
     const [row] = await db.select().from(appSettings).where(eq(appSettings.userId, userId));
-    expect(rowToSettings(row)).toEqual({ id: "app", statsSince: since.toISOString() });
+    expect(rowToSettings(row)).toEqual(settings);
   });
 
   it("an occurrence keeps the occurrence date the caller passes", async () => {
