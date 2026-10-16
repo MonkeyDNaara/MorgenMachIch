@@ -3,7 +3,7 @@
 import { useDraggable } from "@dnd-kit/core";
 import type { Label, Task } from "@/lib/types";
 import TaskCard from "@/features/tasks/components/card/TaskCard";
-import DragHandle from "@/features/dnd/components/DragHandle";
+import DragHandle, { DragHandleSpacer } from "@/features/dnd/components/DragHandle";
 import type { DraggedTask } from "@/features/dnd/types";
 import { canReschedule, dragTaskId } from "@/features/dnd/lib/reschedule";
 
@@ -15,7 +15,8 @@ type DraggableTaskCardProps = {
 /**
  * A task card that can be dragged onto a day (#356, /today → Coming up):
  * open, non-recurring, dated tasks get a grip; the card itself stays in
- * place (dimmed) while the small `DragChip` follows the pointer. Not
+ * place (dimmed) while the small `DragChip` follows the pointer. Cards that
+ * can't move get a `DragHandleSpacer`, so every status circle lines up. Not
  * sortable — the list's order stays the time order.
  */
 export default function DraggableTaskCard({ task, labels }: DraggableTaskCardProps) {
@@ -45,7 +46,9 @@ export default function DraggableTaskCard({ task, labels }: DraggableTaskCardPro
               dragProps={{ ...attributes, ...listeners }}
               active={isDragging}
             />
-          ) : undefined
+          ) : (
+            <DragHandleSpacer />
+          )
         }
       />
     </div>

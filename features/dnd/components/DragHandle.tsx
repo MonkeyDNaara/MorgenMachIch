@@ -60,3 +60,12 @@ export default function DragHandle({
     </button>
   );
 }
+
+/**
+ * Keeps a card's status circle aligned when its task can't be dragged (a recurring
+ * occurrence or a done task next to movable ones): same width as `DragHandle`,
+ * invisible and ignored by screen readers.
+ */
+export function DragHandleSpacer() {
+  return <span aria-hidden="true" className="-ml-1 w-5 flex-shrink-0 pointer-coarse:w-7" />;
+}
