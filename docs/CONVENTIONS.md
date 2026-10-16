@@ -162,9 +162,13 @@ The server-side twin of `lib/db`, in `server/services/`. A route builds one obje
   database cascade, so the service removes link rows itself and bumps `updated_at` of what changed.
   `deleteAllData` is the one hard delete.
 - **Transactions** for everything that writes more than one table (`db.transaction`).
-- **Rules the schema can't enforce** (label names unique per user, #405) take a per-user advisory
-  lock (`pg_advisory_xact_lock`) at the start of the transaction, so parallel requests run one after
-  another.
+- **Rules the schema can't enforce** (label names unique per user #405, Backlog order keys #406) take
+  a per-user advisory lock (`lockUserScope` in `server/services/shared.ts`) at the start of the
+  transaction, so parallel requests run one after another.
+- **Ids** are uuids: a malformed id is treated like a missing record (`isUuid`), never passed to
+  Postgres.
+- **Server-owned fields:** `id`, `createdAt`, `updatedAt`, `source` and a task's `completedAt` (set
+  when it becomes done) are never taken from the request.
 - **Tests** run against PGlite (`server/test/db.ts`): a fresh in-memory Postgres per test file with the
   real migrations and a `neon_auth.user` stand-in; `server-only` is aliased to a stub in Vitest.
 

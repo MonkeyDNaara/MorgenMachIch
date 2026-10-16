@@ -89,6 +89,15 @@ describe("create and read", () => {
   });
 });
 
+describe("ids that aren't uuids", () => {
+  it("behave like missing labels instead of a database error", async () => {
+    expect(await me.getLabel("not-a-uuid")).toBeUndefined();
+    expect(await me.countTasksWithLabel("not-a-uuid")).toBe(0);
+    await expect(me.updateLabel("not-a-uuid", { name: "X" })).rejects.toBeInstanceOf(NotFoundError);
+    await expect(me.deleteLabel("not-a-uuid")).rejects.toBeInstanceOf(NotFoundError);
+  });
+});
+
 describe("ensureLabels", () => {
   it("reuses matching labels, creates the rest with the next unused colors", async () => {
     const deep = await me.createLabel({ name: "Deep work", color: LABEL_COLOR_HEXES[0] });
