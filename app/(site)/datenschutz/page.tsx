@@ -41,12 +41,13 @@ export default function DatenschutzPage() {
 
       <h2>Hosting und Server-Logs</h2>
       <p>
-        Die Website wird bei Render Services, Inc. (USA) gehostet. Beim Aufruf einer Seite
-        verarbeitet Render technisch notwendige Daten in Server-Logs, insbesondere IP-Adresse,
-        Zeitpunkt, aufgerufene Adresse und Browser-Kennung (User-Agent). Rechtsgrundlage ist Art. 6
-        Abs. 1 lit. f DSGVO — das berechtigte Interesse an einem sicheren und stabilen Betrieb der
-        Website. Mit Render besteht ein Auftragsverarbeitungsvertrag (Data Processing Addendum);
-        Render ist unter dem EU-US Data Privacy Framework zertifiziert.
+        Die Website wird bei Render Services, Inc. (USA) gehostet; der Server steht in Frankfurt am
+        Main (EU). Beim Aufruf einer Seite verarbeitet Render technisch notwendige Daten in
+        Server-Logs, insbesondere IP-Adresse, Zeitpunkt, aufgerufene Adresse und Browser-Kennung
+        (User-Agent). Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO — das berechtigte Interesse an
+        einem sicheren und stabilen Betrieb der Website. Mit Render besteht ein
+        Auftragsverarbeitungsvertrag (Data Processing Addendum); Render ist unter dem EU-US Data
+        Privacy Framework zertifiziert.
       </p>
 
       <h2>Keine Cookies, kein Tracking</h2>
