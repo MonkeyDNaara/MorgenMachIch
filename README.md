@@ -16,9 +16,13 @@ if it's been idle)_
 
 - [Next.js](https://nextjs.org) (App Router) + React + TypeScript
 - [Tailwind CSS](https://tailwindcss.com) + [DaisyUI](https://daisyui.com)
-- [Dexie.js](https://dexie.org) (IndexedDB) for local-only persistence —
-  no backend yet; the repository layer in `lib/db` is the only place that
-  talks to storage, so swapping in a real API later stays contained there
+- [Dexie.js](https://dexie.org) (IndexedDB) for the app's data today —
+  the repository layer in `lib/db` is the only place that talks to storage,
+  so the move to the hosted database stays contained there
+- [Neon](https://neon.tech) (Postgres, Frankfurt) +
+  [Drizzle ORM](https://orm.drizzle.team) over postgres.js for the
+  server-side service layer in `server/` (tested with
+  [PGlite](https://pglite.dev)); Neon Auth for the upcoming login
 - [Zod](https://zod.dev) — schemas in `lib/types` are the source of truth
   for both compile-time types and runtime validation at the storage
   boundary
@@ -122,6 +126,10 @@ host; locally it is unset and nothing redirects. App routes are
 
 See [CONVENTIONS.md](./docs/CONVENTIONS.md) for folder layout and naming rules.
 
+The one-time Prettier reformat is listed in `.git-blame-ignore-revs`, so `git blame`
+skips it after `git config blame.ignoreRevsFile .git-blame-ignore-revs` (GitHub does this
+automatically).
+
 ## Planning
 
 See [PLANNING.md](./docs/PLANNING.md) for the full data model, route map, and
@@ -130,110 +138,24 @@ project evolves.
 
 ## Status
 
-Actively being built epic-by-epic (see the issue backlog in
-`PLANNING.md`). Foundations, Task CRUD, Labels, List View, Today View,
-Subtasks, Priority, and the Calendar View core are done — project
-structure, theme, types, local DB, repository layer, app shell,
-routes, the initial Render deploy, full create/edit/delete/toggle task
-cards, labels (create/edit/delete, assignment, display, filtering),
-sorting/status filtering on /tasks, the /today view (today/overdue
-scope plus a clickable week-ahead strip), subtasks (drawer editor,
-progress bar on the card), priority levels (drawer selector, card
-indicator dot, filter dropdown), and a /calendar month view (task
-plotting per day, day drill-down). The Recurring Tasks epic is
-done: the recurrence rule builder and occurrence-generation
-engine are done (daily/weekly/monthly, independent occurrences on a
-rolling 60-day horizon), occurrences can be independently skipped
-(hidden by default, auditable via a status filter), and series can be
-paused/resumed and edited (a drawer opened from the series row; saving
-regenerates upcoming open occurrences); /tasks splits into a Tasks column
-and a Recurring column (one row per series) so a single series doesn't
-flood the list. A series can also be deleted, choosing whether to keep,
-remove, or wipe its existing tasks.
-The Settings epic is done too: /settings offers a JSON backup export (with
-a last-backup reminder), an import that validates the whole file first and
-then replaces all data after a preview and confirmation (auto-downloading a
-safety backup beforehand), a delete-all-data danger zone, and an About
-card. The calendar also shows read-only projected occurrences of
-recurring series beyond the ~60 days of generated tasks, so a series never
-looks like it ended, and it can be filtered by label and priority.
-Deployment & Ops is done as well: the app auto-deploys to Render from `main`
-(checked: every merge goes live in about a minute), unknown URLs and runtime
-crashes show styled 404 and error pages (with a hint when browser storage is
-blocked), and a GitHub Actions workflow type-checks, lints and builds every
-pull request.
-The Backlog epic is done too: tasks without a due date live in their own
-hideable column on /tasks (sorted by priority, then oldest first, with an
-"added 3d ago" marker). A "Plan for…" menu turns one into a due task —
-today, tomorrow, later this week or a picked date — and anything typed into
-the quick-add bar on /tasks without a date lands there in a keystroke.
-A command palette (⌘K / Ctrl+K, built without a library) jumps to any page,
-creates tasks, fuzzy-searches existing tasks (open, or tick off with
-⌘/Ctrl+Enter) and adds a typed title straight to the backlog. All dates use
-one fixed English locale (en-GB).
-Natural-language quick-add is done too: typing "Call mom fri 3pm #family
-!high" (English or German dates) fills in the due date, label and priority,
-with the matched parts colored as you type, a chip for each one (click to
-ignore it) and suggestions after "#" and "!". It works in quick-add bars on
-/today and /tasks, in the command palette, and as an Apply suggestion in the
-new-task drawer.
-Stats & Streaks is done as well: a /stats page shows the current and best
-streak, a GitHub-style year heatmap, completions per day or week, a
-breakdown by label and how many dated tasks were done on time — all
-hand-built SVG, no chart library — and a streak badge sits in the /today
-header. Stats are calculated from completed tasks, so backups carry them
-automatically, and "Reset stats" in Settings gives a fresh start without
-changing any task.
-A full design pass gave the app its own look ("Dawn Tactile"): amber for
-actions and cyan for data, a clear sunken / raised / flat depth rule, a type
-scale with an editorial /today header ("Friday." plus a day-progress bar),
-a sidebar on desktop and a tab bar on phones, one-row filters, designed empty
-states and a "→ Morgen" button that moves a task to tomorrow (with undo).
-A light theme ("Dawn Paper": warm cream with burnt-amber actions) followed:
-Settings → Appearance offers System / Light / Dark (System follows the
-device live), the navigation has a one-click light/dark switch, the command
-palette has theme commands, and the page never flashes the wrong theme on
-load. Text greys are theme tokens tuned per theme, so secondary text keeps
-the same contrast in light and dark.
-Quick-add now understands recurrence too: "Gym every mon and thu 6pm until
-31 Dec" or "Miete monatlich am 1." (English or German) creates a recurring
-series straight from the quick-add bars, the command palette or the task
-drawer — with a chip for the rule, the start and the end, a preview of the
-first date, and an Undo.
-On the weekend the week preview on /today already shows the whole next
-week, so Saturday and Sunday are for planning. And a #tag that matches no
-label can create it on the spot: the chip shows the new label in the colour
-it will get, and ignoring the chip keeps a typo from becoming a label.
-On /tasks, done tasks finished more than a week ago step aside: a quiet
-"12 done tasks older than 7 days hidden · Show" row under the list brings
-them back whenever you want them.
-Every option group (status filter, priority, stats period, label colours,
-theme) works fully from the keyboard: one Tab stop, arrow keys to choose.
-Dates are typed the way you'd say them ("fri", "tomorrow", "12.10.") or
-picked from a small calendar with quick picks — always in the app's English
-format, never the browser's.
-Drag & drop arrived last: the Backlog can be put in your own order (drag a
-card by its grip, use the keyboard, or click the grip for "Move to top / up /
-down / bottom"), tasks can be dragged to another day on the calendar or onto
-a "Coming up" day on /today (the time stays, Undo is one click away), and a
-Backlog tray next to the calendar lets you plan the week by dropping tasks
-onto days.
-The app can now be installed (PWA): it has its own logo, opens on /today as
-"Morgen" in its own window or from the home screen, offers New task / Today /
-Calendar shortcuts and shows the number of open tasks in the tab title and on
-the app icon. A service worker keeps the app shell, so every page you've opened
-once loads offline and the app opens within seconds even while the server wakes
-up. Settings → App explains how to install it in your browser, and after a
-deploy a "New version · Reload" toast lets you choose when to update.
-The app now has a public landing page at `/`: a hero with the real Today
-screen, a live quick-add demo running the real parser, the features, real
-screenshots in both themes (made by a script from sample data), how the app
-is built and who built it. "Try it with sample data" fills an empty app with
-demo tasks dated around today; browsers that have used the app before go
-straight to /today. Links shared on LinkedIn show a preview card, and an
-Impressum and a short privacy notice are in the footer.
-Every helper behind those features is covered by tests: 670+ Vitest tests run on
-every pull request in four time zones, because so much of the app is local
-calendar-day math.
-Planned next: a hosted database (Neon + Drizzle) with an API and login, so
-n8n and Claude/Obsidian can work with the tasks.
+Built epic by epic — every decision is recorded in [PLANNING.md](./docs/PLANNING.md).
+
+**Done**
+
+- **Tasks & labels:** create/edit/delete in a drawer, subtasks with progress, priorities, colour labels, filters and sorting; a Backlog for tasks without a date, with "Plan for…"
+- **Views:** /today with an editorial header, day progress and a week preview; /tasks with Tasks, Recurring and Backlog columns; a /calendar month view with projected future occurrences
+- **Recurring tasks:** daily/weekly/monthly rules (incl. "first Monday"), independent occurrences, pause, edit, three ways to delete a series
+- **Natural-language quick-add** (English + German): `Call mom fri 3pm #family !high` or `Gym every mon and thu 6pm until 31 Dec` — live-coloured tokens, ignorable chips, new labels from unknown `#tags`
+- **Command palette** (⌘K / Ctrl+K, no library): fuzzy search, page jumps, actions
+- **Stats & streaks:** current/best streak, year heatmap, completion charts, label breakdown, on-time rate — hand-built SVG
+- **Drag & drop:** manual Backlog order, rescheduling on the calendar and "Coming up", keyboard and move-menu alternatives
+- **Design:** own look ("Dawn Tactile" dark / "Dawn Paper" light, System / Light / Dark), keyboard-correct controls, custom date field
+- **PWA:** installable, own logo, offline app shell, update toast
+- **Landing page** with a live quick-add demo, generated screenshots, Open Graph image, Impressum and privacy notice
+- **Quality:** 780+ Vitest tests in four time zones, Prettier, ESLint layer rules, CI on every pull request
+- **Server layer** (not wired to the UI yet): Neon Postgres in Frankfurt, Drizzle schema and migrations, a user-scoped service layer with server-side recurrence, tested against PGlite
+- **Hosting:** Render in Frankfurt on [morgenmachich.de](https://morgenmachich.de)
+
+**In progress:** Hosted Database & API (#298) — health check, login with Neon Auth (#299), `/api/v1` routes, then the app moves from browser storage (IndexedDB) to the database.
+
+**Planned:** automation and a "second brain" with n8n and Claude/Obsidian (#300), feedback & admin (#323).
