@@ -122,6 +122,22 @@ address, the old Oregon service — a 308 redirect to the same path on that
 host; locally it is unset and nothing redirects. App routes are
 `noindex` — only the landing page is meant for search results.
 
+## Health check
+
+```bash
+# Liveness — Render's healthCheckPath, never touches the database
+curl https://morgenmachich.de/api/health
+# → {"status":"ok","version":"0.1.0","commit":"884b8a7"}
+
+# Deep check — `select 1` against Neon (5 s timeout): 200, or 503 when unreachable
+curl https://morgenmachich.de/api/health?db=1
+# → {"status":"ok","version":"0.1.0","commit":"884b8a7","db":{"status":"ok","latencyMs":24}}
+```
+
+Render only checks liveness, so a database problem never restarts the app; the deep check is
+for curl, n8n and monitoring. Neither response contains error details (those go to the server
+log), and `/api/health` is exempt from the canonical-host redirect.
+
 ## Project structure & conventions
 
 See [CONVENTIONS.md](./docs/CONVENTIONS.md) for folder layout and naming rules.
