@@ -60,6 +60,20 @@ describe("canonicalRedirectUrl", () => {
     expect(canonicalRedirectUrl(at("localhost:3000"), "localhost:3000")).toBeNull();
   });
 
+  it("never redirects the health check (#305)", () => {
+    expect(canonicalRedirectUrl(at("srv-internal:10000", "/api/health"), CANONICAL)).toBeNull();
+    expect(
+      canonicalRedirectUrl(at("morgenmachich.onrender.com", "/api/health", "?db=1"), CANONICAL),
+    ).toBeNull();
+    expect(canonicalRedirectUrl(at("old.onrender.com", "/api/health/x"), CANONICAL)).toBeNull();
+    expect(canonicalRedirectUrl(at("old.onrender.com", "/api/healthcheck"), CANONICAL)).toBe(
+      "https://morgenmachich.de/api/healthcheck",
+    );
+    expect(canonicalRedirectUrl(at("old.onrender.com", "/api/v1/tasks"), CANONICAL)).toBe(
+      "https://morgenmachich.de/api/v1/tasks",
+    );
+  });
+
   it("uses the first host when a proxy lists several", () => {
     expect(canonicalRedirectUrl(at("morgenmachich.de, internal:10000"), CANONICAL)).toBeNull();
     expect(canonicalRedirectUrl(at("old.onrender.com, morgenmachich.de"), CANONICAL)).toBe(
