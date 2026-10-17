@@ -39,13 +39,14 @@ lib/
   constants/               # label palette, priority colors, APP_LOCALE
   styles/                  # class/style helpers: FIELD_FOCUS, FIELD_LABEL, colorChip
   storage/                 # localStorage flags (storedFlag)
-  utils/                   # generic helpers without a better home: urlFlag, isStorageError
+  utils/                   # generic helpers without a better home: urlFlag, isStorageError, canonicalHost
   test/                    # test factories
 server/                    # server-only code (database client, services) — see server/README.md
 assets/brand/              # logo sources (SVG) → `npm run icons`
 public/                    # static files; icons/ and site/screens/ are generated, sw.js is git-ignored
 scripts/                   # Node scripts: icons, service worker build, screenshots, tests in four time zones
 docs/                      # PLANNING.md, CONVENTIONS.md, images/
+proxy.ts                   # Next proxy: canonical-host redirect (#396)
 ```
 
 ### Layers and import rules

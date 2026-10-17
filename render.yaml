@@ -1,18 +1,27 @@
 # Render Blueprint — declares the web service as code so the deploy
 # config is reviewable/versioned here rather than only living in
 # Render's dashboard. Import via Render: New + -> Blueprint -> select
-# this repo.
+# this repo. Lives in the "MorgenMachIch" workspace (#396); the custom
+# domain morgenmachich.de is added to the service in the dashboard.
 services:
   - type: web
-    name: morgen-mach-ich
+    name: morgenmachich
     runtime: node
     plan: free
+    region: frankfurt
     branch: main
     buildCommand: npm ci && npm run build
     startCommand: npm run start
     envVars:
       - key: NODE_VERSION
-        value: 22.11.0
+        value: 22.23.3
+      # Public address for metadata, canonical links, sitemap and robots —
+      # read at build time, so it must be set before the first build.
+      - key: NEXT_PUBLIC_SITE_URL
+        sync: false
+      # Host every other host redirects to (proxy.ts, #396), e.g. morgenmachich.de.
+      - key: CANONICAL_HOST
+        sync: false
       # Neon (#304, #306): values are set in the Render dashboard, never in git.
       - key: DATABASE_URL
         sync: false

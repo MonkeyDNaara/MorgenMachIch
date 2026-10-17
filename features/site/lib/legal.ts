@@ -18,4 +18,4 @@ export const LEGAL_LINKS = [
 ] as const;
 
 /** Date of the last change to the privacy notice — update with every edit. */
-export const PRIVACY_UPDATED = "15. Oktober 2026";
+export const PRIVACY_UPDATED = "17. Oktober 2026";

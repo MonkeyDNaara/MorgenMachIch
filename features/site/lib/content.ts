@@ -115,7 +115,7 @@ export const FEATURES: Feature[] = [
 export const SCREENS_PATH = "/site/screens";
 
 /** Address shown in the drawn browser frames around the screenshots. */
-export const FRAME_HOST = "morgen-mach-ich.onrender.com";
+export const FRAME_HOST = "morgenmachich.de";
 
 export const SCREENSHOTS = {
   eyebrow: "Screenshots",

@@ -8,9 +8,9 @@ portfolio project to demonstrate an AI-assisted ("vibe coded") development
 workflow — planned epic-by-epic through GitHub issues, one branch and PR
 per issue — while doubling as a to-do app I actually use day to day.
 
-**Live app:** https://morgen-mach-ich.onrender.com
-_(free-tier Render service — may take a few seconds to wake up if it's
-been idle)_
+**Live app:** https://morgenmachich.de
+_(free-tier Render service in Frankfurt — may take a few seconds to wake up
+if it's been idle)_
 
 ## Tech stack
 
@@ -32,7 +32,8 @@ been idle)_
   [sharp](https://sharp.pixelplumbing.com) (`npm run icons`)
 - [Playwright](https://playwright.dev) for the generated landing-page
   screenshots and link-preview image (`npm run screenshots`)
-- Deployed on [Render](https://render.com) via `render.yaml` (Blueprint)
+- Deployed on [Render](https://render.com) (Frankfurt) via `render.yaml`
+  (Blueprint), on the custom domain `morgenmachich.de`
 
 ## Getting started
 
@@ -109,8 +110,12 @@ already running. Commit the new images with the change that caused them.
 ### Site URL
 
 Link previews, canonical links, `/sitemap.xml` and `/robots.txt` need the
-public address. It defaults to `https://morgen-mach-ich.onrender.com`; set
-`NEXT_PUBLIC_SITE_URL` (at build time) for another domain. App routes are
+public address. It defaults to `https://morgenmachich.de`; set
+`NEXT_PUBLIC_SITE_URL` (at build time) for another domain. On Render,
+`CANONICAL_HOST` (e.g. `morgenmachich.de`) makes `proxy.ts` send every
+request that arrives on another host — the service's own `onrender.com`
+address, the old Oregon service — a 308 redirect to the same path on that
+host; locally it is unset and nothing redirects. App routes are
 `noindex` — only the landing page is meant for search results.
 
 ## Project structure & conventions
