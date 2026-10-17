@@ -98,11 +98,13 @@ devDependency (#389), so the editor, the scripts and CI use the same version.
   (`.prettierignore`)
 - ESLint checks code quality only; `eslint-config-next` has no formatting rules, so the two never
   disagree
+- Pure reformatting commits go into `.git-blame-ignore-revs` (full SHA), so blame shows the real
+  change; enable it locally with `git config blame.ignoreRevsFile .git-blame-ignore-revs`
 
 ## Landing page content
 
 Copy, links, profile and skills of the landing page live in `features/site/lib/content.ts`;
-the numbers row ("19 epics, 270+ issues …") in `features/site/lib/stats.ts`. Update the
+the numbers row ("21 epics, 250+ issues …") in `features/site/lib/stats.ts`. Update the
 numbers at every docs sync, rounded down with a "+" so they stay true in between.
 Screenshots in `public/site/screens/` and `app/opengraph-image.jpg` are
 generated (`npm run screenshots`, see the README) — never edit or replace them
