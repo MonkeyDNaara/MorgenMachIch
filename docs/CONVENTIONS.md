@@ -27,7 +27,7 @@ features/                  # one folder per feature (see features/README.md)
   tasks/ series/ backlog/ today/ calendar/ labels/ quick-add/ command-palette/
   stats/ settings/ dnd/ pwa/ theme/ site/ demo/ dashboard/
 components/
-  ui/                      # shared UI building blocks: date-field/, EmptyState, PageHeader,
+  ui/                      # shared UI building blocks: date-field/, charts/, EmptyState, PageHeader,
                            # StatusPage, LogoMark, ToastProvider
 hooks/                     # shared hooks: useDismiss, useMediaQuery, useModKey, useRadioGroupKeys
 lib/
@@ -36,6 +36,7 @@ lib/
   domain/                  # framework-free business rules shared by UI, data layer and server:
                            # recurrence, backlog, backup, labelNames, orderKey, groupTasksByDate
   date/                    # generic date helpers: parseDate, parseDateOnly, dateField, monthGrid, ...
+  charts/                  # chart math for the hand-built SVG charts: scalePoints, barLevels
   constants/               # label palette, priority colors, APP_LOCALE
   styles/                  # class/style helpers: FIELD_FOCUS, FIELD_LABEL, colorChip
   storage/                 # localStorage flags (storedFlag)
