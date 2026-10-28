@@ -16,7 +16,7 @@ export default function OnTimeRate({ onTime, total, rate }: OnTimeRateProps) {
   return (
     <div className="flex items-center gap-3.5">
       <svg width={56} height={56} viewBox="0 0 36 36" aria-hidden className="shrink-0">
-        <circle cx={18} cy={18} r={15.5} fill="none" strokeWidth={4} className="stroke-base-300" />
+        <circle cx={18} cy={18} r={15.5} fill="none" strokeWidth={4} className="stroke-track" />
         {percent !== null && percent > 0 && (
           <circle
             cx={18}
