@@ -46,6 +46,10 @@ npm install
 npm run dev
 ```
 
+The project uses **npm 11.20+** (`engines` with `engine-strict`, #450): Node 22 still ships npm 10,
+so install a newer one once with `npm install -g npm@11`. CI and Render run `npx -y npm@11.20.0 ci`.
+Dependency install scripts are blocked by npm 11; the reviewed ones are listed in `allowScripts`.
+
 Open [http://localhost:3000](http://localhost:3000) for the landing page; once a browser has
 opened the app, `/` goes straight to `/today` (`/?landing` shows the landing page anyway).
 

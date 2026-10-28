@@ -10,7 +10,7 @@ services:
     plan: free
     region: frankfurt
     branch: main
-    buildCommand: npm ci && npm run build
+    buildCommand: npx -y npm@11.20.0 ci && npm run build
     startCommand: npm run start
     # Liveness only (#305) — no database, so a Neon problem never restarts the app.
     healthCheckPath: /api/health
