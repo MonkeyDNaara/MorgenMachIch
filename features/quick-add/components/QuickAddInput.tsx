@@ -25,6 +25,8 @@ type QuickAddInputProps = {
   defaultHint: string;
   placeholder: string;
   ariaLabel: string;
+  /** Id for the <input>, e.g. so a skip link can focus it (#421). */
+  inputId?: string;
   size?: "sm" | "md";
   /** Called on every edit, e.g. to clear a status message. */
   onEdit?: () => void;
@@ -59,6 +61,7 @@ export default function QuickAddInput({
   defaultHint,
   placeholder,
   ariaLabel,
+  inputId,
   size = "md",
   onEdit,
   recurrence = false,
@@ -131,6 +134,7 @@ export default function QuickAddInput({
       <div className="relative">
         <input
           ref={inputRef}
+          id={inputId}
           type="text"
           value={text}
           onChange={(event) => {
