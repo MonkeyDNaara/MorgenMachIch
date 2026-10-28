@@ -46,4 +46,13 @@ describe("MiniBars (#422)", () => {
     expect(bars[2].className).toContain("bg-data-4");
     expect(bars[0].className).toContain("bg-data-2");
   });
+
+  it("shows optional labels under the bars, hidden from screen readers", () => {
+    const { container } = render(
+      <MiniBars values={[1, 2, null]} highlightIndex={1} labels={["M", "T", "W"]} label="x" />,
+    );
+    const row = container.querySelector("[aria-hidden='true'].flex");
+    expect(row?.textContent).toBe("MTW");
+    expect(screen.getByText("T").className).toContain("text-accent");
+  });
 });

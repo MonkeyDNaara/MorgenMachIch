@@ -11,6 +11,9 @@ type MiniBarsProps = {
   max?: number;
   /** Height in px; bars share the width. */
   height?: number;
+  /** One short label per bar under the row, e.g. weekday letters (#425); the
+   * highlighted one in accent. Hidden from screen readers — `label` covers it. */
+  labels?: readonly string[];
 };
 
 function barClass(level: BarLevel, highlighted: boolean): string {
@@ -31,8 +34,9 @@ export default function MiniBars({
   highlightIndex,
   max,
   height = 40,
+  labels,
 }: MiniBarsProps) {
-  return (
+  const bars = (
     <div role="img" aria-label={label} className="flex items-end gap-1" style={{ height }}>
       {barLevels(values, max).map((level, index) => (
         <span
@@ -43,6 +47,24 @@ export default function MiniBars({
           style={level.kind === "value" ? { height: `max(3px, ${level.ratio * 100}%)` } : undefined}
         />
       ))}
+    </div>
+  );
+  if (!labels) return bars;
+  return (
+    <div>
+      {bars}
+      <div aria-hidden className="mt-1.5 flex gap-1">
+        {labels.map((text, index) => (
+          <span
+            key={index}
+            className={`min-w-0 flex-1 text-center font-mono text-[10px] ${
+              index === highlightIndex ? "text-accent" : "text-faint"
+            }`}
+          >
+            {text}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
