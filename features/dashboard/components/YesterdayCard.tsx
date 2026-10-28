@@ -48,7 +48,7 @@ export default function YesterdayCard({ review, note }: YesterdayCardProps) {
         <div className="flex flex-col gap-3">
           <Score done={review.done} total={review.total} />
           {review.missed.length === 0 ? (
-            <p className="text-sm text-muted">All done — Morgen can wait.</p>
+            <p className="text-sm text-muted">Clean sweep.</p>
           ) : (
             <div>
               <p className="font-mono text-eyebrow text-faint uppercase">Left open</p>

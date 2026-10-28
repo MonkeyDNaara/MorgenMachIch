@@ -17,7 +17,8 @@ type MiniBarsProps = {
 };
 
 function barClass(level: BarLevel, highlighted: boolean): string {
-  if (level.kind === "future") return "h-full bg-track opacity-50";
+  // A dashed stub: still to come, without drawing the eye to the empty part.
+  if (level.kind === "future") return "h-[3px] border border-dashed border-line-strong";
   if (level.kind === "empty") return "h-[3px] bg-track";
   return highlighted ? "bg-data-4" : "bg-data-2";
 }
@@ -26,7 +27,7 @@ function barClass(level: BarLevel, highlighted: boolean): string {
  * A row of small bars (#422), e.g. tasks done per day this week. Plain
  * flex bars, so they follow the card's width and stay crisp: a value bar
  * (`data-2`, the highlighted one `data-4`), a short track stub for 0 and a
- * faint full-height track for future slots. Static: one accessible name.
+ * dashed stub for future slots. Static: one accessible name.
  */
 export default function MiniBars({
   values,
