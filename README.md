@@ -160,6 +160,7 @@ Built epic by epic — every decision is recorded in [PLANNING.md](./docs/PLANNI
 
 - **Tasks & labels:** create/edit/delete in a drawer, subtasks with progress, priorities, colour labels, filters and sorting; a Backlog for tasks without a date, with "Plan for…"
 - **Views:** /today with an editorial header, day progress and a week preview; /tasks with Tasks, Recurring and Backlog columns; a /calendar month view with projected future occurrences
+- **Today briefing:** Important (urgent high-priority tasks), Yesterday (done vs. due, what was left open) and This week (completions per day, on-time rate, comparison with last week) above the task list — collapsible on desktop, stacked around the tasks on mobile
 - **Recurring tasks:** daily/weekly/monthly rules (incl. "first Monday"), independent occurrences, pause, edit, three ways to delete a series
 - **Natural-language quick-add** (English + German): `Call mom fri 3pm #family !high` or `Gym every mon and thu 6pm until 31 Dec` — live-coloured tokens, ignorable chips, new labels from unknown `#tags`
 - **Command palette** (⌘K / Ctrl+K, no library): fuzzy search, page jumps, actions
@@ -168,10 +169,10 @@ Built epic by epic — every decision is recorded in [PLANNING.md](./docs/PLANNI
 - **Design:** own look ("Dawn Tactile" dark / "Dawn Paper" light, System / Light / Dark), keyboard-correct controls, custom date field
 - **PWA:** installable, own logo, offline app shell, update toast
 - **Landing page** with a live quick-add demo, generated screenshots, Open Graph image, Impressum and privacy notice
-- **Quality:** 780+ Vitest tests in four time zones, Prettier, ESLint layer rules, CI on every pull request
+- **Quality:** 850+ Vitest tests in four time zones, Prettier, ESLint layer rules, CI on every pull request
 - **Server layer** (not wired to the UI yet): Neon Postgres in Frankfurt, Drizzle schema and migrations, a user-scoped service layer with server-side recurrence, tested against PGlite
 - **Hosting:** Render in Frankfurt on [morgenmachich.de](https://morgenmachich.de)
 
-**In progress:** Hosted Database & API (#298) — health check, login with Neon Auth (#299), `/api/v1` routes, then the app moves from browser storage (IndexedDB) to the database.
+**In progress:** Hosted Database & API (#298) — login with Neon Auth (#299), `/api/v1` routes, then the app moves from browser storage (IndexedDB) to the database. Today Dashboard phase 2 (#419): entries written by agents, Apple Health and training data.
 
-**Planned:** automation and a "second brain" with n8n and Claude/Obsidian (#300), feedback & admin (#323).
+**Planned:** automation and a "second brain" with n8n and Claude/Obsidian (#300), feedback & admin (#323), projects with their own backlog (#435).
