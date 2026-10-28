@@ -8,6 +8,7 @@ import { useDismiss } from "@/hooks/useDismiss";
 import { useCommandPalette } from "@/features/command-palette/components/CommandPaletteProvider";
 import { NAV_ITEMS, isActive, type NavItem } from "@/app/(app)/_components/navItems";
 import ThemeToggle from "@/features/theme/components/ThemeToggle";
+import AccountMoreItems from "@/features/auth/components/AccountMoreItems";
 
 const TABS: NavItem[] = [NAV_ITEMS.today, NAV_ITEMS.tasks, NAV_ITEMS.calendar, NAV_ITEMS.stats];
 const MORE_ITEMS: NavItem[] = [NAV_ITEMS.labels, NAV_ITEMS.settings, NAV_ITEMS.about];
@@ -21,7 +22,8 @@ const menuItemClasses =
 /**
  * Mobile navigation below md (#235): a bar fixed to the bottom with
  * Today, Tasks, Calendar, Stats and More. More opens a small menu above
- * the bar with Labels, Settings, About (#83), Search and the theme toggle (#266) —
+ * the bar with Labels, Settings, About (#83), Search, the theme toggle (#266)
+ * and the account (sign in / sign out, #445) —
  * plain React state with useDismiss (Escape or an outside click closes
  * it, focus returns to the More button). More counts as active on /labels and /settings.
  */
@@ -44,7 +46,7 @@ export default function BottomTabBar() {
         <div
           ref={menuRef}
           id="more-menu"
-          className="absolute right-2 bottom-full mb-2 w-48 rounded-box border border-line-strong bg-base-300 p-1 shadow-overlay"
+          className="absolute right-2 bottom-full mb-2 w-56 rounded-box border border-line-strong bg-base-300 p-1 shadow-overlay"
         >
           {MORE_ITEMS.map((item) => (
             <Link
@@ -70,6 +72,8 @@ export default function BottomTabBar() {
             Search
           </button>
           <ThemeToggle onToggle={() => setMenuOpen(false)} className={menuItemClasses} />
+          <div aria-hidden className="mx-2 my-1 h-px bg-line-strong" />
+          <AccountMoreItems itemClassName={menuItemClasses} onDone={() => setMenuOpen(false)} />
         </div>
       )}
 

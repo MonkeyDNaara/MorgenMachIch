@@ -4,10 +4,11 @@ import DataSection from "@/features/settings/components/DataSection";
 import ImportSection from "@/features/settings/components/ImportSection";
 import DangerZoneSection from "@/features/settings/components/DangerZoneSection";
 import AboutCard from "@/features/settings/components/AboutCard";
+import AccountSection from "@/features/auth/components/AccountSection";
 import PageHeader from "@/components/ui/PageHeader";
 
 /**
- * /settings — appearance (theme, #266), installing the app (#82), data backup (export, import),
+ * /settings — account (sign-in state, sign-out, #445), appearance (theme, #266), installing the app (#82), data backup (export, import),
  * a danger zone (delete all data) and an about card. A server component composing the client
  * DataSection, in line with the other routes' *View components.
  */
@@ -19,6 +20,7 @@ export default function SettingsView() {
         title="Settings"
         meta="Your data stays in this browser unless you export it."
       />
+      <AccountSection />
       <AppearanceSection />
       <InstallSection />
       <DataSection />
