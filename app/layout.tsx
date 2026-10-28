@@ -4,6 +4,7 @@ import ServiceWorkerRegistrar from "@/features/pwa/components/ServiceWorkerRegis
 import ThemeSync from "@/features/theme/components/ThemeSync";
 import { THEME_COLORS, THEME_INIT_SCRIPT } from "@/features/theme/lib/themePreference";
 import { SKIP_LANDING_SCRIPT } from "@/features/site/lib/appVisited";
+import { BRIEFING_INIT_SCRIPT } from "@/features/dashboard/lib/briefingCollapsed";
 import { SEO } from "@/features/site/lib/content";
 import { SITE_URL } from "@/features/site/lib/siteUrl";
 import "./globals.css";
@@ -55,6 +56,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         {/* Sends returning users from / to /today before anything is painted (#83). */}
         <script dangerouslySetInnerHTML={{ __html: SKIP_LANDING_SCRIPT }} />
+        {/* Keeps a collapsed /today briefing collapsed before the first paint (#421). */}
+        <script dangerouslySetInnerHTML={{ __html: BRIEFING_INIT_SCRIPT }} />
       </head>
       <body className="min-h-full flex bg-base-100 text-base-content">
         {/* Only what every page needs; the app shell lives in app/(app)/layout.tsx and

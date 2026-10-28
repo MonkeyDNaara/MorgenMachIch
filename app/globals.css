@@ -183,6 +183,10 @@
 
 /* Surfaces (#234): page (base-100) < panel < raised; sunken for things you
    type into or choose between; flat (border only) for done/secondary items. */
+/* /today briefing band (#421): BRIEFING_INIT_SCRIPT sets data-briefing on <html> before
+   the first paint, so these variants hide or show the band without a flash. */
+@custom-variant briefing-collapsed (&:where([data-briefing="collapsed"] *));
+
 @utility surface-panel {
   @apply rounded-box border border-line bg-base-200;
 }

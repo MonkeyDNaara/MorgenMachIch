@@ -19,6 +19,8 @@ type TaskQuickAddProps = {
   /** Where the page would show the task, so the field can say when it won't. */
   visibilityOf: (task: Task) => QuickAddVisibility;
   placeholder?: string;
+  /** Id for the input, e.g. for a skip link (#421). */
+  inputId?: string;
 };
 
 /**
@@ -40,6 +42,7 @@ export default function TaskQuickAdd({
   defaultDate,
   visibilityOf,
   placeholder = "Add a task… e.g. “Call mom fri 3pm #family !high”",
+  inputId,
 }: TaskQuickAddProps) {
   const [message, setMessage] = useState<{ kind: "error" | "info"; text: string } | null>(null);
   const addSeries = useAddSeries();
@@ -138,6 +141,7 @@ export default function TaskQuickAdd({
         defaultHint={defaultHint}
         placeholder={placeholder}
         ariaLabel="Quick add a task"
+        inputId={inputId}
         onEdit={() => setMessage(null)}
         recurrence
         newLabels
