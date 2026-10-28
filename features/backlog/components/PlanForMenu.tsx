@@ -36,7 +36,10 @@ export default function PlanForMenu({ task }: PlanForMenuProps) {
       if (!rootRef.current?.contains(event.target as Node)) close();
     }
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") close();
+      if (event.key === "Escape") {
+        event.preventDefault(); // close only this menu, not a surrounding dialog
+        close();
+      }
     }
     document.addEventListener("pointerdown", handlePointerDown);
     document.addEventListener("keydown", handleKeyDown);

@@ -258,228 +258,219 @@ export default function TaskDrawerPanel({ taskId, onClose }: TaskDrawerPanelProp
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-scrim" onClick={onClose} aria-hidden="true" />
-      <aside
-        role="dialog"
-        aria-modal="true"
-        aria-label={isEditing ? "Edit task" : "New task"}
-        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col gap-6 border-l border-line bg-base-200 p-6 shadow-overlay"
-      >
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold tracking-tight">
-            {isEditing ? "Edit Task" : "New Task"}
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={busy}
-            aria-label="Close"
-            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl bg-base-300 text-muted shadow-raised-sm outline-none! transition-colors hover:text-base-content focus-visible:shadow-focus disabled:opacity-40"
-          >
-            <X size={16} />
-          </button>
-        </div>
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold tracking-tight">
+          {isEditing ? "Edit Task" : "New Task"}
+        </h2>
+        <button
+          type="button"
+          onClick={onClose}
+          disabled={busy}
+          aria-label="Close"
+          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl bg-base-300 text-muted shadow-raised-sm outline-none! transition-colors hover:text-base-content focus-visible:shadow-focus disabled:opacity-40"
+        >
+          <X size={16} />
+        </button>
+      </div>
 
-        {loadState === "loading" && <p className="flex-1 text-sm text-faint">Loading task…</p>}
+      {loadState === "loading" && <p className="flex-1 text-sm text-faint">Loading task…</p>}
 
-        {loadState === "not-found" && (
-          <p className="flex-1 text-sm text-faint">
-            This task couldn&apos;t be found — it may have been deleted.
-          </p>
-        )}
+      {loadState === "not-found" && (
+        <p className="flex-1 text-sm text-faint">
+          This task couldn&apos;t be found — it may have been deleted.
+        </p>
+      )}
 
-        {loadState === "ready" && (
-          <div className="flex flex-1 flex-col gap-5 overflow-y-auto">
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor={titleId} className={FIELD_LABEL}>
-                Title
-              </label>
-              {isEditing ? (
-                <input
-                  id={titleId}
-                  type="text"
-                  value={title}
-                  onChange={(event) => setTitle(event.target.value)}
-                  placeholder="What needs to be done?"
-                  className={`input w-full ${FIELD_FOCUS}`}
-                />
-              ) : (
-                // Create mode parses the title like the quick-add bars (#206),
-                // recurrences included (#276).
-                <QuickAddTitleField
-                  id={titleId}
-                  value={title}
-                  onChange={setTitle}
-                  labels={labels ?? NO_LABELS}
-                  onApply={applyQuickAdd}
-                  placeholder="What needs to be done? e.g. “Call mom fri 3pm #family”"
-                  recurrence
-                  newLabels
-                />
-              )}
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <span className={FIELD_LABEL}>Priority</span>
-              <PrioritySelector value={priority} onChange={setPriority} />
-            </div>
-
-            <label className="flex flex-col gap-1.5">
-              <span className={FIELD_LABEL}>Notes</span>
-              <textarea
-                value={notes}
-                onChange={(event) => setNotes(event.target.value)}
-                rows={4}
-                placeholder="Add notes (Markdown supported)…"
-                className={`textarea w-full ${FIELD_FOCUS}`}
-              />
+      {loadState === "ready" && (
+        <div className="flex flex-1 flex-col gap-5 overflow-y-auto">
+          {/* SideDrawer focuses this field when a new task opens (#440). */}
+          <div className="flex flex-col gap-1.5" data-autofocus>
+            <label htmlFor={titleId} className={FIELD_LABEL}>
+              Title
             </label>
+            {isEditing ? (
+              <input
+                id={titleId}
+                type="text"
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                placeholder="What needs to be done?"
+                className={`input w-full ${FIELD_FOCUS}`}
+              />
+            ) : (
+              // Create mode parses the title like the quick-add bars (#206),
+              // recurrences included (#276).
+              <QuickAddTitleField
+                id={titleId}
+                value={title}
+                onChange={setTitle}
+                labels={labels ?? NO_LABELS}
+                onApply={applyQuickAdd}
+                placeholder="What needs to be done? e.g. “Call mom fri 3pm #family”"
+                recurrence
+                newLabels
+              />
+            )}
+          </div>
 
-            <div className="flex flex-col gap-1.5">
-              <span className={FIELD_LABEL}>Subtasks</span>
-              <SubtaskEditor subtasks={subtasks} onChange={setSubtasks} />
-            </div>
+          <div className="flex flex-col gap-1.5">
+            <span className={FIELD_LABEL}>Priority</span>
+            <PrioritySelector value={priority} onChange={setPriority} />
+          </div>
 
-            <div className="flex flex-col gap-1.5">
-              <span className={FIELD_LABEL}>Labels</span>
-              {labels === undefined ? (
-                <p className="text-sm text-faint">Loading…</p>
-              ) : labels.length === 0 ? (
-                <p className="text-sm text-faint">
-                  No labels yet —{" "}
-                  <Link href="/labels" className="text-accent hover:underline">
-                    create one
-                  </Link>
-                  .
-                </p>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {labels.map((label) => {
-                    const selected = labelIds.includes(label.id);
-                    return (
-                      <button
-                        key={label.id}
-                        type="button"
-                        onClick={() => toggleLabel(label.id)}
-                        aria-pressed={selected}
-                        className={`cursor-pointer rounded-full outline-none! transition-opacity ${
-                          selected ? "opacity-100" : "opacity-40 hover:opacity-70"
-                        }`}
-                      >
-                        <LabelChip name={label.name} color={label.color} />
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+          <label className="flex flex-col gap-1.5">
+            <span className={FIELD_LABEL}>Notes</span>
+            <textarea
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+              rows={4}
+              placeholder="Add notes (Markdown supported)…"
+              className={`textarea w-full ${FIELD_FOCUS}`}
+            />
+          </label>
 
-            <div className="flex flex-col gap-2">
-              <span className={FIELD_LABEL}>Due date</span>
-              <div className="grid grid-cols-[minmax(0,1fr)_7.5rem] gap-3">
-                <DateField
-                  value={dueDate}
-                  onChange={setDueDate}
-                  label="Due date"
-                  clearable={!repeatEnabled}
-                  showLateHint
-                />
-                <input
-                  type="time"
-                  value={dueTime}
-                  onChange={(event) => setDueTime(event.target.value)}
-                  disabled={allDay}
-                  aria-label="Due time"
-                  className={`input w-full disabled:opacity-40 ${FIELD_FOCUS}`}
-                />
-                <label className="col-span-2 flex w-full cursor-pointer items-center justify-between gap-2 text-sm text-base-content/70">
-                  All day
-                  <input
-                    type="checkbox"
-                    role="switch"
-                    checked={allDay}
-                    onChange={(event) => setAllDay(event.target.checked)}
-                    className="toggle toggle-sm toggle-accent"
-                  />
-                </label>
-              </div>
-            </div>
+          <div className="flex flex-col gap-1.5">
+            <span className={FIELD_LABEL}>Subtasks</span>
+            <SubtaskEditor subtasks={subtasks} onChange={setSubtasks} />
+          </div>
 
-            {/* Repeat is create-only for now — retrofitting an existing
-                task into a recurring series (or splitting an
-                already-generated occurrence back out of one) is a
-                separate concern for a later issue (#63/#148). */}
-            {!isEditing && (
-              <div className="flex flex-col gap-1.5">
-                <label className="flex cursor-pointer items-center justify-between">
-                  <span className={FIELD_LABEL}>Repeat</span>
-                  <input
-                    type="checkbox"
-                    role="switch"
-                    checked={repeatEnabled}
-                    onChange={(event) => handleRepeatToggle(event.target.checked)}
-                    className="toggle toggle-sm toggle-accent"
-                  />
-                </label>
-                {repeatEnabled &&
-                  (dueDate ? (
-                    <RecurrenceRuleBuilder value={recurrence} onChange={handleRecurrenceChange} />
-                  ) : (
-                    <p className="text-xs text-faint">
-                      Pick a due date above to set a repeat schedule.
-                    </p>
-                  ))}
+          <div className="flex flex-col gap-1.5">
+            <span className={FIELD_LABEL}>Labels</span>
+            {labels === undefined ? (
+              <p className="text-sm text-faint">Loading…</p>
+            ) : labels.length === 0 ? (
+              <p className="text-sm text-faint">
+                No labels yet —{" "}
+                <Link href="/labels" className="text-accent hover:underline">
+                  create one
+                </Link>
+                .
+              </p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {labels.map((label) => {
+                  const selected = labelIds.includes(label.id);
+                  return (
+                    <button
+                      key={label.id}
+                      type="button"
+                      onClick={() => toggleLabel(label.id)}
+                      aria-pressed={selected}
+                      className={`cursor-pointer rounded-full outline-none! transition-opacity ${
+                        selected ? "opacity-100" : "opacity-40 hover:opacity-70"
+                      }`}
+                    >
+                      <LabelChip name={label.name} color={label.color} />
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
-        )}
 
-        <div className="flex flex-col gap-2 border-t border-line pt-4">
-          <div className="flex items-center justify-between gap-2">
-            <div>
-              {isEditing && loadState === "ready" && seriesId !== null && (
-                <p className="max-w-[16rem] text-xs text-faint">
-                  Recurring occurrences can&apos;t be deleted one by one — use Skip to drop this
-                  one, or delete the whole series from /tasks.
-                </p>
-              )}
-              {isEditing && loadState === "ready" && seriesId === null && (
-                <button
-                  type="button"
-                  onClick={handleDeleteClick}
-                  disabled={busy}
-                  className={`btn btn-sm ${
-                    confirmingDelete ? "btn-error" : "btn-ghost text-error"
-                  }`}
-                >
-                  {deleting ? "Deleting…" : confirmingDelete ? "Really delete?" : "Delete"}
-                </button>
-              )}
-            </div>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={busy}
-                className="btn btn-ghost btn-sm"
-              >
-                {loadState === "not-found" ? "Close" : "Cancel"}
-              </button>
-              {loadState !== "not-found" && (
-                <button
-                  type="button"
-                  onClick={handleSave}
-                  disabled={!canSave}
-                  className="btn btn-primary btn-sm"
-                >
-                  {saving ? "Saving…" : "Save"}
-                </button>
-              )}
+          <div className="flex flex-col gap-2">
+            <span className={FIELD_LABEL}>Due date</span>
+            <div className="grid grid-cols-[minmax(0,1fr)_7.5rem] gap-3">
+              <DateField
+                value={dueDate}
+                onChange={setDueDate}
+                label="Due date"
+                clearable={!repeatEnabled}
+                showLateHint
+              />
+              <input
+                type="time"
+                value={dueTime}
+                onChange={(event) => setDueTime(event.target.value)}
+                disabled={allDay}
+                aria-label="Due time"
+                className={`input w-full disabled:opacity-40 ${FIELD_FOCUS}`}
+              />
+              <label className="col-span-2 flex w-full cursor-pointer items-center justify-between gap-2 text-sm text-base-content/70">
+                All day
+                <input
+                  type="checkbox"
+                  role="switch"
+                  checked={allDay}
+                  onChange={(event) => setAllDay(event.target.checked)}
+                  className="toggle toggle-sm toggle-accent"
+                />
+              </label>
             </div>
           </div>
-          {error && <p className="text-right text-xs text-error">{error}</p>}
+
+          {/* Repeat is create-only for now — retrofitting an existing
+                task into a recurring series (or splitting an
+                already-generated occurrence back out of one) is a
+                separate concern for a later issue (#63/#148). */}
+          {!isEditing && (
+            <div className="flex flex-col gap-1.5">
+              <label className="flex cursor-pointer items-center justify-between">
+                <span className={FIELD_LABEL}>Repeat</span>
+                <input
+                  type="checkbox"
+                  role="switch"
+                  checked={repeatEnabled}
+                  onChange={(event) => handleRepeatToggle(event.target.checked)}
+                  className="toggle toggle-sm toggle-accent"
+                />
+              </label>
+              {repeatEnabled &&
+                (dueDate ? (
+                  <RecurrenceRuleBuilder value={recurrence} onChange={handleRecurrenceChange} />
+                ) : (
+                  <p className="text-xs text-faint">
+                    Pick a due date above to set a repeat schedule.
+                  </p>
+                ))}
+            </div>
+          )}
         </div>
-      </aside>
+      )}
+
+      <div className="flex flex-col gap-2 border-t border-line pt-4">
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            {isEditing && loadState === "ready" && seriesId !== null && (
+              <p className="max-w-[16rem] text-xs text-faint">
+                Recurring occurrences can&apos;t be deleted one by one — use Skip to drop this one,
+                or delete the whole series from /tasks.
+              </p>
+            )}
+            {isEditing && loadState === "ready" && seriesId === null && (
+              <button
+                type="button"
+                onClick={handleDeleteClick}
+                disabled={busy}
+                className={`btn btn-sm ${confirmingDelete ? "btn-error" : "btn-ghost text-error"}`}
+              >
+                {deleting ? "Deleting…" : confirmingDelete ? "Really delete?" : "Delete"}
+              </button>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={busy}
+              className="btn btn-ghost btn-sm"
+            >
+              {loadState === "not-found" ? "Close" : "Cancel"}
+            </button>
+            {loadState !== "not-found" && (
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={!canSave}
+                className="btn btn-primary btn-sm"
+              >
+                {saving ? "Saving…" : "Save"}
+              </button>
+            )}
+          </div>
+        </div>
+        {error && <p className="text-right text-xs text-error">{error}</p>}
+      </div>
     </>
   );
 }
