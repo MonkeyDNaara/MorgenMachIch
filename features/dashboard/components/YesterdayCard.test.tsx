@@ -41,7 +41,7 @@ describe("YesterdayCard (#423)", () => {
   it("celebrates a fully done day", () => {
     render(<YesterdayCard review={review({ done: 3, total: 3 })} />);
     expect(screen.getByText("3 of 3 tasks done")).toBeTruthy();
-    expect(screen.getByText("All done — Morgen can wait.")).toBeTruthy();
+    expect(screen.getByText("Clean sweep.")).toBeTruthy();
   });
 
   it("lists up to three left-open tasks, opens one in the drawer, counts the rest", async () => {
