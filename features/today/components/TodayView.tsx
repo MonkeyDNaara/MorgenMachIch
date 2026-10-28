@@ -19,7 +19,7 @@ import TaskQuickAdd from "@/features/quick-add/components/TaskQuickAdd";
 import StreakBadge from "@/features/stats/components/StreakBadge";
 import PageHeader from "@/components/ui/PageHeader";
 import DayProgress from "@/features/today/components/DayProgress";
-import { CalendarDays, CalendarRange, Flag, History, Sunrise } from "lucide-react";
+import { CalendarDays, CalendarRange, Flag, Sunrise } from "lucide-react";
 import type { EmptyCopy } from "@/components/ui/EmptyState";
 import { APP_LOCALE } from "@/lib/constants/locale";
 import DragChip from "@/features/dnd/components/DragChip";
@@ -34,6 +34,8 @@ import { DAY_DRAG_INSTRUCTIONS } from "@/features/dnd/lib/dndAnnouncements";
 import { isDropDay, parseDragTaskId, parseDropDayId } from "@/features/dnd/lib/reschedule";
 import DashboardBand from "@/features/dashboard/components/DashboardBand";
 import WidgetPlaceholder from "@/features/dashboard/components/WidgetPlaceholder";
+import YesterdayCard from "@/features/dashboard/components/YesterdayCard";
+import { yesterdayReview, yesterdaySummary } from "@/features/dashboard/lib/yesterdayReview";
 
 const TASKS_ID = "today-tasks";
 const QUICK_ADD_ID = "today-quick-add";
@@ -78,6 +80,7 @@ export default function TodayView() {
   const reducedMotion = useMediaQuery(REDUCED_MOTION);
   const moveTaskToDay = useMoveTaskToDay();
   const [dragged, setDragged] = useState<DraggedTask | null>(null);
+  const yesterday = tasks ? yesterdayReview(tasks, now) : undefined;
 
   function findTask(dragId: string | number) {
     const id = parseDragTaskId(dragId);
@@ -185,6 +188,7 @@ export default function TodayView() {
             <DashboardBand
               quickAddId={QUICK_ADD_ID}
               tasksId={TASKS_ID}
+              summary={yesterday ? yesterdaySummary(yesterday) : undefined}
               important={
                 <WidgetPlaceholder
                   title="Important"
@@ -196,19 +200,7 @@ export default function TodayView() {
                 />
               }
               widgets={[
-                {
-                  id: "yesterday",
-                  node: (
-                    <WidgetPlaceholder
-                      title="Yesterday"
-                      copy={{
-                        icon: History,
-                        title: "No look back yet.",
-                        hint: "What got done and what slipped will show here.",
-                      }}
-                    />
-                  ),
-                },
+                { id: "yesterday", node: <YesterdayCard review={yesterday} /> },
                 {
                   id: "this-week",
                   node: (
