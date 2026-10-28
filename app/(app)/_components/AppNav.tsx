@@ -10,6 +10,7 @@ import { useModKey } from "@/hooks/useModKey";
 import { useCommandPalette } from "@/features/command-palette/components/CommandPaletteProvider";
 import LogoMark from "@/components/ui/LogoMark";
 import ThemeToggle from "@/features/theme/components/ThemeToggle";
+import AccountNavEntry from "@/features/auth/components/AccountNavEntry";
 import { MAIN_NAV, NAV_ITEMS, isActive, type NavItem } from "@/app/(app)/_components/navItems";
 
 function itemClasses(active: boolean): string {
@@ -43,7 +44,8 @@ function NavLink({ item, active, count }: { item: NavItem; active: boolean; coun
  * App navigation from md up (#235): a 64 px icon rail at md that grows
  * into a text sidebar at lg — the same markup, labels are just hidden
  * below lg. Below md the BottomTabBar takes over. The Today entry shows
- * how many open tasks are due today or overdue.
+ * how many open tasks are due today or overdue. The account entry (#445)
+ * sits above Settings.
  */
 export default function AppNav() {
   const pathname = usePathname();
@@ -95,6 +97,7 @@ export default function AppNav() {
         </button>
         <ThemeToggle labelFromLg className={`${itemClasses(false)} cursor-pointer`} />
         <NavLink item={NAV_ITEMS.about} active={false} />
+        <AccountNavEntry itemClassName={itemClasses(false)} />
         <NavLink item={NAV_ITEMS.settings} active={isActive(pathname, NAV_ITEMS.settings.href)} />
       </div>
     </nav>
