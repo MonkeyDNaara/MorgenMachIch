@@ -25,7 +25,7 @@ features/                  # one folder per feature (see features/README.md)
     lib/                   # pure logic used only by this feature (+ tests next to it)
     types.ts               # optional: types shared inside the feature
   tasks/ series/ backlog/ today/ calendar/ labels/ quick-add/ command-palette/
-  stats/ settings/ dnd/ pwa/ theme/ site/ demo/
+  stats/ settings/ dnd/ pwa/ theme/ site/ demo/ dashboard/
 components/
   ui/                      # shared UI building blocks: date-field/, EmptyState, PageHeader,
                            # StatusPage, LogoMark, ToastProvider

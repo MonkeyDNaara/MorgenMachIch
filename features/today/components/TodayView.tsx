@@ -19,7 +19,7 @@ import TaskQuickAdd from "@/features/quick-add/components/TaskQuickAdd";
 import StreakBadge from "@/features/stats/components/StreakBadge";
 import PageHeader from "@/components/ui/PageHeader";
 import DayProgress from "@/features/today/components/DayProgress";
-import { CalendarDays, Sunrise } from "lucide-react";
+import { CalendarDays, CalendarRange, Flag, History, Sunrise } from "lucide-react";
 import type { EmptyCopy } from "@/components/ui/EmptyState";
 import { APP_LOCALE } from "@/lib/constants/locale";
 import DragChip from "@/features/dnd/components/DragChip";
@@ -32,6 +32,11 @@ import { createDayAnnouncements } from "@/features/dnd/lib/announcements";
 import { REDUCED_MOTION, useMediaQuery } from "@/hooks/useMediaQuery";
 import { DAY_DRAG_INSTRUCTIONS } from "@/features/dnd/lib/dndAnnouncements";
 import { isDropDay, parseDragTaskId, parseDropDayId } from "@/features/dnd/lib/reschedule";
+import DashboardBand from "@/features/dashboard/components/DashboardBand";
+import WidgetPlaceholder from "@/features/dashboard/components/WidgetPlaceholder";
+
+const TASKS_ID = "today-tasks";
+const QUICK_ADD_ID = "today-quick-add";
 
 function scopeToTodayOrOverdue(tasks: Task[]): Task[] {
   return tasks.filter(isTodayOrOverdue);
@@ -58,6 +63,11 @@ function scopeToTodayOrOverdue(tasks: Task[]): Task[] {
  * strip day moves it there (time kept, Undo toast — useMoveTaskToDay).
  * With the keyboard, Space/Enter on the grip picks it up, arrows jump from
  * day to day, Space/Enter drops, Escape cancels.
+ *
+ * Dashboard (#421, epic #419): the briefing band (DashboardBand) sits above
+ * the task area on desktop; on mobile its cards stack around it (Important →
+ * tasks → the rest) via CSS order. The band is about today, so it is hidden
+ * while another day is drilled into.
  */
 export default function TodayView() {
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
@@ -170,15 +180,71 @@ export default function TodayView() {
           screenReaderInstructions: { draggable: DAY_DRAG_INSTRUCTIONS },
         }}
       >
-        <TaskList
-          baseFilter={baseFilter}
-          empty={empty}
-          draggableToDays
-          header={(visibilityOf) => (
-            <TaskQuickAdd defaultDate={selectedDay ?? new Date()} visibilityOf={visibilityOf} />
+        <div className="flex flex-col">
+          {!selectedDay && (
+            <DashboardBand
+              quickAddId={QUICK_ADD_ID}
+              tasksId={TASKS_ID}
+              important={
+                <WidgetPlaceholder
+                  title="Important"
+                  copy={{
+                    icon: Flag,
+                    title: "Nothing flagged yet.",
+                    hint: "Urgent tasks for today will collect here.",
+                  }}
+                />
+              }
+              widgets={[
+                {
+                  id: "yesterday",
+                  node: (
+                    <WidgetPlaceholder
+                      title="Yesterday"
+                      copy={{
+                        icon: History,
+                        title: "No look back yet.",
+                        hint: "What got done and what slipped will show here.",
+                      }}
+                    />
+                  ),
+                },
+                {
+                  id: "this-week",
+                  node: (
+                    <WidgetPlaceholder
+                      title="This week"
+                      copy={{
+                        icon: CalendarRange,
+                        title: "No week numbers yet.",
+                        hint: "Done per day and your on-time rate will show here.",
+                      }}
+                    />
+                  ),
+                },
+              ]}
+            />
           )}
-        />
-        <WeekAheadStrip selectedDay={selectedDay} onSelectDay={setSelectedDay} />
+          <section
+            id={TASKS_ID}
+            aria-label="Today's tasks"
+            className="order-2 flex flex-col md:order-none"
+          >
+            <TaskList
+              baseFilter={baseFilter}
+              empty={empty}
+              draggableToDays
+              header={(visibilityOf) => (
+                <TaskQuickAdd
+                  defaultDate={selectedDay ?? new Date()}
+                  visibilityOf={visibilityOf}
+                  inputId={QUICK_ADD_ID}
+                />
+              )}
+            />
+            <WeekAheadStrip selectedDay={selectedDay} onSelectDay={setSelectedDay} />
+          </section>
+        </div>
         <DragOverlay dropAnimation={reducedMotion ? null : undefined}>
           {dragged && <DragChip task={dragged} />}
         </DragOverlay>
