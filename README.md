@@ -138,6 +138,21 @@ Render only checks liveness, so a database problem never restarts the app; the d
 for curl, n8n and monitoring. Neither response contains error details (those go to the server
 log), and `/api/health` is exempt from the canonical-host redirect.
 
+## Auth
+
+Login runs on [Neon Auth](https://neon.com/docs/neon-auth/overview) (Better Auth), set up in
+`server/auth/` (#309). The browser's auth client talks to `/api/auth/*`, which forwards to Neon
+Auth after a rate limit: 10 sign-in or code attempts per IP and per email in 15 minutes, 5
+email-sending requests (sign-up, codes, password reset) per hour, 429 with `Retry-After` beyond
+that. The client IP is the rightmost `X-Forwarded-For` entry outside private and Cloudflare
+networks. Route Handlers of the coming `/api/v1` start with `requireUser()` (401 without a
+session). Locally, `NEON_AUTH_BASE_URL` and `NEON_AUTH_COOKIE_SECRET` in `.env.local` point to
+the Neon `dev` branch (see `.env.example`).
+
+`package.json` has npm `overrides` for `better-auth` (1.7.14) and `zod` (4.6.7): Neon Auth 0.6.0-beta
+pins better-auth 1.7.6 and zod 4.5.4, which have security advisories (#447). Remove the overrides
+once `@neondatabase/auth` ships better-auth ≥ 1.7.7 and zod ≥ 4.6.6.
+
 ## Project structure & conventions
 
 See [CONVENTIONS.md](./docs/CONVENTIONS.md) for folder layout and naming rules.
