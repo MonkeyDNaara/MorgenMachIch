@@ -2,22 +2,27 @@
 
 import { useTaskDrawer } from "@/features/tasks/components/drawer/TaskDrawerProvider";
 import TaskDrawerPanel from "@/features/tasks/components/drawer/TaskDrawerPanel";
+import SideDrawer from "@/components/ui/SideDrawer";
 
 /**
- * Shared create + edit form, shown as a right-side slide-over rather than
- * its own route. This issue (#25) only builds the shell and the core
- * fields (title, notes, due date/time, all-day) — see TaskDrawerPanel.
- * Priority selection and the subtask editor are intentionally left out;
- * they're added directly into TaskDrawerPanel by the Priority and
- * Subtasks epics once the UI pieces those epics build actually exist.
- *
- * Saving isn't wired up yet: #26 (create) and #27 (edit, incl. prefill)
- * connect the form to lib/db.
+ * Shared create + edit form as a right-side slide-over rather than its own
+ * route (#25). Since #440 it is a native modal dialog (SideDrawer): focus
+ * moves in on open — the title field for a new task, the dialog itself when
+ * editing — stays inside, Escape closes it and focus returns to whatever
+ * opened it. The form (TaskDrawerPanel) mounts fresh on every opening.
  */
 export default function TaskDrawer() {
   const { state, closeTaskDrawer } = useTaskDrawer();
+  const isEditing = state.open && state.taskId !== null;
 
-  if (!state.open) return null;
-
-  return <TaskDrawerPanel taskId={state.taskId} onClose={closeTaskDrawer} />;
+  return (
+    <SideDrawer
+      open={state.open}
+      onClose={closeTaskDrawer}
+      label={isEditing ? "Edit task" : "New task"}
+      initialFocus={isEditing ? "dialog" : "field"}
+    >
+      {state.open && <TaskDrawerPanel taskId={state.taskId} onClose={closeTaskDrawer} />}
+    </SideDrawer>
+  );
 }

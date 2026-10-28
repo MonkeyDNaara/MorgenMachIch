@@ -5,7 +5,8 @@ import { useEffect, type RefObject } from "react";
 /**
  * Closes a small popover on an outside pointer press or Escape (#236).
  * `refs` are the elements that count as "inside" (the popover and the
- * button that toggles it); Escape also moves focus back to `returnFocus`.
+ * button that toggles it); Escape also moves focus back to `returnFocus` and is
+ * marked as handled (preventDefault), so a surrounding dialog stays open.
  * Plain state instead of daisyUI's focus-based dropdown, which closes as
  * soon as focus moves into a native date picker or select inside it.
  */
@@ -24,6 +25,9 @@ export function useDismiss(
     }
     function onKeyDown(event: KeyboardEvent) {
       if (event.key !== "Escape") return;
+      // Handled here: a surrounding modal <dialog> (SideDrawer, #440) then
+      // doesn't treat the same Escape as a request to close itself.
+      event.preventDefault();
       close();
       returnFocus?.current?.focus();
     }

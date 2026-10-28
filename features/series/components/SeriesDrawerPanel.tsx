@@ -189,226 +189,218 @@ export default function SeriesDrawerPanel({ seriesId, onClose }: SeriesDrawerPan
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-scrim" onClick={onClose} aria-hidden="true" />
-      <aside
-        role="dialog"
-        aria-modal="true"
-        aria-label="Edit series"
-        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col gap-6 border-l border-line bg-base-200 p-6 shadow-overlay"
-      >
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold tracking-tight">Edit Series</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={busy}
-            aria-label="Close"
-            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl bg-base-300 text-muted shadow-raised-sm outline-none! transition-colors hover:text-base-content focus-visible:shadow-focus disabled:opacity-40"
-          >
-            <X size={16} />
-          </button>
-        </div>
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold tracking-tight">Edit Series</h2>
+        <button
+          type="button"
+          onClick={onClose}
+          disabled={busy}
+          aria-label="Close"
+          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl bg-base-300 text-muted shadow-raised-sm outline-none! transition-colors hover:text-base-content focus-visible:shadow-focus disabled:opacity-40"
+        >
+          <X size={16} />
+        </button>
+      </div>
 
-        {loadState === "loading" && <p className="flex-1 text-sm text-faint">Loading series…</p>}
+      {loadState === "loading" && <p className="flex-1 text-sm text-faint">Loading series…</p>}
 
-        {loadState === "not-found" && (
-          <p className="flex-1 text-sm text-faint">
-            This series couldn&apos;t be found — it may have been deleted.
-          </p>
-        )}
+      {loadState === "not-found" && (
+        <p className="flex-1 text-sm text-faint">
+          This series couldn&apos;t be found — it may have been deleted.
+        </p>
+      )}
 
-        {loadState === "ready" && (
-          <div className="flex flex-1 flex-col gap-5 overflow-y-auto">
-            <label className="flex flex-col gap-1.5">
-              <span className={FIELD_LABEL}>Title</span>
-              <input
-                type="text"
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                placeholder="What needs to be done?"
-                className={`input w-full ${FIELD_FOCUS}`}
-              />
-            </label>
+      {loadState === "ready" && (
+        <div className="flex flex-1 flex-col gap-5 overflow-y-auto">
+          <label className="flex flex-col gap-1.5">
+            <span className={FIELD_LABEL}>Title</span>
+            <input
+              type="text"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="What needs to be done?"
+              className={`input w-full ${FIELD_FOCUS}`}
+            />
+          </label>
 
-            <div className="flex flex-col gap-1.5">
-              <span className={FIELD_LABEL}>Priority</span>
-              <PrioritySelector value={priority} onChange={setPriority} />
-            </div>
+          <div className="flex flex-col gap-1.5">
+            <span className={FIELD_LABEL}>Priority</span>
+            <PrioritySelector value={priority} onChange={setPriority} />
+          </div>
 
-            <label className="flex flex-col gap-1.5">
-              <span className={FIELD_LABEL}>Notes</span>
-              <textarea
-                value={notes}
-                onChange={(event) => setNotes(event.target.value)}
-                rows={4}
-                placeholder="Add notes (Markdown supported)…"
-                className={`textarea w-full ${FIELD_FOCUS}`}
-              />
-            </label>
+          <label className="flex flex-col gap-1.5">
+            <span className={FIELD_LABEL}>Notes</span>
+            <textarea
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+              rows={4}
+              placeholder="Add notes (Markdown supported)…"
+              className={`textarea w-full ${FIELD_FOCUS}`}
+            />
+          </label>
 
-            <div className="flex flex-col gap-1.5">
-              <span className={FIELD_LABEL}>Subtasks</span>
-              <SubtaskEditor subtasks={subtasks} onChange={setSubtasks} />
-            </div>
+          <div className="flex flex-col gap-1.5">
+            <span className={FIELD_LABEL}>Subtasks</span>
+            <SubtaskEditor subtasks={subtasks} onChange={setSubtasks} />
+          </div>
 
-            <div className="flex flex-col gap-1.5">
-              <span className={FIELD_LABEL}>Labels</span>
-              {labels === undefined ? (
-                <p className="text-sm text-faint">Loading…</p>
-              ) : labels.length === 0 ? (
-                <p className="text-sm text-faint">
-                  No labels yet —{" "}
-                  <Link href="/labels" className="text-accent hover:underline">
-                    create one
-                  </Link>
-                  .
-                </p>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {labels.map((label) => {
-                    const selected = labelIds.includes(label.id);
-                    return (
-                      <button
-                        key={label.id}
-                        type="button"
-                        onClick={() => toggleLabel(label.id)}
-                        aria-pressed={selected}
-                        className={`cursor-pointer rounded-full outline-none! transition-opacity ${
-                          selected ? "opacity-100" : "opacity-40 hover:opacity-70"
-                        }`}
-                      >
-                        <LabelChip name={label.name} color={label.color} />
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <span className={FIELD_LABEL}>Time</span>
-              <div className="flex flex-col gap-2">
-                <input
-                  type="time"
-                  value={dueTime}
-                  onChange={(event) => setDueTime(event.target.value)}
-                  disabled={allDay}
-                  aria-label="Time of day"
-                  className={`input w-full disabled:opacity-40 ${FIELD_FOCUS}`}
-                />
-                <label className="flex w-full cursor-pointer items-center justify-between gap-2 text-sm text-base-content/70">
-                  All day
-                  <input
-                    type="checkbox"
-                    role="switch"
-                    checked={allDay}
-                    onChange={(event) => setAllDay(event.target.checked)}
-                    className="toggle toggle-sm toggle-accent"
-                  />
-                </label>
-              </div>
-              <p className="text-xs text-faint">
-                Series started {anchorLabel} — the start date can&apos;t be changed.
+          <div className="flex flex-col gap-1.5">
+            <span className={FIELD_LABEL}>Labels</span>
+            {labels === undefined ? (
+              <p className="text-sm text-faint">Loading…</p>
+            ) : labels.length === 0 ? (
+              <p className="text-sm text-faint">
+                No labels yet —{" "}
+                <Link href="/labels" className="text-accent hover:underline">
+                  create one
+                </Link>
+                .
               </p>
-            </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {labels.map((label) => {
+                  const selected = labelIds.includes(label.id);
+                  return (
+                    <button
+                      key={label.id}
+                      type="button"
+                      onClick={() => toggleLabel(label.id)}
+                      aria-pressed={selected}
+                      className={`cursor-pointer rounded-full outline-none! transition-opacity ${
+                        selected ? "opacity-100" : "opacity-40 hover:opacity-70"
+                      }`}
+                    >
+                      <LabelChip name={label.name} color={label.color} />
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
 
-            <div className="flex flex-col gap-1.5">
-              <span className={FIELD_LABEL}>Repeat</span>
-              <RecurrenceRuleBuilder value={recurrence} onChange={handleRecurrenceChange} />
+          <div className="flex flex-col gap-1.5">
+            <span className={FIELD_LABEL}>Time</span>
+            <div className="flex flex-col gap-2">
+              <input
+                type="time"
+                value={dueTime}
+                onChange={(event) => setDueTime(event.target.value)}
+                disabled={allDay}
+                aria-label="Time of day"
+                className={`input w-full disabled:opacity-40 ${FIELD_FOCUS}`}
+              />
+              <label className="flex w-full cursor-pointer items-center justify-between gap-2 text-sm text-base-content/70">
+                All day
+                <input
+                  type="checkbox"
+                  role="switch"
+                  checked={allDay}
+                  onChange={(event) => setAllDay(event.target.checked)}
+                  className="toggle toggle-sm toggle-accent"
+                />
+              </label>
             </div>
-
-            <p className="rounded-lg surface-sunken p-3 text-xs text-subtle">
-              Saving updates every upcoming open occurrence of this series. Completed and skipped
-              ones stay as they are.
+            <p className="text-xs text-faint">
+              Series started {anchorLabel} — the start date can&apos;t be changed.
             </p>
           </div>
-        )}
 
-        <div className="flex flex-col gap-2 border-t border-line pt-4">
-          {deleteCounts !== null && (
-            <div className="flex flex-col gap-2 rounded-lg bg-base-300 p-3 shadow-raised-sm">
-              <p className="text-xs text-muted">Delete this series?</p>
-              <button
-                type="button"
-                onClick={() => handleDelete("upcoming")}
-                disabled={busy}
-                className="btn btn-error btn-sm h-auto justify-start whitespace-normal py-2 text-left"
-              >
-                {deleting
-                  ? "Deleting…"
-                  : `Delete series + ${deleteCounts.upcoming} upcoming open ${
-                      deleteCounts.upcoming === 1 ? "task" : "tasks"
-                    }`}
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDelete("keep")}
-                disabled={busy}
-                className="btn btn-ghost btn-sm h-auto justify-start whitespace-normal py-2 text-left text-error"
-              >
-                Delete series only — keep all {deleteCounts.total}{" "}
-                {deleteCounts.total === 1 ? "task" : "tasks"} as standalone
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDelete("all")}
-                disabled={busy || deleteCounts.total === 0}
-                className="btn btn-outline btn-error btn-sm h-auto justify-start whitespace-normal py-2 text-left"
-              >
-                Delete series + all {deleteCounts.total}{" "}
-                {deleteCounts.total === 1 ? "task" : "tasks"}, including completed history
-              </button>
-              <p className="text-xs text-faint">
-                Unless you delete everything, completed, skipped and overdue tasks are kept as
-                standalone tasks. Deleting everything can&apos;t be undone.
-              </p>
-              <button
-                type="button"
-                onClick={() => setDeleteCounts(null)}
-                disabled={busy}
-                className="btn btn-ghost btn-xs self-end"
-              >
-                Cancel
-              </button>
-            </div>
-          )}
-          <div className="flex items-center justify-between gap-2">
-            <div>
-              {loadState === "ready" && deleteCounts === null && (
-                <button
-                  type="button"
-                  onClick={handleDeleteClick}
-                  disabled={busy}
-                  className="btn btn-ghost btn-sm text-error"
-                >
-                  Delete series
-                </button>
-              )}
-            </div>
-            <div className="flex items-center justify-end gap-2">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={busy}
-                className="btn btn-ghost btn-sm"
-              >
-                {loadState === "not-found" ? "Close" : "Cancel"}
-              </button>
-              {loadState !== "not-found" && (
-                <button
-                  type="button"
-                  onClick={handleSave}
-                  disabled={!canSave}
-                  className="btn btn-primary btn-sm"
-                >
-                  {saving ? "Saving…" : "Save"}
-                </button>
-              )}
-            </div>
+          <div className="flex flex-col gap-1.5">
+            <span className={FIELD_LABEL}>Repeat</span>
+            <RecurrenceRuleBuilder value={recurrence} onChange={handleRecurrenceChange} />
           </div>
-          {error && <p className="text-right text-xs text-error">{error}</p>}
+
+          <p className="rounded-lg surface-sunken p-3 text-xs text-subtle">
+            Saving updates every upcoming open occurrence of this series. Completed and skipped ones
+            stay as they are.
+          </p>
         </div>
-      </aside>
+      )}
+
+      <div className="flex flex-col gap-2 border-t border-line pt-4">
+        {deleteCounts !== null && (
+          <div className="flex flex-col gap-2 rounded-lg bg-base-300 p-3 shadow-raised-sm">
+            <p className="text-xs text-muted">Delete this series?</p>
+            <button
+              type="button"
+              onClick={() => handleDelete("upcoming")}
+              disabled={busy}
+              className="btn btn-error btn-sm h-auto justify-start whitespace-normal py-2 text-left"
+            >
+              {deleting
+                ? "Deleting…"
+                : `Delete series + ${deleteCounts.upcoming} upcoming open ${
+                    deleteCounts.upcoming === 1 ? "task" : "tasks"
+                  }`}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDelete("keep")}
+              disabled={busy}
+              className="btn btn-ghost btn-sm h-auto justify-start whitespace-normal py-2 text-left text-error"
+            >
+              Delete series only — keep all {deleteCounts.total}{" "}
+              {deleteCounts.total === 1 ? "task" : "tasks"} as standalone
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDelete("all")}
+              disabled={busy || deleteCounts.total === 0}
+              className="btn btn-outline btn-error btn-sm h-auto justify-start whitespace-normal py-2 text-left"
+            >
+              Delete series + all {deleteCounts.total} {deleteCounts.total === 1 ? "task" : "tasks"}
+              , including completed history
+            </button>
+            <p className="text-xs text-faint">
+              Unless you delete everything, completed, skipped and overdue tasks are kept as
+              standalone tasks. Deleting everything can&apos;t be undone.
+            </p>
+            <button
+              type="button"
+              onClick={() => setDeleteCounts(null)}
+              disabled={busy}
+              className="btn btn-ghost btn-xs self-end"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            {loadState === "ready" && deleteCounts === null && (
+              <button
+                type="button"
+                onClick={handleDeleteClick}
+                disabled={busy}
+                className="btn btn-ghost btn-sm text-error"
+              >
+                Delete series
+              </button>
+            )}
+          </div>
+          <div className="flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={busy}
+              className="btn btn-ghost btn-sm"
+            >
+              {loadState === "not-found" ? "Close" : "Cancel"}
+            </button>
+            {loadState !== "not-found" && (
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={!canSave}
+                className="btn btn-primary btn-sm"
+              >
+                {saving ? "Saving…" : "Save"}
+              </button>
+            )}
+          </div>
+        </div>
+        {error && <p className="text-right text-xs text-error">{error}</p>}
+      </div>
     </>
   );
 }
