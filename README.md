@@ -150,7 +150,9 @@ Auth after a rate limit: 10 sign-in or code attempts per IP and per email in 15 
 email-sending requests (sign-up, codes, password reset) per hour, 429 with `Retry-After` beyond
 that. The client IP is the rightmost `X-Forwarded-For` entry outside private and Cloudflare
 networks. Route Handlers of the coming `/api/v1` start with `requireUser()` (401 without a
-session). Locally, `NEON_AUTH_BASE_URL` and `NEON_AUTH_COOKIE_SECRET` in `.env.local` point to
+session). The sign-up form requests the 6-digit code itself right after sign-up: Neon Auth
+requires a confirmed email, but its "send a code on sign-up" option is off and not reachable
+from the console (if it ever gets turned on, two code emails arrive). Locally, `NEON_AUTH_BASE_URL` and `NEON_AUTH_COOKIE_SECRET` in `.env.local` point to
 the Neon `dev` branch (see `.env.example`).
 
 `package.json` has npm `overrides` for `better-auth` (1.7.14) and `zod` (4.6.7): Neon Auth 0.6.0-beta
