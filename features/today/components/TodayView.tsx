@@ -19,7 +19,7 @@ import TaskQuickAdd from "@/features/quick-add/components/TaskQuickAdd";
 import StreakBadge from "@/features/stats/components/StreakBadge";
 import PageHeader from "@/components/ui/PageHeader";
 import DayProgress from "@/features/today/components/DayProgress";
-import { CalendarDays, CalendarRange, Sunrise } from "lucide-react";
+import { CalendarDays, Sunrise } from "lucide-react";
 import type { EmptyCopy } from "@/components/ui/EmptyState";
 import { APP_LOCALE } from "@/lib/constants/locale";
 import DragChip from "@/features/dnd/components/DragChip";
@@ -33,10 +33,12 @@ import { REDUCED_MOTION, useMediaQuery } from "@/hooks/useMediaQuery";
 import { DAY_DRAG_INSTRUCTIONS } from "@/features/dnd/lib/dndAnnouncements";
 import { isDropDay, parseDragTaskId, parseDropDayId } from "@/features/dnd/lib/reschedule";
 import DashboardBand from "@/features/dashboard/components/DashboardBand";
-import WidgetPlaceholder from "@/features/dashboard/components/WidgetPlaceholder";
 import YesterdayCard from "@/features/dashboard/components/YesterdayCard";
 import ImportantCard from "@/features/dashboard/components/ImportantCard";
 import { importantItems, importantSummary } from "@/features/dashboard/lib/importantItems";
+import ThisWeekCard from "@/features/dashboard/components/ThisWeekCard";
+import { weekSummary } from "@/features/dashboard/lib/weekSummary";
+import { getSettings } from "@/lib/db/settings";
 import { yesterdayReview, yesterdaySummary } from "@/features/dashboard/lib/yesterdayReview";
 
 const TASKS_ID = "today-tasks";
@@ -76,6 +78,7 @@ function scopeToTodayOrOverdue(tasks: Task[]): Task[] {
 export default function TodayView() {
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const tasks = useLiveQuery(() => getTasks(), []);
+  const settings = useLiveQuery(() => getSettings(), []);
   const now = new Date();
   const dndId = useId();
   const sensors = useAppSensors({ coordinateGetter: dayKeyboardCoordinates });
@@ -84,6 +87,8 @@ export default function TodayView() {
   const [dragged, setDragged] = useState<DraggedTask | null>(null);
   const yesterday = tasks ? yesterdayReview(tasks, now) : undefined;
   const important = tasks ? importantItems(tasks, now) : undefined;
+  // The stats start date (#226) applies here too, so the numbers match /stats.
+  const week = tasks && settings ? weekSummary(tasks, now, settings.statsSince ?? null) : undefined;
   // Collapsed briefing line, e.g. "2 important · yesterday 4/6".
   const summary =
     [important && importantSummary(important), yesterday && yesterdaySummary(yesterday)]
@@ -200,19 +205,7 @@ export default function TodayView() {
               important={<ImportantCard items={important} />}
               widgets={[
                 { id: "yesterday", node: <YesterdayCard review={yesterday} /> },
-                {
-                  id: "this-week",
-                  node: (
-                    <WidgetPlaceholder
-                      title="This week"
-                      copy={{
-                        icon: CalendarRange,
-                        title: "No week numbers yet.",
-                        hint: "Done per day and your on-time rate will show here.",
-                      }}
-                    />
-                  ),
-                },
+                { id: "this-week", node: <ThisWeekCard summary={week} /> },
               ]}
             />
           )}
