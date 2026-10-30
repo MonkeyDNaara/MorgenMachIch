@@ -15,6 +15,7 @@ app/                       # routes only — pages stay thin and render a featur
     layout.tsx             # providers, shell, drawers, palette, toasts
     today/ tasks/ calendar/ labels/ stats/ settings/ offline/   # one page.tsx per route
   (site)/                  # public pages without the app shell: landing (/), /impressum, /datenschutz
+  (auth)/                  # sign-in, sign-up, forgot/reset password (#445), noindex, no app shell
   layout.tsx               # root layout — html/body, fonts, theme script, ThemeSync, service worker
   manifest.ts, icon.svg, favicon.ico, apple-icon.png, opengraph-image.jpg   # icons are generated
   globals.css              # DaisyUI themes, --mm-* tokens, surfaces, type scale
@@ -25,7 +26,7 @@ features/                  # one folder per feature (see features/README.md)
     lib/                   # pure logic used only by this feature (+ tests next to it)
     types.ts               # optional: types shared inside the feature
   tasks/ series/ backlog/ today/ calendar/ labels/ quick-add/ command-palette/
-  stats/ settings/ dnd/ pwa/ theme/ site/ demo/ dashboard/
+  stats/ settings/ dnd/ pwa/ theme/ site/ demo/ dashboard/ auth/
 components/
   ui/                      # shared UI building blocks: date-field/, charts/, EmptyState, PageHeader,
                            # StatusPage, LogoMark, ToastProvider
