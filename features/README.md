@@ -9,6 +9,7 @@ One folder per feature. Each feature owns its UI, hooks and the logic only it us
 | `backlog/`         | dateless tasks: "Plan for…" menu, column visibility                                            |
 | `today/`           | `/today`: day progress, "Coming up" strip                                                      |
 | `dashboard/`       | `/today` briefing: band layout, `DashboardCard`, widgets, collapse state                       |
+| `auth/`            | sign-in, sign-up, password reset, account in nav and Settings, auth client + helpers           |
 | `calendar/`        | `/calendar`: month grid, day cells, Backlog tray                                               |
 | `labels/`          | `/labels`, label chip, color swatches                                                          |
 | `quick-add/`       | natural-language input: parser, highlighting, chips, autocomplete, quick-add bars              |
