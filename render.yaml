@@ -31,3 +31,7 @@ services:
         sync: false
       - key: NEON_AUTH_COOKIE_SECRET
         sync: false
+      # Login gate for the app pages (proxy.ts, #446): stays unset until the app reads
+      # its data from the server (#314); set to 1 to require sign-in.
+      - key: AUTH_REQUIRED
+        sync: false
