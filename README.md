@@ -150,7 +150,9 @@ Auth after a rate limit: 10 sign-in or code attempts per IP and per email in 15 
 email-sending requests (sign-up, codes, password reset) per hour, 429 with `Retry-After` beyond
 that. The client IP is the rightmost `X-Forwarded-For` entry outside private and Cloudflare
 networks. Route Handlers of the coming `/api/v1` start with `requireUser()` (401 without a
-session). The sign-up form requests the 6-digit code itself right after sign-up: Neon Auth
+session). With `AUTH_REQUIRED=1`, `proxy.ts` also sends anonymous visitors of the app pages
+to `/sign-in?next=…` (#446); it stays unset in production until the app reads its data from the
+server (#314). The sign-up form requests the 6-digit code itself right after sign-up: Neon Auth
 requires a confirmed email, but its "send a code on sign-up" option is off and not reachable
 from the console (if it ever gets turned on, two code emails arrive). Locally, `NEON_AUTH_BASE_URL` and `NEON_AUTH_COOKIE_SECRET` in `.env.local` point to
 the Neon `dev` branch (see `.env.example`).
