@@ -161,6 +161,20 @@ the Neon `dev` branch (see `.env.example`).
 pins better-auth 1.7.6 and zod 4.5.4, which have security advisories (#447). Remove the overrides
 once `@neondatabase/auth` ships better-auth ≥ 1.7.7 and zod ≥ 4.6.6.
 
+## Learning widget
+
+The Today briefing will get a "Learn today" card (#463), backed by Niko's **Daily Learning
+Agent** in n8n: one interview topic a day, a deeper explanation on request, and a 3-question
+quiz; only a passed quiz marks a topic as understood. n8n runs on Niko's Mac behind ngrok, so
+the app calls it **server side** through `/api/learning/{today,next,deepen,quiz,quiz/answer}`
+(#462, `server/learning/`): the `X-Api-Key` never reaches the browser.
+
+The routes are **owner only**: everyone except `LEARNING_OWNER_ID` — and everyone while the
+three `LEARNING_*` variables are unset — gets a 404, as if the routes didn't exist. When n8n
+can't be reached (Mac asleep, ngrok down, timeout after 60 s, a 5xx or an unexpected answer)
+they answer `503 learning_offline`. The routes use the `/api/v1` error contract and CSRF checks
+(`docs/API.md`), but they are a personal proxy and not part of the data API.
+
 ## Project structure & conventions
 
 See [CONVENTIONS.md](./docs/CONVENTIONS.md) for folder layout and naming rules.
