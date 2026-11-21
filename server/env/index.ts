@@ -1,6 +1,7 @@
 import "server-only";
 import { parseServerEnv, type ServerEnv } from "@/server/env/parseServerEnv";
 import { parseAuthEnv, type AuthEnv } from "@/server/env/parseAuthEnv";
+import { parseLearningEnv, type LearningEnv } from "@/server/env/parseLearningEnv";
 
 let cached: ServerEnv | undefined;
 
@@ -19,4 +20,12 @@ let cachedAuth: AuthEnv | undefined;
 export function getAuthEnv(): AuthEnv {
   cachedAuth ??= parseAuthEnv(process.env);
   return cachedAuth;
+}
+
+let cachedLearning: { env: LearningEnv | null } | undefined;
+
+/** Daily Learning Agent settings (#462), or null while the feature is off. */
+export function getLearningEnv(): LearningEnv | null {
+  cachedLearning ??= { env: parseLearningEnv(process.env) };
+  return cachedLearning.env;
 }
