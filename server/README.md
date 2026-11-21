@@ -8,6 +8,8 @@ Server-only code for the Hosted Database & API epic (#298):
 - `health.ts` — database check and response body for `/api/health` (#305)
 - `api/` — the HTTP layer of `/api/v1` (#455): `handle()` (CSRF checks, session, services, error
   contract), `readJson()`, `ok()` / `created()` / `noContent()` — see `docs/API.md`
+- `learning/` — the owner-only proxy to the n8n Daily Learning Agent (#462): `callLearning()`,
+  `requireLearningOwner()`, `learningRoute()`
 - `auth/` — Neon Auth (#309): `getAuth()` / `getAuthHandler()`, `requireUser()` for Route Handlers, the `/api/auth` rate limiter and `clientIp()` behind Render
 
 Rules: every module starts with `import "server-only"`, and nothing under `features/`,
