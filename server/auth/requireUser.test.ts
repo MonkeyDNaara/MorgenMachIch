@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { requireUserFrom, userIdFromSession } from "@/server/auth/requireUser";
+import { errorResponse, requireUserFrom, userIdFromSession } from "@/server/auth/requireUser";
 
 const ID = "0b7d4c2e-5f1a-4c3b-9d8e-7a6f5e4d3c2b";
 
@@ -19,10 +19,11 @@ describe("userIdFromSession (#309)", () => {
 });
 
 describe("requireUserFrom", () => {
-  it("passes the user id through", async () => {
+  it("passes the user id through, with the UI as the source", async () => {
     expect(await requireUserFrom(async () => ({ data: { user: { id: ID } } }))).toEqual({
       ok: true,
       userId: ID,
+      source: "ui",
     });
   });
 
@@ -46,5 +47,17 @@ describe("requireUserFrom", () => {
     if (result.ok) return;
     expect(result.response.status).toBe(503);
     expect(JSON.stringify(await result.response.json())).not.toContain("secret-host");
+  });
+});
+
+describe("errorResponse (#455)", () => {
+  it("adds details only when given", async () => {
+    expect(await errorResponse(404, "not_found", "Gone").json()).toEqual({
+      error: { code: "not_found", message: "Gone" },
+    });
+    const issues = [{ path: "name", message: "Required" }];
+    expect(await errorResponse(422, "validation", "Invalid", { issues }).json()).toEqual({
+      error: { code: "validation", message: "Invalid", details: { issues } },
+    });
   });
 });

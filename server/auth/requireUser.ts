@@ -1,11 +1,13 @@
 import "server-only";
+import type { RecordSource } from "@/server/services/context";
 
 /**
  * Session check for `/api/v1` Route Handlers (#309), pure so it is tested
  * without Next or Neon: the caller passes how to read the session
  * (`requireUser()` in `server/auth/session.ts` wires in Neon Auth).
  */
-export type AuthResult = { ok: true; userId: string } | { ok: false; response: Response };
+export type AuthResult =
+  { ok: true; userId: string; source: RecordSource } | { ok: false; response: Response };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -15,10 +17,18 @@ export function userIdFromSession(result: unknown): string | null {
   return typeof id === "string" && UUID.test(id) ? id : null;
 }
 
-/** The API's error contract (#310): `{ error: { code, message } }`, never cached. */
-export function errorResponse(status: number, code: string, message: string): Response {
+/**
+ * The API's error contract (#310, #455): `{ error: { code, message, details? } }`, never
+ * cached. `details` only for errors the client can act on (e.g. the Zod issue paths of a 422).
+ */
+export function errorResponse(
+  status: number,
+  code: string,
+  message: string,
+  details?: Record<string, unknown>,
+): Response {
   return Response.json(
-    { error: { code, message } },
+    { error: details ? { code, message, details } : { code, message } },
     { status, headers: { "Cache-Control": "no-store" } },
   );
 }
@@ -43,5 +53,6 @@ export async function requireUserFrom(readSession: () => Promise<unknown>): Prom
   if (!userId) {
     return { ok: false, response: errorResponse(401, "unauthorized", "Sign in to continue.") };
   }
-  return { ok: true, userId };
+  // A session is always the app's own UI; API keys (#315) will bring their own source.
+  return { ok: true, userId, source: "ui" };
 }
