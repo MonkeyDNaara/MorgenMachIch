@@ -3,11 +3,8 @@ import { getAuth } from "@/server/auth/neonAuth";
 import { requireUserFrom, type AuthResult } from "@/server/auth/requireUser";
 
 /**
- * Every `/api/v1` Route Handler starts with this (#309, used from #310):
- *
- *   const auth = await requireUser();
- *   if (!auth.ok) return auth.response;
- *   const api = services({ db: getDb(), userId: auth.userId, source: "ui" });
+ * The session check with Neon Auth wired in (#309). `/api/v1` routes don't call it
+ * themselves: `handle()` in `server/api/handle.ts` does (#455); Server Actions do.
  */
 export function requireUser(): Promise<AuthResult> {
   return requireUserFrom(() => getAuth().getSession());
