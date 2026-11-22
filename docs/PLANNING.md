@@ -79,7 +79,7 @@
 
 - `/` — public landing page (returning browsers go straight to `/dashboard`; `/?landing` shows it anyway)
 - `/impressum`, `/datenschutz` — legal pages (German, noindex)
-- `/dashboard` — the briefing: Important, Yesterday, This week (start page of the app and the installed PWA)
+- `/dashboard` — the briefing: Important, Yesterday, This week, plus the Learn today row for the owner (start page of the app and the installed PWA)
 - `/today` — today + overdue tasks, with a date header, day progress, the streak badge and a Coming up strip
 - `/tasks` — full card-view list, all tasks
 - `/calendar` — month view with due dates
