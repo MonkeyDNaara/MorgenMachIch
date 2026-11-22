@@ -5,11 +5,12 @@ import { THEME_COLORS } from "@/features/theme/lib/themePreference";
 // Icons come from `npm run icons` (scripts/generate-icons.mjs).
 export default function manifest(): MetadataRoute.Manifest {
   return {
+    // The id stays: a new one would make browsers treat the installed app as a different app.
     id: "/today",
     name: "MorgenMachIch",
     short_name: "Morgen",
     description: "A to-do app with labels, a calendar view, and recurring tasks.",
-    start_url: "/today",
+    start_url: "/dashboard",
     scope: "/",
     display: "standalone",
     background_color: THEME_COLORS.dark,
@@ -39,7 +40,7 @@ export default function manifest(): MetadataRoute.Manifest {
     shortcuts: [
       {
         name: "New task",
-        url: "/today?new=1",
+        url: "/dashboard?new=1",
         icons: [
           {
             src: "/icons/shortcut-new-96.png",

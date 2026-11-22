@@ -53,7 +53,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         {/* Applies a stored light/dark choice before the first paint (#266). */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
-        {/* Sends returning users from / to /today before anything is painted (#83). */}
+        {/* Sends returning users from / to /dashboard before anything is painted (#83). */}
         <script dangerouslySetInnerHTML={{ __html: SKIP_LANDING_SCRIPT }} />
       </head>
       <body className="min-h-full flex bg-base-100 text-base-content">
