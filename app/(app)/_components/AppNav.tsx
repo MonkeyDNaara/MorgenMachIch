@@ -59,8 +59,8 @@ export default function AppNav() {
       className="sticky top-0 hidden h-dvh w-16 shrink-0 flex-col items-center gap-1 bg-base-200 px-3 py-5 shadow-[inset_-1px_0_0_var(--color-line)] md:flex lg:w-56 lg:items-stretch"
     >
       <Link
-        href="/today"
-        aria-label="MorgenMachIch — go to Today"
+        href="/dashboard"
+        aria-label="MorgenMachIch — go to Dashboard"
         className="mb-6 flex items-center gap-2.5 rounded-xl outline-none! focus-visible:shadow-focus lg:px-1"
       >
         <LogoMark />
