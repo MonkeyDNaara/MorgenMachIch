@@ -17,6 +17,8 @@ const MORE_ITEMS: NavItem[] = [
   NAV_ITEMS.settings,
   NAV_ITEMS.about,
 ];
+/** Learn (#469, owner only) goes directly under Stats. */
+const MORE_ITEMS_WITH_LEARN: NavItem[] = [NAV_ITEMS.stats, NAV_ITEMS.learn, ...MORE_ITEMS.slice(1)];
 
 const tabClasses =
   "flex min-h-11 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl text-[11px] outline-none! transition-colors focus-visible:shadow-focus";
@@ -30,15 +32,16 @@ const menuItemClasses =
  * the bar with Stats, Labels, Settings, About (#83), Search, the theme toggle (#266)
  * and the account (sign in / sign out, #445) —
  * plain React state with useDismiss (Escape or an outside click closes
- * it, focus returns to the More button). More counts as active on /stats, /labels and /settings.
+ * it, focus returns to the More button). More counts as active on /stats, /labels, /settings and (owner only) /learn.
  */
-export default function BottomTabBar() {
+export default function BottomTabBar({ showLearn = false }: { showLearn?: boolean }) {
   const pathname = usePathname();
   const { openPalette } = useCommandPalette();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const moreRef = useRef<HTMLButtonElement>(null);
-  const moreActive = MORE_ITEMS.some((item) => isActive(pathname, item.href));
+  const moreItems = showLearn ? MORE_ITEMS_WITH_LEARN : MORE_ITEMS;
+  const moreActive = moreItems.some((item) => isActive(pathname, item.href));
 
   useDismiss(menuOpen, () => setMenuOpen(false), [menuRef, moreRef], moreRef);
 
@@ -53,7 +56,7 @@ export default function BottomTabBar() {
           id="more-menu"
           className="absolute right-2 bottom-full mb-2 w-56 rounded-box border border-line-strong bg-base-300 p-1 shadow-overlay"
         >
-          {MORE_ITEMS.map((item) => (
+          {moreItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}

@@ -41,6 +41,7 @@ export function usePaletteItems(
   query: string,
   quickAdd: QuickAddResult,
   labels: Label[],
+  showLearn = false,
 ): PaletteItem[] {
   const router = useRouter();
   const { openTaskDrawer } = useTaskDrawer();
@@ -54,16 +55,18 @@ export function usePaletteItems(
       openNewTask: () => openTaskDrawer(),
       setTheme: writeThemePreference,
     };
-    const items: PaletteItem[] = COMMANDS.map((command) => ({
-      id: command.id,
-      kind: "command",
-      label: command.label,
-      group: command.group,
-      keywords: command.keywords,
-      icon: commandIcon(command.id),
-      hint: command.hint,
-      run: () => command.run(context),
-    }));
+    const items: PaletteItem[] = COMMANDS.filter((command) => !command.ownerOnly || showLearn).map(
+      (command) => ({
+        id: command.id,
+        kind: "command",
+        label: command.label,
+        group: command.group,
+        keywords: command.keywords,
+        icon: commandIcon(command.id),
+        hint: command.hint,
+        run: () => command.run(context),
+      }),
+    );
 
     if (!query.trim()) return items;
 
@@ -127,7 +130,7 @@ export function usePaletteItems(
       items.push(taskItem(task, openTaskDrawer));
     }
     return items;
-  }, [router, openTaskDrawer, notify, addSeries, tasks, query, quickAdd, labels]);
+  }, [router, openTaskDrawer, notify, addSeries, tasks, query, quickAdd, labels, showLearn]);
 }
 
 function taskItem(task: Task, openTaskDrawer: (taskId?: string) => void): PaletteItem {

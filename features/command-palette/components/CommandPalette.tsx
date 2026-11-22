@@ -44,7 +44,12 @@ function matchItem(item: PaletteItem, query: string): FuzzyMatch | null {
  * on every opening without any cleanup code. Confirmations after a
  * command (#197) go through the app-wide ToastProvider (#239).
  */
-export default function CommandPalette() {
+type CommandPaletteProps = {
+  /** Owner only (#469): list the "Learn" command. Decided on the server. */
+  showLearn?: boolean;
+};
+
+export default function CommandPalette({ showLearn = false }: CommandPaletteProps) {
   const { isOpen, closePalette } = useCommandPalette();
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -68,13 +73,13 @@ export default function CommandPalette() {
         }}
         className="mx-auto mb-auto mt-[15vh] w-[calc(100%-2rem)] max-w-[560px] overflow-hidden rounded-box border border-line-strong bg-base-200 p-0 text-base-content shadow-overlay backdrop:bg-scrim backdrop:backdrop-blur-[2px]"
       >
-        {isOpen && <PaletteBody onClose={closePalette} />}
+        {isOpen && <PaletteBody onClose={closePalette} showLearn={showLearn} />}
       </dialog>
     </>
   );
 }
 
-function PaletteBody({ onClose }: { onClose: () => void }) {
+function PaletteBody({ onClose, showLearn }: { onClose: () => void; showLearn: boolean }) {
   const [query, setQuery] = useState("");
   const labels = useLiveQuery(() => getLabels(), []) ?? NO_LABELS;
   // Quick-add parse of the query (#204): feeds the Add row and the token
@@ -87,7 +92,7 @@ function PaletteBody({ onClose }: { onClose: () => void }) {
   // Only tokens and no title ("today", "tomorrow") stays a plain search,
   // so typing "today" still finds the Today page.
   const searchText = quickAdd.tokens.length > 0 && quickAdd.title ? quickAdd.title : query;
-  const items = usePaletteItems(query, quickAdd, labels);
+  const items = usePaletteItems(query, quickAdd, labels, showLearn);
   const inputRef = useRef<HTMLInputElement>(null);
   const layerRef = useRef<HTMLDivElement>(null);
   // Selection is tracked by item id, not position, so a task that moves

@@ -3,8 +3,15 @@ import type { ThemePreference } from "@/features/theme/lib/themePreference";
 
 export type { Command, CommandContext } from "@/features/command-palette/lib/commands/types";
 
-function goTo(id: string, label: string, path: string, keywords: string[]): Command {
+function goTo(
+  id: string,
+  label: string,
+  path: string,
+  keywords: string[],
+  ownerOnly = false,
+): Command {
   return {
+    ...(ownerOnly ? { ownerOnly } : {}),
     id,
     label,
     group: "Pages",
@@ -37,6 +44,7 @@ export const COMMANDS: readonly Command[] = [
   goTo("go-calendar", "Calendar", "/calendar", ["month", "schedule", "dates", "plan"]),
   goTo("go-labels", "Labels", "/labels", ["tags", "categories"]),
   goTo("go-stats", "Stats", "/stats", ["streak", "statistics", "progress", "heatmap"]),
+  goTo("go-learn", "Learn", "/learn", ["learning", "quiz", "topic", "daily", "study"], true),
   goTo("go-settings", "Settings", "/settings", [
     "backup",
     "export",

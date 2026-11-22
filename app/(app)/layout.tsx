@@ -13,6 +13,7 @@ import OccurrenceSync from "@/features/series/components/OccurrenceSync";
 import { TaskDrawerProvider } from "@/features/tasks/components/drawer/TaskDrawerProvider";
 import { SeriesDrawerProvider } from "@/features/series/components/SeriesDrawerProvider";
 import { CommandPaletteProvider } from "@/features/command-palette/components/CommandPaletteProvider";
+import { isLearningOwner } from "@/server/learning/isLearningOwner";
 import CommandPalette from "@/features/command-palette/components/CommandPalette";
 
 // The app pages show nothing without local data — keep them out of search
@@ -25,7 +26,9 @@ export const metadata: Metadata = { robots: { index: false } };
  * The route group `(app)` doesn't change any URL; it only keeps all of
  * this off the landing page.
  */
-export default function AppLayout({ children }: { children: ReactNode }) {
+export default async function AppLayout({ children }: { children: ReactNode }) {
+  // Owner only (#469): decided on the server, so the nav never asks the learning proxy.
+  const showLearn = await isLearningOwner();
   return (
     <>
       <MarkAppVisited />
@@ -36,17 +39,17 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         <TaskDrawerProvider>
           <SeriesDrawerProvider>
             <CommandPaletteProvider>
-              <AppNav />
+              <AppNav showLearn={showLearn} />
               {/* Below md the BottomTabBar is fixed to the bottom; this padding keeps
                 the last content row from hiding behind it. */}
               <main className="min-w-0 flex-1 pb-[calc(4.75rem+env(safe-area-inset-bottom))] md:pb-0">
                 {children}
               </main>
-              <BottomTabBar />
+              <BottomTabBar showLearn={showLearn} />
               <AddTaskFab />
               <TaskDrawer />
               <SeriesDrawer />
-              <CommandPalette />
+              <CommandPalette showLearn={showLearn} />
             </CommandPaletteProvider>
           </SeriesDrawerProvider>
         </TaskDrawerProvider>

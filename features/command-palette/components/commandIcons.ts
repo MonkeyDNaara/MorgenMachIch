@@ -1,5 +1,6 @@
 import {
   Calendar,
+  GraduationCap,
   Info,
   LayoutDashboard,
   LayoutList,
@@ -24,6 +25,7 @@ const COMMAND_ICONS: Record<string, LucideIcon> = {
   "go-calendar": Calendar,
   "go-labels": Tag,
   "go-stats": TrendingUp,
+  "go-learn": GraduationCap,
   "go-settings": Settings,
   "go-about": Info,
   "new-task": Plus,
