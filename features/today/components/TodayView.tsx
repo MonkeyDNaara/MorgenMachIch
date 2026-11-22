@@ -32,17 +32,6 @@ import { createDayAnnouncements } from "@/features/dnd/lib/announcements";
 import { REDUCED_MOTION, useMediaQuery } from "@/hooks/useMediaQuery";
 import { DAY_DRAG_INSTRUCTIONS } from "@/features/dnd/lib/dndAnnouncements";
 import { isDropDay, parseDragTaskId, parseDropDayId } from "@/features/dnd/lib/reschedule";
-import DashboardBand from "@/features/dashboard/components/DashboardBand";
-import YesterdayCard from "@/features/dashboard/components/YesterdayCard";
-import ImportantCard from "@/features/dashboard/components/ImportantCard";
-import { importantItems } from "@/features/dashboard/lib/importantItems";
-import ThisWeekCard from "@/features/dashboard/components/ThisWeekCard";
-import { weekSummary } from "@/features/dashboard/lib/weekSummary";
-import { getSettings } from "@/lib/db/settings";
-import { yesterdayReview } from "@/features/dashboard/lib/yesterdayReview";
-
-const TASKS_ID = "today-tasks";
-const QUICK_ADD_ID = "today-quick-add";
 
 function scopeToTodayOrOverdue(tasks: Task[]): Task[] {
   return tasks.filter(isTodayOrOverdue);
@@ -70,25 +59,17 @@ function scopeToTodayOrOverdue(tasks: Task[]): Task[] {
  * With the keyboard, Space/Enter on the grip picks it up, arrows jump from
  * day to day, Space/Enter drops, Escape cancels.
  *
- * Dashboard (#421, epic #419): the briefing band (DashboardBand) sits above
- * the task area on desktop; on mobile its cards stack around it (Important →
- * tasks → the rest) via CSS order. The band is about today, so it is hidden
- * while another day is drilled into.
+ * The briefing band lives on /dashboard (#465); this page is only today's tasks.
  */
 export default function TodayView() {
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const tasks = useLiveQuery(() => getTasks(), []);
-  const settings = useLiveQuery(() => getSettings(), []);
   const now = new Date();
   const dndId = useId();
   const sensors = useAppSensors({ coordinateGetter: dayKeyboardCoordinates });
   const reducedMotion = useMediaQuery(REDUCED_MOTION);
   const moveTaskToDay = useMoveTaskToDay();
   const [dragged, setDragged] = useState<DraggedTask | null>(null);
-  const yesterday = tasks ? yesterdayReview(tasks, now) : undefined;
-  const important = tasks ? importantItems(tasks, now) : undefined;
-  // The stats start date (#226) applies here too, so the numbers match /stats.
-  const week = tasks && settings ? weekSummary(tasks, now, settings.statsSince ?? null) : undefined;
 
   function findTask(dragId: string | number) {
     const id = parseDragTaskId(dragId);
@@ -192,30 +173,13 @@ export default function TodayView() {
         }}
       >
         <div className="flex flex-col">
-          {!selectedDay && (
-            <DashboardBand
-              important={<ImportantCard items={important} />}
-              widgets={[
-                { id: "yesterday", node: <YesterdayCard review={yesterday} /> },
-                { id: "this-week", node: <ThisWeekCard summary={week} /> },
-              ]}
-            />
-          )}
-          <section
-            id={TASKS_ID}
-            aria-label="Today's tasks"
-            className="order-2 flex flex-col md:order-none"
-          >
+          <section aria-label="Today's tasks" className="flex flex-col">
             <TaskList
               baseFilter={baseFilter}
               empty={empty}
               draggableToDays
               header={(visibilityOf) => (
-                <TaskQuickAdd
-                  defaultDate={selectedDay ?? new Date()}
-                  visibilityOf={visibilityOf}
-                  inputId={QUICK_ADD_ID}
-                />
+                <TaskQuickAdd defaultDate={selectedDay ?? new Date()} visibilityOf={visibilityOf} />
               )}
             />
             <WeekAheadStrip selectedDay={selectedDay} onSelectDay={setSelectedDay} />

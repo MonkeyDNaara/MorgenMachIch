@@ -7,7 +7,15 @@
  * - Only the app's pages are gated; the landing and legal pages, the auth
  *   pages, `/api/*`, the offline page and static files stay public.
  */
-export const GATED_PATHS = ["/today", "/tasks", "/calendar", "/labels", "/stats", "/settings"];
+export const GATED_PATHS = [
+  "/dashboard",
+  "/today",
+  "/tasks",
+  "/calendar",
+  "/labels",
+  "/stats",
+  "/settings",
+];
 
 export function authRequired(value: string | undefined): boolean {
   const flag = value?.trim().toLowerCase();
