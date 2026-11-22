@@ -41,8 +41,3 @@ export function yesterdayReview(tasks: readonly Task[], now: Date): YesterdayRev
     );
   return { day, done, total, missed };
 }
-
-/** Part of the collapsed briefing line, e.g. "yesterday 4/6"; null when nothing was due. */
-export function yesterdaySummary(review: YesterdayReview): string | null {
-  return review.total > 0 ? `yesterday ${review.done}/${review.total}` : null;
-}

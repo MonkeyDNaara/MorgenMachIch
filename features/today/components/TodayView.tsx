@@ -35,11 +35,11 @@ import { isDropDay, parseDragTaskId, parseDropDayId } from "@/features/dnd/lib/r
 import DashboardBand from "@/features/dashboard/components/DashboardBand";
 import YesterdayCard from "@/features/dashboard/components/YesterdayCard";
 import ImportantCard from "@/features/dashboard/components/ImportantCard";
-import { importantItems, importantSummary } from "@/features/dashboard/lib/importantItems";
+import { importantItems } from "@/features/dashboard/lib/importantItems";
 import ThisWeekCard from "@/features/dashboard/components/ThisWeekCard";
 import { weekSummary } from "@/features/dashboard/lib/weekSummary";
 import { getSettings } from "@/lib/db/settings";
-import { yesterdayReview, yesterdaySummary } from "@/features/dashboard/lib/yesterdayReview";
+import { yesterdayReview } from "@/features/dashboard/lib/yesterdayReview";
 
 const TASKS_ID = "today-tasks";
 const QUICK_ADD_ID = "today-quick-add";
@@ -89,11 +89,6 @@ export default function TodayView() {
   const important = tasks ? importantItems(tasks, now) : undefined;
   // The stats start date (#226) applies here too, so the numbers match /stats.
   const week = tasks && settings ? weekSummary(tasks, now, settings.statsSince ?? null) : undefined;
-  // Collapsed briefing line, e.g. "2 important · yesterday 4/6".
-  const summary =
-    [important && importantSummary(important), yesterday && yesterdaySummary(yesterday)]
-      .filter(Boolean)
-      .join(" · ") || undefined;
 
   function findTask(dragId: string | number) {
     const id = parseDragTaskId(dragId);
@@ -199,9 +194,6 @@ export default function TodayView() {
         <div className="flex flex-col">
           {!selectedDay && (
             <DashboardBand
-              quickAddId={QUICK_ADD_ID}
-              tasksId={TASKS_ID}
-              summary={summary}
               important={<ImportantCard items={important} />}
               widgets={[
                 { id: "yesterday", node: <YesterdayCard review={yesterday} /> },
