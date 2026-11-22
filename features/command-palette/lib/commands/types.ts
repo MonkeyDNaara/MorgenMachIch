@@ -23,5 +23,7 @@ export type Command = {
   keywords: string[];
   /** Short mono text shown next to it, e.g. the route. */
   hint?: string;
+  /** Only listed for the learning owner (#469); the page decides on the server. */
+  ownerOnly?: boolean;
   run: (context: CommandContext) => void;
 };

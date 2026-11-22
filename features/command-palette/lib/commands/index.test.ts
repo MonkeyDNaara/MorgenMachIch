@@ -21,6 +21,7 @@ describe("command registry (#196)", () => {
       "go-calendar",
       "go-labels",
       "go-stats",
+      "go-learn",
       "go-settings",
       "go-about",
       "new-task",
@@ -55,6 +56,7 @@ describe("command registry (#196)", () => {
       "/calendar",
       "/labels",
       "/stats",
+      "/learn",
       "/settings",
       "/?landing",
     ]);
@@ -64,5 +66,10 @@ describe("command registry (#196)", () => {
       "light",
       "dark",
     ]);
+  });
+
+  it("marks Learn as owner only and finds it by keyword (#469)", () => {
+    expect(COMMANDS.filter((c) => c.ownerOnly).map((c) => c.id)).toEqual(["go-learn"]);
+    expect(ids("quiz")).toContain("go-learn");
   });
 });
