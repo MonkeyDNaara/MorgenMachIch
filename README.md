@@ -178,6 +178,8 @@ they answer `503 learning_offline`. The routes use the `/api/v1` error contract 
 The page `/learn` (#467) runs the whole flow — explanation, quiz, result. It checks the owner
 on the server (`isLearningOwner()` in `server/learning/`) and shows the normal not-found page to
 everyone else, before anything renders and without a request to n8n.
+The menu item "Learn" (under Stats, and in the command palette) uses the same check: the app layout
+calls `isLearningOwner()` and passes the result to the navigation, which never asks the proxy.
 
 ## Project structure & conventions
 
