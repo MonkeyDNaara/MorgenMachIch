@@ -11,7 +11,7 @@ import { useCommandPalette } from "@/features/command-palette/components/Command
 import LogoMark from "@/components/ui/LogoMark";
 import ThemeToggle from "@/features/theme/components/ThemeToggle";
 import AccountNavEntry from "@/features/auth/components/AccountNavEntry";
-import { MAIN_NAV, NAV_ITEMS, isActive, type NavItem } from "@/app/(app)/_components/navItems";
+import { mainNav, NAV_ITEMS, isActive, type NavItem } from "@/app/(app)/_components/navItems";
 
 function itemClasses(active: boolean): string {
   const base =
@@ -45,9 +45,9 @@ function NavLink({ item, active, count }: { item: NavItem; active: boolean; coun
  * into a text sidebar at lg — the same markup, labels are just hidden
  * below lg. Below md the BottomTabBar takes over. The Today entry shows
  * how many open tasks are due today or overdue. The account entry (#445)
- * sits above Settings.
+ * sits above Settings. `showLearn` (#469) adds Learn under Stats, for the learning owner only.
  */
-export default function AppNav() {
+export default function AppNav({ showLearn = false }: { showLearn?: boolean }) {
   const pathname = usePathname();
   const { openPalette } = useCommandPalette();
   const modKey = useModKey();
@@ -70,7 +70,7 @@ export default function AppNav() {
       </Link>
 
       <ul className="flex flex-col items-center gap-1 lg:items-stretch">
-        {MAIN_NAV.map((item) => (
+        {mainNav(showLearn).map((item) => (
           <li key={item.href}>
             <NavLink
               item={item}

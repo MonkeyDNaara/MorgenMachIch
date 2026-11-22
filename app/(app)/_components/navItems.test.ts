@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MAIN_NAV, NAV_ITEMS, isActive } from "@/app/(app)/_components/navItems";
+import { MAIN_NAV, NAV_ITEMS, isActive, mainNav } from "@/app/(app)/_components/navItems";
 
 describe("navigation (#465)", () => {
   it("puts Dashboard first and Today second", () => {
@@ -17,5 +17,14 @@ describe("navigation (#465)", () => {
     expect(isActive("/dashboard", "/dashboard")).toBe(true);
     expect(isActive("/dashboard", "/today")).toBe(false);
     expect(isActive("/today", "/dashboard")).toBe(false);
+  });
+});
+
+describe("Learn entry (#469)", () => {
+  it("is listed directly under Stats, for the owner only", () => {
+    expect(mainNav(false)).toBe(MAIN_NAV);
+    const owner = mainNav(true).map((item) => item.href);
+    expect(owner.slice(-2)).toEqual(["/stats", "/learn"]);
+    expect(owner).toHaveLength(MAIN_NAV.length + 1);
   });
 });
