@@ -13,7 +13,7 @@ app/                       # routes only — pages stay thin and render a featur
   (app)/                   # route group: everything inside the app shell
     _components/           # private folder (no route): AppNav, BottomTabBar, navItems, AddTaskFab, TitleCount
     layout.tsx             # providers, shell, drawers, palette, toasts
-    today/ tasks/ calendar/ labels/ stats/ settings/ offline/   # one page.tsx per route
+    dashboard/ today/ tasks/ calendar/ labels/ stats/ settings/ offline/   # one page.tsx per route
   (site)/                  # public pages without the app shell: landing (/), /impressum, /datenschutz
   (auth)/                  # sign-in, sign-up, forgot/reset password (#445), noindex, no app shell
   layout.tsx               # root layout — html/body, fonts, theme script, ThemeSync, service worker
@@ -108,6 +108,9 @@ devDependency (#389), so the editor, the scripts and CI use the same version.
 Copy, links, profile and skills of the landing page live in `features/site/lib/content.ts`;
 the numbers row ("21 epics, 250+ issues …") in `features/site/lib/stats.ts`. Update the
 numbers at every docs sync, rounded down with a "+" so they stay true in between.
+The start page of the app is `/dashboard`: the landing links (`SITE_LINKS`), the returning-browser
+script (`SKIP_LANDING_SCRIPT`) and the manifest `start_url` all point there; `/today` is only
+today's tasks. The manifest `id` stays `/today`, so installed apps keep their identity.
 Screenshots in `public/site/screens/` and `app/opengraph-image.jpg` are
 generated (`npm run screenshots`, see the README) — never edit or replace them
 by hand. Change the preview card in `scripts/og-card.html`. Pages don't set

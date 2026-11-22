@@ -51,7 +51,7 @@ so install a newer one once with `npm install -g npm@11`. CI and Render run `npx
 Dependency install scripts are blocked by npm 11; the reviewed ones are listed in `allowScripts`.
 
 Open [http://localhost:3000](http://localhost:3000) for the landing page; once a browser has
-opened the app, `/` goes straight to `/today` (`/?landing` shows the landing page anyway).
+opened the app, `/` goes straight to `/dashboard` (`/?landing` shows the landing page anyway).
 
 ### Database (in progress)
 
@@ -163,7 +163,7 @@ once `@neondatabase/auth` ships better-auth ≥ 1.7.7 and zod ≥ 4.6.6.
 
 ## Learning widget
 
-The Today briefing will get a "Learn today" card (#463), backed by Niko's **Daily Learning
+The Dashboard will get a "Learn today" card (#463), backed by Niko's **Daily Learning
 Agent** in n8n: one interview topic a day, a deeper explanation on request, and a 3-question
 quiz; only a passed quiz marks a topic as understood. n8n runs on Niko's Mac behind ngrok, so
 the app calls it **server side** through `/api/learning/{today,next,deepen,quiz,quiz/answer}`
@@ -196,8 +196,8 @@ Built epic by epic — every decision is recorded in [PLANNING.md](./docs/PLANNI
 **Done**
 
 - **Tasks & labels:** create/edit/delete in a drawer, subtasks with progress, priorities, colour labels, filters and sorting; a Backlog for tasks without a date, with "Plan for…"
-- **Views:** /today with an editorial header, day progress and a week preview; /tasks with Tasks, Recurring and Backlog columns; a /calendar month view with projected future occurrences
-- **Today briefing:** Important (urgent high-priority tasks), Yesterday (done vs. due, what was left open) and This week (completions per day, on-time rate, comparison with last week) above the task list — collapsible on desktop, stacked around the tasks on mobile
+- **Views:** /dashboard with the briefing widgets; /today with an editorial header, day progress and a week preview; /tasks with Tasks, Recurring and Backlog columns; a /calendar month view with projected future occurrences
+- **Dashboard briefing** (/dashboard, the start page): Important (urgent high-priority tasks), Yesterday (done vs. due, what was left open) and This week (completions per day, on-time rate, comparison with last week) as a grid of cards, one column on mobile
 - **Recurring tasks:** daily/weekly/monthly rules (incl. "first Monday"), independent occurrences, pause, edit, three ways to delete a series
 - **Natural-language quick-add** (English + German): `Call mom fri 3pm #family !high` or `Gym every mon and thu 6pm until 31 Dec` — live-coloured tokens, ignorable chips, new labels from unknown `#tags`
 - **Command palette** (⌘K / Ctrl+K, no library): fuzzy search, page jumps, actions
