@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ApiError } from "@/server/api/errors";
-import { requireLearningOwner } from "@/server/learning/owner";
+import { isLearningOwnerFrom, requireLearningOwner } from "@/server/learning/owner";
 
 const OWNER = "0b7d4c2e-5f1a-4c3b-9d8e-7a6f5e4d3c2b";
 const ENV = {
@@ -27,5 +27,33 @@ describe("requireLearningOwner (#462)", () => {
         expect((error as ApiError).status).toBe(404);
       }
     }
+  });
+});
+
+describe("isLearningOwnerFrom (#467)", () => {
+  it("is true only for the owner while the feature is on", async () => {
+    expect(await isLearningOwnerFrom(ENV, async () => OWNER)).toBe(true);
+    expect(await isLearningOwnerFrom(ENV, async () => "1b7d4c2e-5f1a-4c3b-9d8e-7a6f5e4d3c2b")).toBe(
+      false,
+    );
+    expect(await isLearningOwnerFrom(ENV, async () => null)).toBe(false);
+  });
+
+  it("is false while the feature is off, without reading the session", async () => {
+    let reads = 0;
+    const read = async () => {
+      reads += 1;
+      return OWNER;
+    };
+    expect(await isLearningOwnerFrom(null, read)).toBe(false);
+    expect(reads).toBe(0);
+  });
+
+  it("is false when the session check fails", async () => {
+    expect(
+      await isLearningOwnerFrom(ENV, async () => {
+        throw new Error("auth down");
+      }),
+    ).toBe(false);
   });
 });

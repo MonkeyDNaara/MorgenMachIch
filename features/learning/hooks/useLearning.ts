@@ -33,7 +33,8 @@ export function useLearning({ autoLoad = true }: UseLearningOptions = {}) {
     today: learningStore.today,
     next: learningStore.next,
     deepen: learningStore.deepen,
-    quiz: learningStore.quiz,
+    // Not `quiz`: that is the state field holding the questions.
+    loadQuiz: learningStore.quiz,
     answer: learningStore.answer,
     retry: learningStore.retry,
     cancel: learningStore.cancel,

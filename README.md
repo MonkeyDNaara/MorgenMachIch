@@ -175,6 +175,10 @@ can't be reached (Mac asleep, ngrok down, timeout after 60 s, a 5xx or an unexpe
 they answer `503 learning_offline`. The routes use the `/api/v1` error contract and CSRF checks
 (`docs/API.md`), but they are a personal proxy and not part of the data API.
 
+The page `/learn` (#467) runs the whole flow — explanation, quiz, result. It checks the owner
+on the server (`isLearningOwner()` in `server/learning/`) and shows the normal not-found page to
+everyone else, before anything renders and without a request to n8n.
+
 ## Project structure & conventions
 
 See [CONVENTIONS.md](./docs/CONVENTIONS.md) for folder layout and naming rules.

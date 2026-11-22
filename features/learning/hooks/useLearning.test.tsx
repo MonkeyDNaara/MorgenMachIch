@@ -76,3 +76,19 @@ describe("useLearning (#466)", () => {
     expect(result.current.phase).toBe("ready");
   });
 });
+
+describe("useLearning state and actions", () => {
+  it("keeps the quiz questions in `quiz` and the action in `loadQuiz`", async () => {
+    const useLearning = await loadHook();
+    const quiz = { id: 7, questions: [{ question: "Q?", options: ["a", "b"] }] };
+    fetchMock.mockImplementation(async (url: string) =>
+      Response.json({ data: String(url).endsWith("/quiz") ? quiz : TOPIC }),
+    );
+    const { result } = renderHook(() => useLearning());
+    await waitFor(() => expect(result.current.phase).toBe("ready"));
+    await act(async () => {
+      await result.current.loadQuiz();
+    });
+    expect(result.current.quiz).toEqual(quiz);
+  });
+});
