@@ -4,6 +4,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { getTasks } from "@/lib/db/tasks";
 import { getSettings } from "@/lib/db/settings";
 import PageHeader from "@/components/ui/PageHeader";
+import LearnTodayRow from "@/features/dashboard/components/LearnTodayRow";
 import DashboardBand from "@/features/dashboard/components/DashboardBand";
 import ImportantCard from "@/features/dashboard/components/ImportantCard";
 import YesterdayCard from "@/features/dashboard/components/YesterdayCard";
@@ -15,10 +16,15 @@ import { weekSummary } from "@/features/dashboard/lib/weekSummary";
 /**
  * /dashboard (#465, epic #419): the first page of the app — the briefing band
  * (Important, Yesterday, This week) and nothing else; today's tasks live on
- * /today. Learn today (#468) will join as a full-width second row through the
- * band's `wide` slot.
+ * /today. Learn today (#468) is a full-width second row through the band's `wide` slot,
+ * only for the learning owner.
  */
-export default function DashboardView() {
+type DashboardViewProps = {
+  /** Show the Learn today row. Decided on the server (`isLearningOwner()`), never here. */
+  showLearn?: boolean;
+};
+
+export default function DashboardView({ showLearn = false }: DashboardViewProps) {
   const tasks = useLiveQuery(() => getTasks(), []);
   const settings = useLiveQuery(() => getSettings(), []);
   const now = new Date();
@@ -36,6 +42,7 @@ export default function DashboardView() {
           { id: "yesterday", node: <YesterdayCard review={yesterday} /> },
           { id: "this-week", node: <ThisWeekCard summary={week} /> },
         ]}
+        wide={showLearn ? <LearnTodayRow /> : undefined}
       />
     </div>
   );
