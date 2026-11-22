@@ -2,7 +2,7 @@ import { createStoredFlag } from "@/lib/storage/storedFlag";
 
 /**
  * "This browser has used the app before" (#83). Set by the app layout;
- * read on `/` to send returning users straight to /today instead of the
+ * read on `/` to send returning users straight to /dashboard instead of the
  * landing page. Per browser, not part of backups.
  */
 export const APP_VISITED_KEY = "morgenmachich:visited";
@@ -26,4 +26,4 @@ export const SKIP_LANDING_SCRIPT = `(function(){try{if(location.pathname==="/"&&
   APP_VISITED_KEY,
 )})==="1"&&!new URLSearchParams(location.search).has(${JSON.stringify(
   LANDING_PARAM,
-)}))location.replace("/today")}catch(e){}})()`;
+)}))location.replace("/dashboard")}catch(e){}})()`;

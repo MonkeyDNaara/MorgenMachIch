@@ -27,6 +27,7 @@ describe("shouldSkipLanding", () => {
 
   it("only applies to the landing page itself", () => {
     expect(shouldSkipLanding("/today", "", true)).toBe(false);
+    expect(shouldSkipLanding("/dashboard", "", true)).toBe(false);
     expect(shouldSkipLanding("/impressum", "", true)).toBe(false);
   });
 });
@@ -38,11 +39,12 @@ describe("SKIP_LANDING_SCRIPT", () => {
     ["/", "", "0"],
     ["/", "?landing", "1"],
     ["/today", "", "1"],
+    ["/dashboard", "", "1"],
     ["/impressum", "", "1"],
   ];
 
   it.each(cases)("matches shouldSkipLanding for %s%s (flag %s)", (pathname, search, stored) => {
-    const expected = shouldSkipLanding(pathname, search, stored === "1") ? "/today" : null;
+    const expected = shouldSkipLanding(pathname, search, stored === "1") ? "/dashboard" : null;
     expect(runScript(pathname, search, stored)).toBe(expected);
   });
 

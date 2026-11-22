@@ -20,8 +20,8 @@ import {
  * components so the wording lives in one place.
  */
 export const SITE_LINKS = {
-  app: "/today",
-  sampleData: "/today?sample=1",
+  app: "/dashboard",
+  sampleData: "/dashboard?sample=1",
   repo: "https://github.com/MonkeyDNaara/MorgenMachIch",
   github: "https://github.com/MonkeyDNaara",
   linkedin: "https://www.linkedin.com/in/niko-klam/",

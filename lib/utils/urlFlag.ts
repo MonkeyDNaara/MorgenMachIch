@@ -12,5 +12,5 @@ export function takeUrlFlag(search: string, name: string): { set: boolean; searc
   return { set: true, search: rest ? `?${rest}` : "" };
 }
 
-/** `/today?sample=1` — the landing page's "Try it with sample data" (#84). */
+/** `/dashboard?sample=1` — the landing page's "Try it with sample data" (#84). */
 export const SAMPLE_DATA_PARAM = "sample";
