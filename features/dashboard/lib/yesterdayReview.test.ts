@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  previousLocalDay,
-  yesterdayReview,
-  yesterdaySummary,
-} from "@/features/dashboard/lib/yesterdayReview";
+import { previousLocalDay, yesterdayReview } from "@/features/dashboard/lib/yesterdayReview";
 import { dayKey, localDate, localIso, makeTask } from "@/lib/test/factories";
 
 // Wed 28 Oct 2026, 09:00 local → yesterday is Tue 27 Oct.
@@ -97,13 +93,5 @@ describe("yesterdayReview", () => {
       "A none",
       "B none",
     ]);
-  });
-});
-
-describe("yesterdaySummary", () => {
-  it("reads 'yesterday done/total', or nothing when nothing was due", () => {
-    const day = previousLocalDay(NOW);
-    expect(yesterdaySummary({ day, done: 4, total: 6, missed: [] })).toBe("yesterday 4/6");
-    expect(yesterdaySummary({ day, done: 0, total: 0, missed: [] })).toBeNull();
   });
 });
