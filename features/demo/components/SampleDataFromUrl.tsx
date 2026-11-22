@@ -6,7 +6,7 @@ import { loadSampleData } from "@/features/demo/lib/loadSampleData";
 import { SAMPLE_DATA_PARAM, takeUrlFlag } from "@/lib/utils/urlFlag";
 
 /**
- * `/today?sample=1` (#84): the landing page's "Try it with sample data".
+ * `/dashboard?sample=1` (#84; `/today?sample=1` still works): the landing page's "Try it with sample data".
  * Loads the sample data once — only into an empty app — tells the user
  * what happened and removes the flag from the URL, so a reload doesn't
  * try again. Renders nothing.

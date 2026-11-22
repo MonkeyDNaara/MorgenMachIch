@@ -1,6 +1,7 @@
 import {
   Calendar,
   Info,
+  LayoutDashboard,
   LayoutList,
   Settings,
   Sun,
@@ -20,6 +21,7 @@ export type NavItem = {
  * sidebar/rail (AppNav) and the mobile tab bar (BottomTabBar).
  */
 export const NAV_ITEMS = {
+  dashboard: { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   today: { href: "/today", label: "Today", icon: Sun },
   tasks: { href: "/tasks", label: "Tasks", icon: LayoutList },
   calendar: { href: "/calendar", label: "Calendar", icon: Calendar },
@@ -27,12 +29,13 @@ export const NAV_ITEMS = {
   stats: { href: "/stats", label: "Stats", icon: TrendingUp },
   settings: { href: "/settings", label: "Settings", icon: Settings },
   // The landing page with the project story, the developer and the Impressum (#83).
-  // `?landing` keeps returning users from being sent back to /today.
+  // `?landing` keeps returning users from being sent back to /dashboard.
   about: { href: "/?landing", label: "About", icon: Info },
 } satisfies Record<string, NavItem>;
 
 /** Main entries in sidebar order; About and Settings sit apart at the bottom. */
 export const MAIN_NAV: NavItem[] = [
+  NAV_ITEMS.dashboard,
   NAV_ITEMS.today,
   NAV_ITEMS.tasks,
   NAV_ITEMS.calendar,

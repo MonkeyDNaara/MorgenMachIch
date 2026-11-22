@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { importantItems, importantSummary } from "@/features/dashboard/lib/importantItems";
+import { importantItems } from "@/features/dashboard/lib/importantItems";
 import { dayKey, localDate, localIso, makeTask } from "@/lib/test/factories";
 
 // Wed 28 Oct 2026, 10:00 local.
@@ -73,13 +73,5 @@ describe("importantItems (#424)", () => {
       ["Sun late", "overdue"],
       ["Mon early", "time"],
     ]);
-  });
-});
-
-describe("importantSummary", () => {
-  it("counts items, or nothing when empty", () => {
-    const items = importantItems([high({ dueDate: localIso(2026, 10, 28, 15) })], NOW);
-    expect(importantSummary(items)).toBe("1 important");
-    expect(importantSummary([])).toBeNull();
   });
 });

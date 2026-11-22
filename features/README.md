@@ -8,7 +8,7 @@ One folder per feature. Each feature owns its UI, hooks and the logic only it us
 | `series/`          | recurring series: series drawer and row, rule builder, projected occurrences, `OccurrenceSync` |
 | `backlog/`         | dateless tasks: "Plan for…" menu, column visibility                                            |
 | `today/`           | `/today`: day progress, "Coming up" strip                                                      |
-| `dashboard/`       | `/today` briefing: band layout, `DashboardCard`, widgets, collapse state                       |
+| `dashboard/`       | `/dashboard`: `DashboardView`, band layout, `DashboardCard`, widgets                           |
 | `auth/`            | sign-in, sign-up, password reset, account in nav and Settings, auth client + helpers           |
 | `calendar/`        | `/calendar`: month grid, day cells, Backlog tray                                               |
 | `labels/`          | `/labels`, label chip, color swatches                                                          |

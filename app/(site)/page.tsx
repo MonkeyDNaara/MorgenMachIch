@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 /**
  * `/` — the landing page (#14). Product half (#85): header, hero, live
  * quick-add demo (#86), features, screenshots (#376); how it's built and built by (#375);
- * final call to action, footer. Returning users are sent to /today by a
+ * final call to action, footer. Returning users are sent to /dashboard by a
  * script in the root layout's <head>; `/?landing` shows the page anyway.
  * Server components only — no IndexedDB on this page.
  */

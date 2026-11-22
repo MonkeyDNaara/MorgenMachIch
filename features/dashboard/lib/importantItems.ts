@@ -50,8 +50,3 @@ export function importantItems(tasks: readonly Task[], now: Date): ImportantItem
       a.task.title.localeCompare(b.task.title),
   );
 }
-
-/** Part of the collapsed briefing line, e.g. "2 important"; null when there is nothing. */
-export function importantSummary(items: readonly ImportantItem[]): string | null {
-  return items.length > 0 ? `${items.length} important` : null;
-}

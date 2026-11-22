@@ -31,7 +31,8 @@ function setTheme(preference: ThemePreference, label: string, keywords: string[]
  * Icons are a UI concern and are mapped by id in components/palette.
  */
 export const COMMANDS: readonly Command[] = [
-  goTo("go-today", "Today", "/today", ["home", "start", "overdue", "due"]),
+  goTo("go-dashboard", "Dashboard", "/dashboard", ["home", "start", "briefing", "overview"]),
+  goTo("go-today", "Today", "/today", ["overdue", "due"]),
   goTo("go-tasks", "Tasks", "/tasks", ["list", "all", "backlog", "recurring", "series"]),
   goTo("go-calendar", "Calendar", "/calendar", ["month", "schedule", "dates", "plan"]),
   goTo("go-labels", "Labels", "/labels", ["tags", "categories"]),

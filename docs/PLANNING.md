@@ -77,9 +77,10 @@
 
 ## Route map
 
-- `/` — public landing page (returning browsers go straight to `/today`; `/?landing` shows it anyway)
+- `/` — public landing page (returning browsers go straight to `/dashboard`; `/?landing` shows it anyway)
 - `/impressum`, `/datenschutz` — legal pages (German, noindex)
-- `/today` — today + overdue tasks (start page of the app and the installed PWA), with a date header and the streak badge
+- `/dashboard` — the briefing: Important, Yesterday, This week (start page of the app and the installed PWA)
+- `/today` — today + overdue tasks, with a date header, day progress, the streak badge and a Coming up strip
 - `/tasks` — full card-view list, all tasks
 - `/calendar` — month view with due dates
 - `/labels` — manage labels
