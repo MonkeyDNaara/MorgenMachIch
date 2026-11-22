@@ -21,6 +21,7 @@ One folder per feature. Each feature owns its UI, hooks and the logic only it us
 | `theme/`           | System / Light / Dark preference                                                               |
 | `site/`            | public landing page and legal pages, their content                                             |
 | `demo/`            | "Try it with sample data"                                                                      |
+| `learning/`        | Learn today: `useLearning()` and its shared store (the UI follows in #467, #468)               |
 
 Inside a feature: `components/`, `hooks/`, `lib/` (pure, tested next to the file), optional `types.ts`.
 Rules for imports between layers are in [docs/CONVENTIONS.md](../docs/CONVENTIONS.md#layers-and-import-rules).

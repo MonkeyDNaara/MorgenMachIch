@@ -26,10 +26,10 @@ features/                  # one folder per feature (see features/README.md)
     lib/                   # pure logic used only by this feature (+ tests next to it)
     types.ts               # optional: types shared inside the feature
   tasks/ series/ backlog/ today/ calendar/ labels/ quick-add/ command-palette/
-  stats/ settings/ dnd/ pwa/ theme/ site/ demo/ dashboard/ auth/
+  stats/ settings/ dnd/ pwa/ theme/ site/ demo/ dashboard/ auth/ learning/
 components/
   ui/                      # shared UI building blocks: date-field/, charts/, EmptyState, PageHeader,
-                           # StatusPage, LogoMark, ToastProvider
+                           # StatusPage, LogoMark, ToastProvider, Markdown
 hooks/                     # shared hooks: useDismiss, useMediaQuery, useModKey, useRadioGroupKeys
 lib/
   types/                   # Zod schemas + inferred types — the single source of truth
@@ -38,6 +38,7 @@ lib/
                            # recurrence, backlog, backup, labelNames, orderKey, groupTasksByDate
   date/                    # generic date helpers: parseDate, parseDateOnly, dateField, monthGrid, ...
   charts/                  # chart math for the hand-built SVG charts: scalePoints, barLevels
+  markdown/                # parseMarkdown: the safe Markdown subset for LLM text (see components/ui/Markdown)
   constants/               # label palette, priority colors, APP_LOCALE
   styles/                  # class/style helpers: FIELD_FOCUS, FIELD_LABEL, colorChip
   storage/                 # localStorage flags (storedFlag)
