@@ -13,6 +13,7 @@ describe("authRequired (#446)", () => {
 
 describe("isGatedPath", () => {
   it("gates the app pages and their subpaths", () => {
+    expect(isGatedPath("/dashboard")).toBe(true);
     expect(isGatedPath("/today")).toBe(true);
     expect(isGatedPath("/settings")).toBe(true);
     expect(isGatedPath("/tasks/abc")).toBe(true);
