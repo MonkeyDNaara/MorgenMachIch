@@ -85,6 +85,7 @@
 - `/calendar` — month view with due dates
 - `/labels` — manage labels
 - `/stats` — streaks, year heatmap, completions chart, label breakdown, on-time rate
+- `/learn` — Learn today: Explanation → Quiz → Result (owner only, others get the not-found page; #467)
 - `/settings` — appearance (System / Light / Dark), app install & update, data export/import (JSON backup), reset stats, delete-all-data danger zone, about/version
 - `/offline` — fallback the service worker shows for a page that isn't cached yet (not linked in the nav)
 - Task detail/edit — drawer/modal, not a route
