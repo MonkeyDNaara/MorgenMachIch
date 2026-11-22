@@ -1,6 +1,7 @@
 import {
   Calendar,
   Info,
+  LayoutDashboard,
   LayoutList,
   Monitor,
   Moon,
@@ -17,6 +18,7 @@ import {
 /** Icon per command id — kept out of lib/commands so the registry has
  * no UI dependency (#196). Same icons as the nav rail for the pages. */
 const COMMAND_ICONS: Record<string, LucideIcon> = {
+  "go-dashboard": LayoutDashboard,
   "go-today": Sun,
   "go-tasks": LayoutList,
   "go-calendar": Calendar,
