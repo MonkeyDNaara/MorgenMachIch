@@ -166,14 +166,20 @@ once `@neondatabase/auth` ships better-auth ≥ 1.7.7 and zod ≥ 4.6.6.
 The Dashboard will get a "Learn today" card (#463), backed by Niko's **Daily Learning
 Agent** in n8n: one interview topic a day, a deeper explanation on request, and a 3-question
 quiz; only a passed quiz marks a topic as understood. n8n runs on Niko's Mac behind ngrok, so
-the app calls it **server side** through `/api/learning/{today,next,deepen,quiz,quiz/answer}`
-(#462, `server/learning/`): the `X-Api-Key` never reaches the browser.
+the app calls it **server side** through
+`/api/learning/{today,next,deepen,quiz,quiz/answer,review}` (#462, #478, `server/learning/`): the
+`X-Api-Key` never reaches the browser.
 
 The routes are **owner only**: everyone except `LEARNING_OWNER_ID` — and everyone while the
 three `LEARNING_*` variables are unset — gets a 404, as if the routes didn't exist. When n8n
 can't be reached (Mac asleep, ngrok down, timeout after 60 s, a 5xx or an unexpected answer)
 they answer `503 learning_offline`. The routes use the `/api/v1` error contract and CSRF checks
 (`docs/API.md`), but they are a personal proxy and not part of the data API.
+
+`GET /api/learning/review` (#478) returns the review of the day: one topic that was understood
+before, or `{ empty: true, reason }` as a normal `200` while there is none. n8n writes on the first
+call of a day only (`last_reviewed_at`, `times_taught + 1`); later calls the same day just read.
+So it is a `GET` with one side effect per day.
 
 The page `/learn` (#467) runs the whole flow — explanation, quiz, result. It checks the owner
 on the server (`isLearningOwner()` in `server/learning/`) and shows the normal not-found page to
