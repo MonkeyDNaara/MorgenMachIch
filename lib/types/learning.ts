@@ -7,7 +7,9 @@ import { z } from "zod";
  * new column in n8n doesn't take the widget offline; request bodies are `.strict()`.
  *
  * Checked against real n8n answers on 2026-11-21 (today, quiz, quiz/answer, a 404 from deepen:
- * `{ ok: false, error: "topic not in learning" }`).
+ * `{ ok: false, error: "topic not in learning" }`) and 2026-11-23 (status, understood_at,
+ * times_taught, review; #477). The fields added on 2026-11-23 are required on purpose: a
+ * deviating answer shows up as the offline state instead of a silently wrong badge.
  */
 
 /** n8n Data Table row id. */
@@ -15,12 +17,24 @@ export const LearningIdSchema = z.number().int().positive();
 
 const emptyToNull = (value: unknown) => (value === "" || value === undefined ? null : value);
 
+/** n8n sends UTC (`…Z`); an offset is accepted too, so a format change there doesn't break us. */
+const IsoDateTimeSchema = z.iso.datetime({ offset: true });
+
+/** `understood` only by passing the quiz; a failed quiz sets `learning` again (understood_at stays). */
+export const LearningStatusSchema = z.enum(["learning", "understood"]);
+export type LearningStatus = z.infer<typeof LearningStatusSchema>;
+
 export const LearningTopicSchema = z.object({
   id: LearningIdSchema,
   topic: z.string().min(1),
   explanation: z.string(),
   /** Written by "Unsure" (deepen); empty until then. */
   deep_explanation: z.preprocess(emptyToNull, z.string().nullable()),
+  status: LearningStatusSchema,
+  /** First time the quiz was passed (UTC); `null` while never understood. */
+  understood_at: IsoDateTimeSchema.nullable(),
+  /** Deliveries as topic of the day plus reviews; quizzes don't count. */
+  times_taught: z.number().int().nonnegative(),
 });
 export type LearningTopic = z.infer<typeof LearningTopicSchema>;
 
@@ -58,8 +72,27 @@ export const LearningQuizResultSchema = z.object({
       why: z.string(),
     }),
   ),
+  status: LearningStatusSchema,
+  understood_at: IsoDateTimeSchema.nullable(),
 });
 export type LearningQuizResult = z.infer<typeof LearningQuizResultSchema>;
+
+/** `GET learning/review`: a topic that was understood, plus when it was picked as the review. */
+export const LearningReviewTopicSchema = LearningTopicSchema.extend({
+  last_reviewed_at: IsoDateTimeSchema,
+});
+export type LearningReviewTopic = z.infer<typeof LearningReviewTopicSchema>;
+
+/** `GET learning/review` with nothing to review: a normal `200`, not an error. */
+export const LearningReviewEmptySchema = z.object({
+  empty: z.literal(true),
+  reason: z.string(),
+});
+export type LearningReviewEmpty = z.infer<typeof LearningReviewEmptySchema>;
+
+/** Empty first: a topic can never match the empty branch (it has no `empty: true`). */
+export const LearningReviewSchema = z.union([LearningReviewEmptySchema, LearningReviewTopicSchema]);
+export type LearningReview = z.infer<typeof LearningReviewSchema>;
 
 /** `POST /api/learning/deepen` and `/quiz`. */
 export const LearningIdBodySchema = z.object({ id: LearningIdSchema }).strict();

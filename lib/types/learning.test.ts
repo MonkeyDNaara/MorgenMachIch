@@ -5,15 +5,19 @@ import {
   LearningIdBodySchema,
   LearningQuizResultSchema,
   LearningQuizSchema,
+  LearningReviewSchema,
   LearningTopicSchema,
 } from "@/lib/types/learning";
 
-/** Real n8n answers from 2026-11-21, texts shortened. */
+/** Real n8n answers from 2026-11-21 and 2026-11-23 (status, review), texts shortened. */
 const TODAY = {
   id: 3,
   topic: "Klasse vs. Objekt vs. Interface",
   explanation: "# Klasse, Objekt und Interface\n\n**Klasse (Class):** Eine Klasse ist …",
   deep_explanation: null,
+  status: "learning",
+  understood_at: null,
+  times_taught: 1,
 };
 const QUIZ = {
   id: 3,
@@ -45,7 +49,21 @@ const RESULT = {
       why: "Ein Interface ist ein Vertrag …",
     },
   ],
+  status: "learning",
+  understood_at: null,
 };
+const UNDERSTOOD = {
+  ...TODAY,
+  status: "understood",
+  understood_at: "2026-11-23T09:53:14.250Z",
+  times_taught: 2,
+};
+const REVIEW = { ...UNDERSTOOD, last_reviewed_at: "2026-11-23T10:15:00.000Z" };
+
+/** A copy of `object` without `key`, to test that a required field is required. */
+function omit(object: Record<string, unknown>, key: string) {
+  return Object.fromEntries(Object.entries(object).filter(([name]) => name !== key));
+}
 
 describe("learning schemas (#462)", () => {
   it("accept the real n8n answers", () => {
@@ -55,11 +73,16 @@ describe("learning schemas (#462)", () => {
   });
 
   it("treat a missing or empty deep explanation as null and drop unknown fields", () => {
-    const next = { id: TODAY.id, topic: TODAY.topic, explanation: TODAY.explanation };
+    const next = {
+      id: TODAY.id,
+      topic: TODAY.topic,
+      explanation: TODAY.explanation,
+      status: TODAY.status,
+      understood_at: TODAY.understood_at,
+      times_taught: TODAY.times_taught,
+    };
     expect(LearningTopicSchema.parse(next).deep_explanation).toBeNull();
-    expect(
-      LearningTopicSchema.parse({ ...TODAY, deep_explanation: "", status: "learning" }),
-    ).toEqual(TODAY);
+    expect(LearningTopicSchema.parse({ ...TODAY, deep_explanation: "", extra: 1 })).toEqual(TODAY);
     expect(LearningDeepenSchema.parse({ ...TODAY, deep_explanation: "Deeper" })).toEqual({
       id: 3,
       deep_explanation: "Deeper",
@@ -82,5 +105,66 @@ describe("learning schemas (#462)", () => {
     expect(LearningIdBodySchema.safeParse({ id: 3, status: "understood" }).success).toBe(false);
     expect(LearningAnswerBodySchema.safeParse({ id: 3, answers: [0, 1, 2] }).success).toBe(true);
     expect(LearningAnswerBodySchema.safeParse({ id: 3, answers: [0.5] }).success).toBe(false);
+  });
+});
+
+describe("learning contract of 2026-11-23 (#477)", () => {
+  it("accepts a topic that is understood and one that is still being learned", () => {
+    expect(LearningTopicSchema.parse(UNDERSTOOD)).toEqual(UNDERSTOOD);
+    expect(LearningTopicSchema.parse(TODAY)).toMatchObject({ status: "learning" });
+  });
+
+  it("accepts understood_at as null, with milliseconds and with a UTC offset", () => {
+    expect(LearningTopicSchema.parse(TODAY).understood_at).toBeNull();
+    expect(
+      LearningTopicSchema.safeParse({ ...UNDERSTOOD, understood_at: "2026-11-23T09:53:14Z" })
+        .success,
+    ).toBe(true);
+    expect(
+      LearningTopicSchema.safeParse({
+        ...UNDERSTOOD,
+        understood_at: "2026-11-23T10:53:14.250+01:00",
+      }).success,
+    ).toBe(true);
+  });
+
+  it("refuses a topic without the new fields or with values outside the contract", () => {
+    for (const key of ["status", "understood_at", "times_taught"] as const) {
+      expect(LearningTopicSchema.safeParse(omit(UNDERSTOOD, key)).success, key).toBe(false);
+    }
+    expect(LearningTopicSchema.safeParse({ ...TODAY, status: "new" }).success).toBe(false);
+    expect(LearningTopicSchema.safeParse({ ...TODAY, times_taught: -1 }).success).toBe(false);
+    expect(LearningTopicSchema.safeParse({ ...TODAY, times_taught: 1.5 }).success).toBe(false);
+    expect(LearningTopicSchema.safeParse({ ...TODAY, understood_at: "yesterday" }).success).toBe(
+      false,
+    );
+  });
+
+  it("carries status and understood_at in the quiz result", () => {
+    expect(LearningQuizResultSchema.parse(RESULT)).toMatchObject({
+      status: "learning",
+      understood_at: null,
+    });
+    const passed = {
+      ...RESULT,
+      passed: true,
+      status: "understood",
+      understood_at: UNDERSTOOD.understood_at,
+    };
+    expect(LearningQuizResultSchema.parse(passed)).toEqual(passed);
+    expect(LearningQuizResultSchema.safeParse(omit(RESULT, "status")).success).toBe(false);
+  });
+
+  it("parses the review answer as a topic with last_reviewed_at", () => {
+    expect(LearningReviewSchema.parse(REVIEW)).toEqual(REVIEW);
+    expect(LearningReviewSchema.safeParse(omit(REVIEW, "last_reviewed_at")).success).toBe(false);
+  });
+
+  it("parses the empty review answer as the empty branch, never as a topic", () => {
+    const empty = { empty: true, reason: "no_understood_topics" };
+    expect(LearningReviewSchema.parse(empty)).toEqual(empty);
+    expect(LearningReviewSchema.safeParse({ empty: false, reason: "x" }).success).toBe(false);
+    expect(LearningReviewSchema.safeParse({ empty: true }).success).toBe(false);
+    expect(LearningReviewSchema.parse(REVIEW)).not.toHaveProperty("empty");
   });
 });

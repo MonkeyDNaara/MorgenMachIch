@@ -41,7 +41,15 @@ const { POST: quiz } = await import("@/app/api/learning/quiz/route");
 const { POST: answer } = await import("@/app/api/learning/quiz/answer/route");
 
 const noParams = { params: Promise.resolve({}) };
-const TOPIC = { id: 7, topic: "Stack vs. Heap", explanation: "…", deep_explanation: "" };
+const TOPIC = {
+  id: 7,
+  topic: "Stack vs. Heap",
+  explanation: "…",
+  deep_explanation: "",
+  status: "learning",
+  understood_at: null,
+  times_taught: 1,
+};
 const n8n = vi.fn();
 
 function get(path: string) {
@@ -101,6 +109,8 @@ describe("/api/learning (#462)", () => {
       score: 3,
       total: 3,
       results: [],
+      status: "understood",
+      understood_at: "2026-11-23T09:53:14.250Z",
     });
     expect(
       (await answer(post("quiz/answer", { id: 7, answers: [0, 1, 2] }), noParams)).status,

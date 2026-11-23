@@ -6,12 +6,18 @@ const TOPIC = {
   topic: "Closures",
   explanation: "A closure keeps its scope.",
   deep_explanation: null,
+  status: "learning",
+  understood_at: null,
+  times_taught: 1,
 };
 const NEXT_TOPIC = {
   id: 8,
   topic: "Event loop",
   explanation: "One thread, a queue.",
   deep_explanation: null,
+  status: "learning",
+  understood_at: null,
+  times_taught: 1,
 };
 const QUIZ = {
   id: 7,
@@ -30,6 +36,8 @@ const RESULT = {
   results: [
     { question: "Q1", your_answer: "a", correct_answer: "a", correct: true, why: "Because." },
   ],
+  status: "understood",
+  understood_at: "2026-11-23T09:53:14.250Z",
 };
 
 const ok = (data: unknown) => Response.json({ data });

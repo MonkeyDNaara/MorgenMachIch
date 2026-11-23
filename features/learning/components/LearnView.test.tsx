@@ -13,6 +13,9 @@ const TOPIC = {
   topic: "Closures",
   explanation: "A closure keeps its **scope**.",
   deep_explanation: null,
+  status: "learning",
+  understood_at: null,
+  times_taught: 1,
 };
 const QUIZ = {
   id: 7,
@@ -28,6 +31,8 @@ const RESULT = (passed: boolean) => ({
   passed,
   score: passed ? 2 : 1,
   total: 3,
+  status: passed ? "understood" : "learning",
+  understood_at: passed ? "2026-11-23T09:53:14.250Z" : null,
   results: [
     {
       question: "What is captured?",

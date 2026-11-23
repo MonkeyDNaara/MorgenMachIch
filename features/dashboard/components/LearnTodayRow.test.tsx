@@ -7,6 +7,9 @@ const TOPIC = {
   topic: "Stack vs. Heap",
   explanation: "The **stack** holds call frames.\n\nMore.",
   deep_explanation: null,
+  status: "learning",
+  understood_at: null,
+  times_taught: 1,
 };
 const PASSED = {
   id: 7,
@@ -15,6 +18,8 @@ const PASSED = {
   score: 3,
   total: 3,
   results: [],
+  status: "understood",
+  understood_at: "2026-11-23T09:53:14.250Z",
 };
 const fetchMock = vi.fn();
 
