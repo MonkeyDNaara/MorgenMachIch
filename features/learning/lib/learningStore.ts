@@ -301,7 +301,15 @@ export function createLearningStore({ fetchImpl }: StoreOptions = {}): LearningS
         path: "quiz/answer",
         body: { id: quiz.id, answers },
         schema: LearningQuizResultSchema,
-        apply: (data: LearningQuizResult) => ({ result: data }),
+        apply: (data: LearningQuizResult, current) => ({
+          result: data,
+          // The agent decides: a pass makes the topic `understood`, a fail sets it back to
+          // `learning` (`understood_at` stays). `times_taught` counts deliveries, not quizzes.
+          topic:
+            current.topic && current.topic.id === data.id
+              ? { ...current.topic, status: data.status, understood_at: data.understood_at }
+              : current.topic,
+        }),
       });
     },
 
