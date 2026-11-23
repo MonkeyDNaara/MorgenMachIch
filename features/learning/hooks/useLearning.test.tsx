@@ -95,3 +95,88 @@ describe("useLearning state and actions", () => {
     expect(result.current.quiz).toEqual(quiz);
   });
 });
+
+const REVIEW_TOPIC = {
+  id: 9,
+  topic: "Promises",
+  explanation: "A value that arrives later.",
+  deep_explanation: null,
+  status: "understood",
+  understood_at: "2026-11-20T09:00:00.000Z",
+  times_taught: 2,
+  last_reviewed_at: "2026-11-23T05:00:00.000Z",
+};
+
+/** Answers by URL, so the order of the two slots doesn't matter. */
+function answerByUrl(review: unknown = REVIEW_TOPIC) {
+  fetchMock.mockImplementation(async (url: string) =>
+    Response.json({ data: url === "/api/learning/review" ? review : TOPIC }),
+  );
+}
+
+describe("useLearning slots (#479)", () => {
+  it("keeps today as the default slot", async () => {
+    const useLearning = await loadHook();
+    renderHook(() => useLearning());
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/learning/today");
+  });
+
+  it("loads the review topic with last_reviewed_at in the review slot", async () => {
+    answerByUrl();
+    const useLearning = await loadHook();
+    const { result } = renderHook(() => useLearning({ slot: "review" }));
+    await waitFor(() => expect(result.current.phase).toBe("ready"));
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/learning/review");
+    expect(result.current.topic).toMatchObject({ id: 9, status: "understood" });
+    expect(result.current.lastReviewedAt).toBe(REVIEW_TOPIC.last_reviewed_at);
+  });
+
+  it("makes one request per slot and keeps the two states apart", async () => {
+    answerByUrl();
+    const useLearning = await loadHook();
+    const today = renderHook(() => useLearning());
+    const review = renderHook(() => useLearning({ slot: "review" }));
+    await waitFor(() => {
+      expect(today.result.current.phase).toBe("ready");
+      expect(review.result.current.phase).toBe("ready");
+    });
+    expect(fetchMock.mock.calls.map((call) => call[0]).sort()).toEqual([
+      "/api/learning/review",
+      "/api/learning/today",
+    ]);
+    expect(today.result.current.topic?.id).toBe(7);
+    expect(review.result.current.topic?.id).toBe(9);
+  });
+
+  it("shares one review request between two hooks", async () => {
+    answerByUrl();
+    const useLearning = await loadHook();
+    const first = renderHook(() => useLearning({ slot: "review" }));
+    const second = renderHook(() => useLearning({ slot: "review" }));
+    await waitFor(() => expect(first.result.current.phase).toBe("ready"));
+    expect(second.result.current.topic?.id).toBe(9);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows the empty phase when there is nothing to review", async () => {
+    answerByUrl({ empty: true, reason: "no_understood_topics" });
+    const useLearning = await loadHook();
+    const { result } = renderHook(() => useLearning({ slot: "review" }));
+    await waitFor(() => expect(result.current.phase).toBe("empty"));
+    expect(result.current.topic).toBeNull();
+  });
+
+  it("doesn't call the agent in the review slot when autoLoad is off, load does", async () => {
+    answerByUrl();
+    const useLearning = await loadHook();
+    const { result } = renderHook(() => useLearning({ slot: "review", autoLoad: false }));
+    await act(async () => {});
+    expect(fetchMock).not.toHaveBeenCalled();
+    await act(async () => {
+      await result.current.load();
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(result.current.phase).toBe("ready");
+  });
+});

@@ -1,23 +1,29 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from "react";
-import { learningStore } from "@/features/learning/lib/learningStore";
+import { learningStores, type LearningSlot } from "@/features/learning/lib/learningStore";
 
 type UseLearningOptions = {
   /**
-   * Load today's topic on mount (default). `learning/today` generates a topic when none is
+   * Load the slot's topic on mount (default). `learning/today` generates a topic when none is
    * open, so a caller that only needs to know *whether* to show something (the menu item,
    * #469) must not use it.
    */
   autoLoad?: boolean;
+  /**
+   * `today` (default): the new topic of the day. `review`: an understood topic to repeat (#479).
+   * Each slot has its own store, so a slow `today` never blocks the review.
+   */
+  slot?: LearningSlot;
 };
 
 /**
  * The Learn today state and its actions (#466), shared by the dashboard row and /learn: both
- * read the same store, so there is one `learning/today` call. See `createLearningStore` for the
- * phases and rules.
+ * read the same store of a slot, so there is one `learning/today` (or `review`) call. See
+ * `createLearningStore` for the phases and rules.
  */
-export function useLearning({ autoLoad = true }: UseLearningOptions = {}) {
+export function useLearning({ autoLoad = true, slot = "today" }: UseLearningOptions = {}) {
+  const learningStore = learningStores[slot];
   const state = useSyncExternalStore(
     learningStore.subscribe,
     learningStore.getSnapshot,
@@ -26,10 +32,11 @@ export function useLearning({ autoLoad = true }: UseLearningOptions = {}) {
 
   useEffect(() => {
     if (autoLoad) void learningStore.ensureLoaded();
-  }, [autoLoad]);
+  }, [autoLoad, learningStore]);
 
   return {
     ...state,
+    load: learningStore.ensureLoaded,
     today: learningStore.today,
     next: learningStore.next,
     deepen: learningStore.deepen,
