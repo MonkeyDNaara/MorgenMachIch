@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { notFound } from "next/navigation";
+import Link from "next/link";
+import { notFound, useRouter } from "next/navigation";
 import {
   ArrowRight,
   BookOpen,
@@ -18,21 +19,63 @@ import LearnActionBar from "@/features/learning/components/LearnActionBar";
 import LearnLoading from "@/features/learning/components/LearnLoading";
 import LearnQuiz from "@/features/learning/components/LearnQuiz";
 import LearnResult from "@/features/learning/components/LearnResult";
+import LearnSlotSwitch from "@/features/learning/components/LearnSlotSwitch";
 import LearnStepper from "@/features/learning/components/LearnStepper";
 import { useLearning } from "@/features/learning/hooks/useLearning";
+import type { LearningSlot } from "@/features/learning/lib/learningStore";
+import { learnHref } from "@/features/learning/lib/learnSlot";
+import { learnMetaOf } from "@/features/learning/lib/learnMeta";
 import { LOADING_LABEL } from "@/features/learning/lib/loadingLabels";
 import { CANCEL_AFTER_SECONDS } from "@/features/learning/lib/loadingProgress";
 
 const STEP_NAME = ["Explanation", "Quiz", "Result"] as const;
 
+type LearnViewProps = {
+  /** From `?slot=` (the server page parses it): `today` = New, `review` = Review. */
+  slot?: LearningSlot;
+};
+
 /**
- * /learn (#467): Explanation → Quiz → Result on one page, for the learning owner only (the
+ * /learn (#467, #481): a `New | Review` switch above one slot's Explanation → Quiz → Result.
+ * The slot is local state so the switch reacts at once; the URL follows (`?slot=review`, no
+ * scroll) so the dashboard can deep link and Back works. Each slot has its own store, so
+ * switching keeps what has been loaded; the slot view is keyed, so "Read again" and the quiz
+ * choices start fresh. The switch lives outside the key, so the keyboard focus stays on it.
+ */
+export default function LearnView({ slot: slotFromUrl = "today" }: LearnViewProps) {
+  const router = useRouter();
+  const [slot, setSlot] = useState(slotFromUrl);
+  const [seenFromUrl, setSeenFromUrl] = useState(slotFromUrl);
+  if (slotFromUrl !== seenFromUrl) {
+    // Back/forward or a link changed the URL: follow it.
+    setSeenFromUrl(slotFromUrl);
+    setSlot(slotFromUrl);
+  }
+
+  function changeSlot(next: LearningSlot) {
+    if (next === slot) return;
+    setSlot(next);
+    router.replace(learnHref(next), { scroll: false });
+  }
+
+  return (
+    <div className="flex min-h-full flex-col">
+      <div className="mx-auto w-full max-w-3xl px-6 pt-8">
+        <LearnSlotSwitch slot={slot} onChange={changeSlot} />
+      </div>
+      <LearnSlotView key={slot} slot={slot} />
+    </div>
+  );
+}
+
+/**
+ * One slot of /learn (#467): Explanation → Quiz → Result for the learning owner only (the
  * server page has already checked; a 401/404 from the proxy still falls back to not-found).
- * All state lives in `useLearning()`, shared with the dashboard row (#468); the only local
+ * All state lives in `useLearning({ slot })`, shared with the dashboard card; the only local
  * state is "Read again", which shows step 1 again without touching the store.
  */
-export default function LearnView() {
-  const learning = useLearning();
+function LearnSlotView({ slot }: { slot: LearningSlot }) {
+  const learning = useLearning({ slot });
   const { phase, action, topic, quiz, result, error, elapsedSeconds } = learning;
   const [rereading, setRereading] = useState(false);
   // The quiz choices live here (next to the sticky Submit) and survive a failed submit.
@@ -84,6 +127,12 @@ export default function LearnView() {
     </span>
   ) : step === 1 && quiz ? (
     <span className="font-mono text-meta text-muted">quiz · {quiz.questions.length} questions</span>
+  ) : step === 0 && topic ? (
+    <span
+      className={`font-mono text-meta ${learnMetaOf(topic, slot).understood ? "text-success" : "text-muted"}`}
+    >
+      {learnMetaOf(topic, slot).label}
+    </span>
   ) : null;
 
   const picked = answers.quizId === quiz?.id ? answers.values : [];
@@ -103,19 +152,38 @@ export default function LearnView() {
         />
         <button type="button" onClick={() => void learning.retry()} className="btn btn-sm gap-1.5">
           <RefreshCw size={14} aria-hidden />
-          {offline ? "Retry" : "Reload topic"}
+          {offline ? "Retry" : slot === "review" ? "Reload review" : "Reload topic"}
         </button>
       </div>
     );
   } else if (loading && action !== "deepen" && action !== "answer") {
-    body = <LearnLoading label={LOADING_LABEL[action ?? "today"]} seconds={elapsedSeconds} />;
+    body = <LearnLoading label={LOADING_LABEL[action ?? slot]} seconds={elapsedSeconds} />;
     bar = cancel && <LearnActionBar>{cancel}</LearnActionBar>;
+  } else if (phase === "empty") {
+    body = (
+      <div className="flex flex-col items-center gap-2">
+        <EmptyState
+          icon={BookOpen}
+          title="Nothing to review yet."
+          hint="Pass a quiz and the topic comes back here for review."
+        />
+        <Link href="/dashboard" className="btn btn-sm min-h-11">
+          Back to dashboard
+        </Link>
+      </div>
+    );
   } else if (step === 2 && result) {
     body = <LearnResult result={result} />;
     bar = (
       <LearnActionBar>
         <div className="ml-auto flex items-center gap-2">
-          {result.passed ? (
+          {result.passed && slot === "review" ? (
+            // "Next topic" would replace today's topic; the review ends on the dashboard.
+            <Link href="/dashboard" className="btn btn-primary gap-1.5">
+              Back to dashboard
+              <ArrowRight size={14} aria-hidden />
+            </Link>
+          ) : result.passed ? (
             <button type="button" onClick={nextTopic} className="btn btn-primary gap-1.5">
               Next topic
               <ArrowRight size={14} aria-hidden />
@@ -186,6 +254,8 @@ export default function LearnView() {
     );
   } else if (topic) {
     const deepening = loading && action === "deepen";
+    // A topic the agent already marked understood (after a reload): practice, or move on.
+    const understoodNew = slot === "today" && topic.status === "understood";
     body = (
       <div className="flex flex-col gap-6">
         <Markdown text={topic.explanation} />
@@ -217,42 +287,58 @@ export default function LearnView() {
           </button>
         )}
         {cancel}
-        <button
-          type="button"
-          disabled={deepening}
-          onClick={startQuiz}
-          className="btn btn-primary ml-auto gap-1.5"
-        >
-          Start quiz
-          <ArrowRight size={14} aria-hidden />
-        </button>
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            type="button"
+            disabled={deepening}
+            onClick={startQuiz}
+            className={`btn gap-1.5 ${understoodNew ? "" : "btn-primary"}`}
+          >
+            Start quiz
+            {!understoodNew && <ArrowRight size={14} aria-hidden />}
+          </button>
+          {understoodNew && (
+            <button
+              type="button"
+              disabled={deepening}
+              onClick={nextTopic}
+              className="btn btn-primary gap-1.5"
+            >
+              Next topic
+              <ArrowRight size={14} aria-hidden />
+            </button>
+          )}
+        </div>
       </LearnActionBar>
     );
   } else {
-    body = <LearnLoading label={LOADING_LABEL.today} seconds={elapsedSeconds} />;
+    body = <LearnLoading label={LOADING_LABEL[slot]} seconds={elapsedSeconds} />;
   }
 
   return (
-    <div className="flex min-h-full flex-col">
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 pt-8 pb-8">
+    <div className="flex flex-1 flex-col">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 pt-6 pb-8">
         <PageHeader
-          eyebrow="Learn today"
-          title={topic?.topic ?? "Today’s topic"}
+          eyebrow={slot === "review" ? "Learn · review" : "Learn · new"}
+          title={topic?.topic ?? (slot === "review" ? "Review topic" : "Today’s topic")}
           meta={meta}
           actions={
-            <button
-              type="button"
-              aria-label="New topic"
-              disabled={loading}
-              onClick={nextTopic}
-              className="btn btn-ghost btn-sm gap-1.5"
-            >
-              <Shuffle size={14} aria-hidden />
-              <span className="hidden sm:inline">New topic</span>
-            </button>
+            // Review never replaces today's topic, so only New has a "New topic".
+            slot === "today" ? (
+              <button
+                type="button"
+                aria-label="New topic"
+                disabled={loading}
+                onClick={nextTopic}
+                className="btn btn-ghost btn-sm gap-1.5"
+              >
+                <Shuffle size={14} aria-hidden />
+                <span className="hidden sm:inline">New topic</span>
+              </button>
+            ) : undefined
           }
         />
-        <LearnStepper step={step} />
+        {phase !== "empty" && <LearnStepper step={step} />}
       </div>
       <div
         ref={panelRef}

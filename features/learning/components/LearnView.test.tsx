@@ -6,7 +6,11 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 const notFound = vi.fn(() => {
   throw new Error("NEXT_NOT_FOUND");
 });
-vi.mock("next/navigation", () => ({ notFound: () => notFound() }));
+const replace = vi.fn();
+vi.mock("next/navigation", () => ({
+  notFound: () => notFound(),
+  useRouter: () => ({ replace }),
+}));
 
 const TOPIC = {
   id: 7,
@@ -58,6 +62,15 @@ const RESULT = (passed: boolean) => ({
   ],
 });
 
+const REVIEW_TOPIC = {
+  ...TOPIC,
+  status: "understood",
+  understood_at: "2026-11-20T09:00:00.000Z",
+  times_taught: 2,
+  last_reviewed_at: "2026-11-23T05:00:00.000Z",
+};
+const EMPTY_REVIEW = { empty: true, reason: "no_understood_topics" };
+
 const fetchMock = vi.fn();
 
 function route(overrides: Record<string, () => Response> = {}) {
@@ -67,24 +80,28 @@ function route(overrides: Record<string, () => Response> = {}) {
     const data =
       path === "today" || path === "next"
         ? TOPIC
-        : path === "deepen"
-          ? { id: 7, deep_explanation: "Deeper: lexical scope." }
-          : path === "quiz"
-            ? QUIZ
-            : RESULT(true);
+        : path === "review"
+          ? REVIEW_TOPIC
+          : path === "deepen"
+            ? { id: 7, deep_explanation: "Deeper: lexical scope." }
+            : path === "quiz"
+              ? QUIZ
+              : RESULT(true);
     return Response.json({ data });
   });
 }
 
-async function renderView() {
+async function renderView(slot?: "today" | "review") {
   vi.resetModules();
   const LearnView = (await import("@/features/learning/components/LearnView")).default;
-  render(<LearnView />);
+  const view = render(<LearnView slot={slot} />);
+  return { LearnView, rerender: view.rerender };
 }
 
 beforeEach(() => {
   fetchMock.mockReset();
   notFound.mockClear();
+  replace.mockClear();
   vi.stubGlobal("fetch", fetchMock);
 });
 afterEach(() => {
@@ -103,8 +120,13 @@ function currentStep() {
   return list.querySelector("[aria-current=step]")?.textContent?.replace(/^\d/, "");
 }
 
+/** The question groups; the `New | Review` switch is a radiogroup too. */
+function questionGroups() {
+  return screen.getAllByRole("radiogroup").filter((group) => !within(group).queryByText("Review"));
+}
+
 function answerAll() {
-  for (const group of screen.getAllByRole("radiogroup")) {
+  for (const group of questionGroups()) {
     fireEvent.click(within(group).getAllByRole("radio")[0]);
   }
 }
@@ -144,7 +166,7 @@ describe("LearnView (#467)", () => {
     route();
     await renderView();
     await toQuiz();
-    const group = screen.getAllByRole("radiogroup")[0];
+    const group = questionGroups()[0];
     const [first] = within(group).getAllByRole("radio");
     fireEvent.click(first);
     fireEvent.keyDown(first, { key: "ArrowDown" });
@@ -226,5 +248,131 @@ describe("LearnView (#467)", () => {
     );
     expect(await screen.findByText("not found")).toBeTruthy();
     expect(notFound).toHaveBeenCalled();
+  });
+});
+
+describe("LearnView slots (#481)", () => {
+  const urls = () => fetchMock.mock.calls.map(([url]) => String(url));
+
+  it("New slot: eyebrow, New topic in the header, meta from the topic", async () => {
+    route();
+    await renderView();
+    await screen.findByRole("heading", { level: 1, name: "Closures" });
+    expect(screen.getByText("Learn · new")).toBeTruthy();
+    expect(screen.getByText("learning · taught 1×")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "New topic" })).toBeTruthy();
+    expect(urls()).toEqual(["/api/learning/today"]);
+    expect(screen.getByRole("radio", { name: "New" }).getAttribute("aria-checked")).toBe("true");
+  });
+
+  it("Review slot: asks for the review, no New topic, meta with the day it was understood", async () => {
+    route();
+    await renderView("review");
+    await screen.findByRole("heading", { level: 1, name: "Closures" });
+    expect(screen.getByText("Learn · review")).toBeTruthy();
+    expect(screen.getByText("understood 20 Nov · taught 2×")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "New topic" })).toBeNull();
+    expect(urls()).toEqual(["/api/learning/review"]);
+    expect(screen.getByRole("radio", { name: "Review" }).getAttribute("aria-checked")).toBe("true");
+  });
+
+  it("switching to Review updates the URL without scrolling and loads the review", async () => {
+    route();
+    await renderView();
+    await screen.findByRole("heading", { level: 1, name: "Closures" });
+    fireEvent.click(screen.getByRole("radio", { name: "Review" }));
+    expect(replace).toHaveBeenCalledWith("/learn?slot=review", { scroll: false });
+    expect(await screen.findByText("Learn · review")).toBeTruthy();
+    expect(urls()).toContain("/api/learning/review");
+    fireEvent.click(screen.getByRole("radio", { name: "New" }));
+    expect(replace).toHaveBeenLastCalledWith("/learn", { scroll: false });
+    expect(await screen.findByText("Learn · new")).toBeTruthy();
+    // Both stores keep their topic: no second request for either slot.
+    expect(urls().filter((url) => url.endsWith("/today"))).toHaveLength(1);
+    expect(urls().filter((url) => url.endsWith("/review"))).toHaveLength(1);
+  });
+
+  it("the arrow keys switch the slot and the focus stays on the switch", async () => {
+    route();
+    await renderView();
+    await screen.findByRole("heading", { level: 1, name: "Closures" });
+    const newRadio = screen.getByRole("radio", { name: "New" });
+    newRadio.focus();
+    fireEvent.keyDown(newRadio, { key: "ArrowRight" });
+    expect(replace).toHaveBeenCalledWith("/learn?slot=review", { scroll: false });
+    await screen.findByText("Learn · review");
+    expect(document.activeElement).toBe(screen.getByRole("radio", { name: "Review" }));
+  });
+
+  it("follows the URL when it changes (Back button)", async () => {
+    route();
+    const { LearnView, rerender } = await renderView();
+    await screen.findByText("Learn · new");
+    rerender(<LearnView slot="review" />);
+    expect(await screen.findByText("Learn · review")).toBeTruthy();
+    expect(replace).not.toHaveBeenCalled();
+  });
+
+  it("a passed review ends on Back to dashboard, never on Next topic", async () => {
+    route();
+    await renderView("review");
+    await toQuiz();
+    answerAll();
+    fireEvent.click(screen.getByRole("button", { name: /Submit/ }));
+    expect(await screen.findByText("Passed")).toBeTruthy();
+    expect(screen.getByRole("link", { name: /Back to dashboard/ }).getAttribute("href")).toBe(
+      "/dashboard",
+    );
+    expect(screen.queryByRole("button", { name: /Next topic/ })).toBeNull();
+  });
+
+  it("a failed review keeps Read again and New quiz", async () => {
+    route({ "quiz/answer": () => Response.json({ data: RESULT(false) }) });
+    await renderView("review");
+    await toQuiz();
+    answerAll();
+    fireEvent.click(screen.getByRole("button", { name: /Submit/ }));
+    expect(await screen.findByText("Not passed")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Read again/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /New quiz/ })).toBeTruthy();
+    expect(screen.queryByRole("link", { name: /Back to dashboard/ })).toBeNull();
+  });
+
+  it("Review empty: hint and a way back, no stepper", async () => {
+    route({ review: () => Response.json({ data: EMPTY_REVIEW }) });
+    await renderView("review");
+    expect(await screen.findByText("Nothing to review yet.")).toBeTruthy();
+    expect(screen.getByText("Pass a quiz and the topic comes back here for review.")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Back to dashboard" }).getAttribute("href")).toBe(
+      "/dashboard",
+    );
+    expect(screen.queryByRole("list", { name: "Progress" })).toBeNull();
+  });
+
+  it("offline in the Review slot: its own Retry", async () => {
+    route({
+      review: () => Response.json({ error: { code: "o", message: "Mac off" } }, { status: 503 }),
+    });
+    await renderView("review");
+    expect(await screen.findByText("The learning agent is offline")).toBeTruthy();
+    route();
+    fireEvent.click(screen.getByRole("button", { name: /Retry/ }));
+    expect(await screen.findByText("understood 20 Nov · taught 2×")).toBeTruthy();
+  });
+
+  it("an understood New topic after a reload: Next topic is primary, Start quiz is practice", async () => {
+    route({
+      today: () =>
+        Response.json({
+          data: { ...TOPIC, status: "understood", understood_at: "2026-11-23T09:53:14.250Z" },
+        }),
+    });
+    await renderView();
+    await screen.findByRole("heading", { level: 1, name: "Closures" });
+    expect(screen.getByText("understood · taught 1×")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Next topic/ }).className).toContain("btn-primary");
+    expect(screen.getByRole("button", { name: /Start quiz/ }).className).not.toContain(
+      "btn-primary",
+    );
   });
 });
