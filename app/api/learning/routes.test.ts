@@ -35,6 +35,7 @@ vi.mock("@/server/env", () => ({
 }));
 
 const { GET: today } = await import("@/app/api/learning/today/route");
+const { GET: review } = await import("@/app/api/learning/review/route");
 const { POST: next } = await import("@/app/api/learning/next/route");
 const { POST: deepen } = await import("@/app/api/learning/deepen/route");
 const { POST: quiz } = await import("@/app/api/learning/quiz/route");
@@ -49,6 +50,13 @@ const TOPIC = {
   status: "learning",
   understood_at: null,
   times_taught: 1,
+};
+const REVIEW = {
+  ...TOPIC,
+  status: "understood",
+  understood_at: "2026-11-23T09:53:14.250Z",
+  times_taught: 2,
+  last_reviewed_at: "2026-11-23T10:15:00.000Z",
 };
 const n8n = vi.fn();
 
@@ -82,12 +90,15 @@ describe("/api/learning (#462)", () => {
   it("answers 401 without a session and 404 for other users or while off", async () => {
     state.userId = null;
     expect((await today(get("today"), noParams)).status).toBe(401);
+    expect((await review(get("review"), noParams)).status).toBe(401);
     state.userId = OTHER;
     expect((await today(get("today"), noParams)).status).toBe(404);
+    expect((await review(get("review"), noParams)).status).toBe(404);
     expect((await deepen(post("deepen", { nope: true }), noParams)).status).toBe(404);
     state.userId = OWNER;
     state.enabled = false;
     expect((await today(get("today"), noParams)).status).toBe(404);
+    expect((await review(get("review"), noParams)).status).toBe(404);
     expect(n8n).not.toHaveBeenCalled();
   });
 
@@ -149,5 +160,42 @@ describe("/api/learning (#462)", () => {
     const response = await today(get("today"), noParams);
     expect(response.status).toBe(503);
     expect((await response.json()).error.code).toBe("learning_offline");
+  });
+
+  it("review: returns the topic of the day in the envelope, without a body, as GET", async () => {
+    n8nAnswers(REVIEW);
+    const response = await review(get("review"), noParams);
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Cache-Control")).toBe("no-store");
+    expect(await response.json()).toEqual({ data: { ...REVIEW, deep_explanation: null } });
+    const [url, init] = n8n.mock.calls.at(-1) as [string, RequestInit];
+    expect(url).toBe("https://n8n.example/webhook/learning/review");
+    expect(init.method).toBe("GET");
+    expect(init.body).toBeUndefined();
+    expect((init.headers as Record<string, string>)["X-Api-Key"]).toBe("k".repeat(40));
+  });
+
+  it("review: passes the empty answer through as a normal 200", async () => {
+    const empty = { empty: true, reason: "no_understood_topics" };
+    n8nAnswers(empty);
+    const response = await review(get("review"), noParams);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ data: empty });
+  });
+
+  it("review: n8n down or an answer without last_reviewed_at is 503 learning_offline", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    n8n.mockRejectedValue(new TypeError("fetch failed"));
+    const down = await review(get("review"), noParams);
+    expect(down.status).toBe(503);
+    expect((await down.json()).error.code).toBe("learning_offline");
+
+    const withoutLast = Object.fromEntries(
+      Object.entries(REVIEW).filter(([key]) => key !== "last_reviewed_at"),
+    );
+    n8nAnswers(withoutLast);
+    const bad = await review(get("review"), noParams);
+    expect(bad.status).toBe(503);
+    expect((await bad.json()).error.code).toBe("learning_offline");
   });
 });
