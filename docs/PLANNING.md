@@ -79,13 +79,13 @@
 
 - `/` — public landing page (returning browsers go straight to `/dashboard`; `/?landing` shows it anyway)
 - `/impressum`, `/datenschutz` — legal pages (German, noindex)
-- `/dashboard` — the briefing: Important, Yesterday, This week, plus the Learn today row for the owner (start page of the app and the installed PWA)
+- `/dashboard` — the briefing: Important, Yesterday, This week, plus the Learn cards (New / Review) for the owner (start page of the app and the installed PWA)
 - `/today` — today + overdue tasks, with a date header, day progress, the streak badge and a Coming up strip
 - `/tasks` — full card-view list, all tasks
 - `/calendar` — month view with due dates
 - `/labels` — manage labels
 - `/stats` — streaks, year heatmap, completions chart, label breakdown, on-time rate
-- `/learn` — Learn today: Explanation → Quiz → Result (owner only, others get the not-found page; #467)
+- `/learn` — Learn today: Explanation → Quiz → Result, slots New and Review via `?slot=review` (owner only, others get the not-found page; #467, #481)
 - `/settings` — appearance (System / Light / Dark), app install & update, data export/import (JSON backup), reset stats, delete-all-data danger zone, about/version
 - `/offline` — fallback the service worker shows for a page that isn't cached yet (not linked in the nav)
 - Task detail/edit — drawer/modal, not a route

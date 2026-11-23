@@ -16,11 +16,11 @@ import { weekSummary } from "@/features/dashboard/lib/weekSummary";
 /**
  * /dashboard (#465, epic #419): the first page of the app — the briefing band
  * (Important, Yesterday, This week) and nothing else; today's tasks live on
- * /today. Learn today (#468) is a full-width second row through the band's `wide` slot,
+ * /today. The Learn cards (#468, #480) are a full-width second row through the band's `wide` slot,
  * only for the learning owner.
  */
 type DashboardViewProps = {
-  /** Show the Learn today row. Decided on the server (`isLearningOwner()`), never here. */
+  /** Show the Learn cards (New / Review). Decided on the server (`isLearningOwner()`), never here. */
   showLearn?: boolean;
 };
 

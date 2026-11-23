@@ -163,10 +163,11 @@ once `@neondatabase/auth` ships better-auth ≥ 1.7.7 and zod ≥ 4.6.6.
 
 ## Learning widget
 
-The Dashboard will get a "Learn today" card (#463), backed by Niko's **Daily Learning
-Agent** in n8n: one interview topic a day, a deeper explanation on request, and a 3-question
-quiz; only a passed quiz marks a topic as understood. n8n runs on Niko's Mac behind ngrok, so
-the app calls it **server side** through
+The Dashboard shows two **Learn cards** (#468, #480), backed by Niko's **Daily Learning
+Agent** in n8n: **New** (today's interview topic, a deeper explanation on request, a 3-question
+quiz) and **Review** (one topic understood before). Only a passed quiz (2 of 3) marks a topic as
+understood; the status (`learning` / `understood`) comes from the agent. n8n runs on Niko's Mac
+behind ngrok, so the app calls it **server side** through
 `/api/learning/{today,next,deepen,quiz,quiz/answer,review}` (#462, #478, `server/learning/`): the
 `X-Api-Key` never reaches the browser.
 
@@ -181,8 +182,10 @@ before, or `{ empty: true, reason }` as a normal `200` while there is none. n8n 
 call of a day only (`last_reviewed_at`, `times_taught + 1`); later calls the same day just read.
 So it is a `GET` with one side effect per day.
 
-The page `/learn` (#467) runs the whole flow — explanation, quiz, result. It checks the owner
-on the server (`isLearningOwner()` in `server/learning/`) and shows the normal not-found page to
+The page `/learn` (#467, #481) runs the whole flow for both slots — explanation, quiz, result.
+`/learn?slot=review` opens the review; the New | Review switch changes the slot without a reload
+(unsent quiz picks are lost on a switch). A passed review ends with "Back to dashboard", never
+with "Next topic". It checks the owner on the server (`isLearningOwner()` in `server/learning/`) and shows the normal not-found page to
 everyone else, before anything renders and without a request to n8n.
 The menu item "Learn" (under Stats, and in the command palette) uses the same check: the app layout
 calls `isLearningOwner()` and passes the result to the navigation, which never asks the proxy.

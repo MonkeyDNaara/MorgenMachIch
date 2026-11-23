@@ -18,7 +18,7 @@ type UseLearningOptions = {
 };
 
 /**
- * The Learn today state and its actions (#466), shared by the dashboard row and /learn: both
+ * The Learn today state and its actions (#466), shared by the dashboard cards and /learn: both
  * read the same store of a slot, so there is one `learning/today` (or `review`) call. See
  * `createLearningStore` for the phases and rules.
  */

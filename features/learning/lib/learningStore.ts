@@ -119,7 +119,7 @@ function errorOf(json: unknown): LearningError | null {
 type StoreOptions = { fetchImpl?: typeof fetch; slot?: LearningSlot };
 
 /**
- * The shared state of the Learn today row and the /learn page (#466): one request at a time,
+ * The shared state of the Learn cards and the /learn page (#466): one request at a time,
  * one module-level store (`useSyncExternalStore`), so both see the same topic without a second
  * `learning/today` call. The UI only talks to `useLearning()`; when TanStack Query arrives
  * (#314) this can be swapped out behind that hook.

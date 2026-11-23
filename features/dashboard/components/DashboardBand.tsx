@@ -11,7 +11,7 @@ type DashboardBandProps = {
   /** The other cards in desktop order (Yesterday, Body, Training, This week). */
   widgets: DashboardWidget[];
   /**
-   * Optional full-width second row (Learn today, #468). Last in the DOM and on
+   * Optional full-width second row (the Learn cards, #468, #480). Last in the DOM and on
    * desktop; below md it sits right after Important.
    */
   wide?: ReactNode;
