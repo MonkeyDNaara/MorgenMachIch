@@ -3,23 +3,29 @@ import {
   LearningDeepenSchema,
   LearningQuizResultSchema,
   LearningQuizSchema,
+  LearningReviewSchema,
   LearningTopicSchema,
   type LearningQuiz,
   type LearningQuizResult,
+  type LearningReview,
   type LearningTopic,
 } from "@/lib/types/learning";
 
-/** The five calls of the learning proxy (#462). */
-export type LearningAction = "today" | "next" | "deepen" | "quiz" | "answer";
+/** The calls of the learning proxy (#462, `review` #479). */
+export type LearningAction = "today" | "next" | "deepen" | "quiz" | "answer" | "review";
+
+/** What a store loads first: today's new topic, or an understood topic for review (#479). */
+export type LearningSlot = "today" | "review";
 
 /**
  * - `loading`: a request is in flight (`action` says which; `elapsedSeconds` counts up)
  * - `ready`: the last request worked; `topic` (and `quiz` / `result`) are current
  * - `offline`: the agent isn't reachable (proxy 503, network error, or Cancel on the first load)
+ * - `empty`: review slot only, there is no understood topic yet (`topic` is null)
  * - `error`: the agent refused or failed (`error` has the code and message)
  * - `hidden`: not signed in or not the owner (proxy 401/404); render nothing
  */
-export type LearningPhase = "loading" | "ready" | "offline" | "error" | "hidden";
+export type LearningPhase = "loading" | "ready" | "empty" | "offline" | "error" | "hidden";
 
 export type LearningError = { code: string; message: string };
 
@@ -28,6 +34,8 @@ export type LearningState = {
   /** The request in flight, or the one that just failed (what Retry repeats). */
   action: LearningAction | null;
   topic: LearningTopic | null;
+  /** Review slot: when the agent first showed this topic for review today; otherwise null. */
+  lastReviewedAt: string | null;
   quiz: LearningQuiz | null;
   result: LearningQuizResult | null;
   error: LearningError | null;
@@ -39,6 +47,7 @@ export const INITIAL_LEARNING_STATE: LearningState = {
   phase: "loading",
   action: null,
   topic: null,
+  lastReviewedAt: null,
   quiz: null,
   result: null,
   error: null,
@@ -49,9 +58,11 @@ export type LearningStore = {
   subscribe: (listener: () => void) => () => void;
   getSnapshot: () => LearningState;
   getServerSnapshot: () => LearningState;
-  /** Loads today's topic unless one is shown already or a request is running. */
+  /** Loads the slot's topic unless one is shown (or the review is empty) or a request is running. */
   ensureLoaded: () => Promise<void>;
+  /** Loads the slot's topic again: today's topic, or the review topic in the review slot. */
   today: () => Promise<void>;
+  /** A new topic; does nothing in the review slot (it must never replace today's topic). */
   next: () => Promise<void>;
   deepen: () => Promise<void>;
   quiz: () => Promise<void>;
@@ -105,7 +116,7 @@ function errorOf(json: unknown): LearningError | null {
     : null;
 }
 
-type StoreOptions = { fetchImpl?: typeof fetch };
+type StoreOptions = { fetchImpl?: typeof fetch; slot?: LearningSlot };
 
 /**
  * The shared state of the Learn today row and the /learn page (#466): one request at a time,
@@ -119,8 +130,12 @@ type StoreOptions = { fetchImpl?: typeof fetch };
  * - `503` and network errors → `offline`; JSON `422` → `error` with the server's message.
  * - A second call while a request runs does nothing (a double click) and returns the same promise.
  * - Cancel restores the earlier phase; without a topic to go back to it shows `offline`.
+ * - Two stores, one per slot (#479), so a slow `today` doesn't block the review.
  */
-export function createLearningStore({ fetchImpl }: StoreOptions = {}): LearningStore {
+export function createLearningStore({
+  fetchImpl,
+  slot = "today",
+}: StoreOptions = {}): LearningStore {
   const doFetch: typeof fetch = (input, init) => (fetchImpl ?? fetch)(input, init);
   let state = INITIAL_LEARNING_STATE;
   const listeners = new Set<() => void>();
@@ -184,8 +199,8 @@ export function createLearningStore({ fetchImpl }: StoreOptions = {}): LearningS
       case "ok":
         ownerKnown = true;
         set({
+          phase: "ready", // a spec may override it (`empty`)
           ...spec.apply(outcome.data as never, state),
-          phase: "ready",
           action: null,
           error: null,
           elapsedSeconds: 0,
@@ -232,8 +247,24 @@ export function createLearningStore({ fetchImpl }: StoreOptions = {}): LearningS
     method: "GET",
     path: "today",
     schema: LearningTopicSchema,
-    apply: (topic: LearningTopic) => ({ topic, quiz: null, result: null }),
+    apply: (topic: LearningTopic) => ({ topic, lastReviewedAt: null, quiz: null, result: null }),
   };
+
+  const REVIEW: Spec = {
+    action: "review",
+    method: "GET",
+    path: "review",
+    schema: LearningReviewSchema,
+    apply: (data: LearningReview) => {
+      if ("empty" in data) {
+        return { phase: "empty", topic: null, lastReviewedAt: null, quiz: null, result: null };
+      }
+      const { last_reviewed_at: lastReviewedAt, ...topic } = data;
+      return { topic, lastReviewedAt, quiz: null, result: null };
+    },
+  };
+
+  const FIRST = slot === "review" ? REVIEW : TODAY;
 
   const NEXT: Spec = {
     action: "next",
@@ -253,11 +284,11 @@ export function createLearningStore({ fetchImpl }: StoreOptions = {}): LearningS
 
     ensureLoaded() {
       if (flight) return flight.promise;
-      if (state.phase === "ready") return Promise.resolve();
-      return start(TODAY);
+      if (state.phase === "ready" || state.phase === "empty") return Promise.resolve();
+      return start(FIRST);
     },
-    today: () => start(TODAY),
-    next: () => start(NEXT),
+    today: () => start(FIRST),
+    next: () => (slot === "review" ? Promise.resolve() : start(NEXT)),
 
     deepen() {
       const { topic } = state;
@@ -301,7 +332,15 @@ export function createLearningStore({ fetchImpl }: StoreOptions = {}): LearningS
         path: "quiz/answer",
         body: { id: quiz.id, answers },
         schema: LearningQuizResultSchema,
-        apply: (data: LearningQuizResult) => ({ result: data }),
+        apply: (data: LearningQuizResult, current) => ({
+          result: data,
+          // The agent decides: a pass makes the topic `understood`, a fail sets it back to
+          // `learning` (`understood_at` stays). `times_taught` counts deliveries, not quizzes.
+          topic:
+            current.topic && current.topic.id === data.id
+              ? { ...current.topic, status: data.status, understood_at: data.understood_at }
+              : current.topic,
+        }),
       });
     },
 
@@ -319,7 +358,12 @@ export function createLearningStore({ fetchImpl }: StoreOptions = {}): LearningS
       clearInterval(own.timer);
       own.controller.abort();
       const { before } = own;
-      if (before.phase === "ready" || before.phase === "offline" || before.phase === "error") {
+      if (
+        before.phase === "ready" ||
+        before.phase === "empty" ||
+        before.phase === "offline" ||
+        before.phase === "error"
+      ) {
         set({ phase: before.phase, action: before.action, error: before.error, elapsedSeconds: 0 });
       } else {
         set({
@@ -332,5 +376,11 @@ export function createLearningStore({ fetchImpl }: StoreOptions = {}): LearningS
   };
 }
 
-/** The store the app uses; tests create their own with `createLearningStore`. */
-export const learningStore = createLearningStore();
+/** The stores the app uses, one per slot; tests create their own with `createLearningStore`. */
+export const learningStores: Record<LearningSlot, LearningStore> = {
+  today: createLearningStore({ slot: "today" }),
+  review: createLearningStore({ slot: "review" }),
+};
+
+/** The Today store (#466 name), kept so existing imports keep working. */
+export const learningStore = learningStores.today;

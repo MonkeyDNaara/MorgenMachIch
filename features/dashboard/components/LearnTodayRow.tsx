@@ -15,6 +15,7 @@ const LOADING_LABEL: Record<LearningAction, string> = {
   deepen: "Writing a deeper explanation…",
   quiz: "Building your quiz…",
   answer: "Checking your answers…",
+  review: "Fetching your review…",
 };
 
 const SOURCE = "daily learning agent";
