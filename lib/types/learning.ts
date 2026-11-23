@@ -77,6 +77,23 @@ export const LearningQuizResultSchema = z.object({
 });
 export type LearningQuizResult = z.infer<typeof LearningQuizResultSchema>;
 
+/** `GET learning/review`: a topic that was understood, plus when it was picked as the review. */
+export const LearningReviewTopicSchema = LearningTopicSchema.extend({
+  last_reviewed_at: IsoDateTimeSchema,
+});
+export type LearningReviewTopic = z.infer<typeof LearningReviewTopicSchema>;
+
+/** `GET learning/review` with nothing to review: a normal `200`, not an error. */
+export const LearningReviewEmptySchema = z.object({
+  empty: z.literal(true),
+  reason: z.string(),
+});
+export type LearningReviewEmpty = z.infer<typeof LearningReviewEmptySchema>;
+
+/** Empty first: a topic can never match the empty branch (it has no `empty: true`). */
+export const LearningReviewSchema = z.union([LearningReviewEmptySchema, LearningReviewTopicSchema]);
+export type LearningReview = z.infer<typeof LearningReviewSchema>;
+
 /** `POST /api/learning/deepen` and `/quiz`. */
 export const LearningIdBodySchema = z.object({ id: LearningIdSchema }).strict();
 
