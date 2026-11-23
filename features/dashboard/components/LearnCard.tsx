@@ -6,6 +6,7 @@ import DashboardCard from "@/features/dashboard/components/DashboardCard";
 import LearnLoading from "@/features/learning/components/LearnLoading";
 import { useLearning } from "@/features/learning/hooks/useLearning";
 import type { LearningSlot } from "@/features/learning/lib/learningStore";
+import { learnHref } from "@/features/learning/lib/learnSlot";
 import { learnMetaOf } from "@/features/learning/lib/learnMeta";
 import { LOADING_LABEL } from "@/features/learning/lib/loadingLabels";
 import { CANCEL_AFTER_SECONDS } from "@/features/learning/lib/loadingProgress";
@@ -123,13 +124,13 @@ export default function LearnCard({ slot }: LearnCardProps) {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {slot === "review" ? (
-            <Link href="/learn?slot=review" className={`btn btn-primary gap-1.5 ${BTN}`}>
+            <Link href={learnHref("review")} className={`btn btn-primary gap-1.5 ${BTN}`}>
               Open
               <ArrowRight size={14} aria-hidden />
             </Link>
           ) : meta.understood ? (
             <>
-              <Link href="/learn" className={`btn btn-ghost ${BTN}`}>
+              <Link href={learnHref("today")} className={`btn btn-ghost ${BTN}`}>
                 Read again
               </Link>
               <button
@@ -151,7 +152,7 @@ export default function LearnCard({ slot }: LearnCardProps) {
                 <Shuffle size={14} aria-hidden />
                 New topic
               </button>
-              <Link href="/learn" className={`btn btn-primary gap-1.5 ${BTN}`}>
+              <Link href={learnHref("today")} className={`btn btn-primary gap-1.5 ${BTN}`}>
                 Open
                 <ArrowRight size={14} aria-hidden />
               </Link>
