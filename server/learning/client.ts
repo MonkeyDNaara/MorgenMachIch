@@ -4,7 +4,10 @@ import { ApiError } from "@/server/api/errors";
 import type { LearningEnv } from "@/server/env/parseLearningEnv";
 
 /** The n8n webhooks of the Daily Learning Agent (#462), relative to `LEARNING_API_URL`. */
-export type LearningAction = "today" | "next" | "deepen" | "quiz" | "quiz/answer";
+export type LearningAction = "today" | "next" | "deepen" | "quiz" | "quiz/answer" | "review";
+
+/** The webhooks n8n serves as GET (no body); every other action is a POST. */
+const GET_ACTIONS: readonly LearningAction[] = ["today", "review"];
 
 /** LLM calls (generate, deepen, quiz) take 5–30 s; anything longer counts as offline. */
 export const LEARNING_TIMEOUT_MS = 60_000;
@@ -54,7 +57,7 @@ export async function callLearning<T>(
   let response: Response;
   try {
     response = await fetchImpl(`${env.LEARNING_API_URL}/${action}`, {
-      method: action === "today" ? "GET" : "POST",
+      method: GET_ACTIONS.includes(action) ? "GET" : "POST",
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),
       signal: AbortSignal.timeout(timeoutMs),
