@@ -29,9 +29,13 @@ async function failure(promise: Promise<unknown>) {
 const OFFLINE = { status: 503, code: "learning_offline" };
 
 describe("callLearning (#462)", () => {
-  it("sends GET for today, POST with a JSON body otherwise, always with the key", async () => {
+  it("sends GET for today and review, POST with a JSON body otherwise, always with the key", async () => {
     const fetchImpl = answer(JSON.stringify({ id: 1, topic: "Heap", extra: true }));
     expect(await callLearning(ENV, "today", Schema, { fetchImpl })).toEqual({
+      id: 1,
+      topic: "Heap",
+    });
+    expect(await callLearning(ENV, "review", Schema, { fetchImpl })).toEqual({
       id: 1,
       topic: "Heap",
     });
@@ -39,14 +43,16 @@ describe("callLearning (#462)", () => {
       id: 1,
       topic: "Heap",
     });
-    const [[todayUrl, today], [answerUrl, post]] = fetchImpl.mock.calls as unknown as [
-      string,
-      RequestInit,
-    ][];
+    const [[todayUrl, today], [reviewUrl, review], [answerUrl, post]] = fetchImpl.mock
+      .calls as unknown as [string, RequestInit][];
     expect(todayUrl).toBe("https://n8n.example/webhook/learning/today");
     expect(today.method).toBe("GET");
     expect(today.body).toBeUndefined();
     expect((today.headers as Record<string, string>)["X-Api-Key"]).toBe(ENV.LEARNING_API_KEY);
+    expect(reviewUrl).toBe("https://n8n.example/webhook/learning/review");
+    expect(review.method).toBe("GET");
+    expect(review.body).toBeUndefined();
+    expect((review.headers as Record<string, string>)["X-Api-Key"]).toBe(ENV.LEARNING_API_KEY);
     expect(answerUrl).toBe("https://n8n.example/webhook/learning/quiz/answer");
     expect(post.method).toBe("POST");
     expect(post.body).toBe('{"id":1}');
