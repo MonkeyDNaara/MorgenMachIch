@@ -5,18 +5,9 @@ import { ArrowRight, Check, RefreshCw, Shuffle } from "lucide-react";
 import DashboardCard from "@/features/dashboard/components/DashboardCard";
 import LearnLoading from "@/features/learning/components/LearnLoading";
 import { useLearning } from "@/features/learning/hooks/useLearning";
-import type { LearningAction } from "@/features/learning/lib/learningStore";
+import { LOADING_LABEL } from "@/features/learning/lib/loadingLabels";
 import { CANCEL_AFTER_SECONDS } from "@/features/learning/lib/loadingProgress";
 import { teaserOf } from "@/features/learning/lib/teaser";
-
-const LOADING_LABEL: Record<LearningAction, string> = {
-  today: "Fetching today’s topic…",
-  next: "Choosing and writing the next topic…",
-  deepen: "Writing a deeper explanation…",
-  quiz: "Building your quiz…",
-  answer: "Checking your answers…",
-  review: "Fetching your review…",
-};
 
 const SOURCE = "daily learning agent";
 
