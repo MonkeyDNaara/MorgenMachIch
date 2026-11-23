@@ -20,17 +20,8 @@ import LearnQuiz from "@/features/learning/components/LearnQuiz";
 import LearnResult from "@/features/learning/components/LearnResult";
 import LearnStepper from "@/features/learning/components/LearnStepper";
 import { useLearning } from "@/features/learning/hooks/useLearning";
-import type { LearningAction } from "@/features/learning/lib/learningStore";
+import { LOADING_LABEL } from "@/features/learning/lib/loadingLabels";
 import { CANCEL_AFTER_SECONDS } from "@/features/learning/lib/loadingProgress";
-
-const LOADING_LABEL: Record<LearningAction, string> = {
-  today: "Fetching today’s topic…",
-  next: "Choosing and writing the next topic…",
-  deepen: "Writing a deeper explanation…",
-  quiz: "Building your quiz…",
-  answer: "Checking your answers…",
-  review: "Fetching your review…",
-};
 
 const STEP_NAME = ["Explanation", "Quiz", "Result"] as const;
 
