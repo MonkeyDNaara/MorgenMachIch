@@ -96,6 +96,20 @@ async function readyStore() {
 
 afterEach(() => vi.useRealTimers());
 
+const REVIEW_TOPIC = {
+  id: 9,
+  topic: "Promises",
+  explanation: "A value that arrives later.",
+  deep_explanation: null,
+  status: "understood",
+  understood_at: "2026-11-20T09:00:00.000Z",
+  times_taught: 2,
+  last_reviewed_at: "2026-11-23T05:00:00.000Z",
+};
+const { last_reviewed_at: REVIEWED_AT, ...REVIEW_AS_TOPIC } = REVIEW_TOPIC;
+const reviewStore = (net: ReturnType<typeof controlledFetch>) =>
+  createLearningStore({ fetchImpl: net.fetchImpl, slot: "review" });
+
 describe("learning store: loading today's topic (#466)", () => {
   it("starts in loading, asks for today and ends ready with the topic", async () => {
     const net = controlledFetch();
@@ -529,5 +543,119 @@ describe("learning store: cancel and elapsed seconds (#466)", () => {
     store.cancel();
     vi.advanceTimersByTime(5000);
     expect(store.getSnapshot().elapsedSeconds).toBe(0);
+  });
+});
+
+describe("learning store: review slot (#479)", () => {
+  it("asks for the review and keeps last_reviewed_at next to the topic", async () => {
+    const net = controlledFetch();
+    const store = reviewStore(net);
+    const done = store.ensureLoaded();
+    expect(store.getSnapshot()).toMatchObject({ phase: "loading", action: "review" });
+    expect(net.calls[0].url).toBe("/api/learning/review");
+    expect(net.calls[0].init.method).toBe("GET");
+    net.answer(ok(REVIEW_TOPIC));
+    await done;
+    expect(store.getSnapshot()).toMatchObject({
+      phase: "ready",
+      action: null,
+      topic: REVIEW_AS_TOPIC,
+      lastReviewedAt: REVIEWED_AT,
+    });
+  });
+
+  it("shows the empty phase and doesn't ask again on ensureLoaded", async () => {
+    const net = controlledFetch();
+    const store = reviewStore(net);
+    let done = store.ensureLoaded();
+    net.answer(ok({ empty: true, reason: "no_understood_topics" }));
+    await done;
+    expect(store.getSnapshot()).toMatchObject({
+      phase: "empty",
+      topic: null,
+      lastReviewedAt: null,
+    });
+    await store.ensureLoaded();
+    expect(net.calls).toHaveLength(1);
+
+    done = store.today();
+    expect(net.calls).toHaveLength(2);
+    net.answer(ok(REVIEW_TOPIC));
+    await done;
+    expect(store.getSnapshot()).toMatchObject({ phase: "ready", topic: REVIEW_AS_TOPIC });
+  });
+
+  it("next does nothing in the review slot", async () => {
+    const net = controlledFetch();
+    const store = reviewStore(net);
+    const done = store.ensureLoaded();
+    net.answer(ok(REVIEW_TOPIC));
+    await done;
+    await store.next();
+    expect(net.calls).toHaveLength(1);
+    expect(store.getSnapshot()).toMatchObject({ phase: "ready", topic: REVIEW_AS_TOPIC });
+  });
+
+  it("two stores run side by side, one request in flight each", async () => {
+    const net = controlledFetch();
+    const today = createLearningStore({ fetchImpl: net.fetchImpl });
+    const review = reviewStore(net);
+    const a = today.ensureLoaded();
+    const b = review.ensureLoaded();
+    expect(net.calls.map((call) => call.url)).toEqual([
+      "/api/learning/today",
+      "/api/learning/review",
+    ]);
+    net.answer(ok(TOPIC));
+    net.answer(ok(REVIEW_TOPIC));
+    await Promise.all([a, b]);
+    expect(today.getSnapshot().topic).toEqual(TOPIC);
+    expect(review.getSnapshot().topic).toEqual(REVIEW_AS_TOPIC);
+  });
+
+  it("a failed quiz in the review slot sets the topic back to learning", async () => {
+    const net = controlledFetch();
+    const store = reviewStore(net);
+    let step = store.ensureLoaded();
+    net.answer(ok(REVIEW_TOPIC));
+    await step;
+    step = store.quiz();
+    expect(JSON.parse(String(net.calls[1].init.body))).toEqual({ id: 9 });
+    net.answer(ok({ ...QUIZ, id: 9 }));
+    await step;
+    step = store.answer([2, 2, 2]);
+    net.answer(
+      ok({
+        ...RESULT,
+        id: 9,
+        passed: false,
+        score: 0,
+        status: "learning",
+        understood_at: REVIEW_TOPIC.understood_at,
+      }),
+    );
+    await step;
+    expect(store.getSnapshot().topic).toEqual({ ...REVIEW_AS_TOPIC, status: "learning" });
+  });
+
+  it("is hidden on a 404 before anything worked", async () => {
+    const net = controlledFetch();
+    const store = reviewStore(net);
+    const done = store.ensureLoaded();
+    net.answer(fail(404, "not_found", "Not found."));
+    await done;
+    expect(store.getSnapshot().phase).toBe("hidden");
+  });
+
+  it("cancel goes back to empty", async () => {
+    const net = controlledFetch();
+    const store = reviewStore(net);
+    let done = store.ensureLoaded();
+    net.answer(ok({ empty: true, reason: "no_understood_topics" }));
+    await done;
+    done = store.today();
+    store.cancel();
+    await done;
+    expect(store.getSnapshot().phase).toBe("empty");
   });
 });
