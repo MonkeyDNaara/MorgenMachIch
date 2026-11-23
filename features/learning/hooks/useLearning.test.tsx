@@ -7,6 +7,9 @@ const TOPIC = {
   topic: "Closures",
   explanation: "A closure keeps its scope.",
   deep_explanation: null,
+  status: "learning",
+  understood_at: null,
+  times_taught: 1,
 };
 
 const fetchMock = vi.fn();

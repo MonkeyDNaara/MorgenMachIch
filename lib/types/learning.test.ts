@@ -8,12 +8,15 @@ import {
   LearningTopicSchema,
 } from "@/lib/types/learning";
 
-/** Real n8n answers from 2026-11-21, texts shortened. */
+/** Real n8n answers from 2026-11-21 and 2026-11-23 (status, review), texts shortened. */
 const TODAY = {
   id: 3,
   topic: "Klasse vs. Objekt vs. Interface",
   explanation: "# Klasse, Objekt und Interface\n\n**Klasse (Class):** Eine Klasse ist …",
   deep_explanation: null,
+  status: "learning",
+  understood_at: null,
+  times_taught: 1,
 };
 const QUIZ = {
   id: 3,
@@ -45,8 +48,9 @@ const RESULT = {
       why: "Ein Interface ist ein Vertrag …",
     },
   ],
+  status: "learning",
+  understood_at: null,
 };
-
 describe("learning schemas (#462)", () => {
   it("accept the real n8n answers", () => {
     expect(LearningTopicSchema.parse(TODAY)).toEqual(TODAY);
@@ -55,11 +59,16 @@ describe("learning schemas (#462)", () => {
   });
 
   it("treat a missing or empty deep explanation as null and drop unknown fields", () => {
-    const next = { id: TODAY.id, topic: TODAY.topic, explanation: TODAY.explanation };
+    const next = {
+      id: TODAY.id,
+      topic: TODAY.topic,
+      explanation: TODAY.explanation,
+      status: TODAY.status,
+      understood_at: TODAY.understood_at,
+      times_taught: TODAY.times_taught,
+    };
     expect(LearningTopicSchema.parse(next).deep_explanation).toBeNull();
-    expect(
-      LearningTopicSchema.parse({ ...TODAY, deep_explanation: "", status: "learning" }),
-    ).toEqual(TODAY);
+    expect(LearningTopicSchema.parse({ ...TODAY, deep_explanation: "", extra: 1 })).toEqual(TODAY);
     expect(LearningDeepenSchema.parse({ ...TODAY, deep_explanation: "Deeper" })).toEqual({
       id: 3,
       deep_explanation: "Deeper",
