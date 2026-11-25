@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Check, RefreshCw, Shuffle } from "lucide-react";
+import { ArrowRight, Check, RefreshCw } from "lucide-react";
 import DashboardCard from "@/features/dashboard/components/DashboardCard";
 import LearnLoading from "@/features/learning/components/LearnLoading";
 import { useLearning } from "@/features/learning/hooks/useLearning";
 import type { LearningSlot } from "@/features/learning/lib/learningStore";
 import { learnHref } from "@/features/learning/lib/learnSlot";
 import { learnMetaOf } from "@/features/learning/lib/learnMeta";
+import { NEW_TOPIC_TOMORROW } from "@/features/learning/lib/learnRhythm";
 import { LOADING_LABEL } from "@/features/learning/lib/loadingLabels";
 import { CANCEL_AFTER_SECONDS } from "@/features/learning/lib/loadingProgress";
 import { teaserOf } from "@/features/learning/lib/teaser";
@@ -26,6 +27,7 @@ type LearnCardProps = {
  * One Learn card on the dashboard (#480): a topic with its status, a teaser and the way into
  * /learn. Each slot has its own store, so a slow or failing card never blocks the other one.
  * "Understood" comes from the topic's `status` (the agent decides), so it survives a reload.
+ * The New topic stays until it is understood; then a new one comes the next day (#490).
  * Only mounted for the learning owner (the server page decides); a 401/404 hides it again.
  */
 export default function LearnCard({ slot }: LearnCardProps) {
@@ -118,8 +120,10 @@ export default function LearnCard({ slot }: LearnCardProps) {
         <div className="flex min-w-0 flex-col gap-2">
           <p className="text-[1.25rem] leading-snug font-semibold">{topic.topic}</p>
           {teaser && <p className="line-clamp-2 text-sm text-muted">{teaser}</p>}
-          {!meta.understood && (
+          {!meta.understood ? (
             <p className="text-xs text-subtle">Explanation and a 3-question quiz · pass with 2</p>
+          ) : (
+            slot === "today" && <p className="text-xs text-subtle">{NEW_TOPIC_TOMORROW}</p>
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -133,30 +137,22 @@ export default function LearnCard({ slot }: LearnCardProps) {
               <Link href={learnHref("today")} className={`btn btn-ghost ${BTN}`}>
                 Read again
               </Link>
+              {/* A deliberate "one more today"; the next topic normally comes tomorrow. */}
               <button
                 type="button"
                 onClick={() => void next()}
-                className={`btn btn-primary gap-1.5 ${BTN}`}
+                className={`btn btn-ghost gap-1.5 ${BTN}`}
               >
                 Next topic
                 <ArrowRight size={14} aria-hidden />
               </button>
             </>
           ) : (
-            <>
-              <button
-                type="button"
-                onClick={() => void next()}
-                className={`btn btn-ghost gap-1.5 ${BTN}`}
-              >
-                <Shuffle size={14} aria-hidden />
-                New topic
-              </button>
-              <Link href={learnHref("today")} className={`btn btn-primary gap-1.5 ${BTN}`}>
-                Open
-                <ArrowRight size={14} aria-hidden />
-              </Link>
-            </>
+            // No "New topic": a topic stays until it is understood (#490).
+            <Link href={learnHref("today")} className={`btn btn-primary gap-1.5 ${BTN}`}>
+              Open
+              <ArrowRight size={14} aria-hidden />
+            </Link>
           )}
         </div>
       </div>

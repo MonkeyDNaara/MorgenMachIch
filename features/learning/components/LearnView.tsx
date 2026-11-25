@@ -3,15 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { notFound, useRouter } from "next/navigation";
-import {
-  ArrowRight,
-  BookOpen,
-  CircleHelp,
-  RefreshCw,
-  Shuffle,
-  TriangleAlert,
-  WifiOff,
-} from "lucide-react";
+import { ArrowRight, BookOpen, CircleHelp, RefreshCw, TriangleAlert, WifiOff } from "lucide-react";
 import EmptyState from "@/components/ui/EmptyState";
 import Markdown from "@/components/ui/Markdown";
 import PageHeader from "@/components/ui/PageHeader";
@@ -25,6 +17,7 @@ import { useLearning } from "@/features/learning/hooks/useLearning";
 import type { LearningSlot } from "@/features/learning/lib/learningStore";
 import { learnHref } from "@/features/learning/lib/learnSlot";
 import { learnMetaOf } from "@/features/learning/lib/learnMeta";
+import { NEW_TOPIC_TOMORROW } from "@/features/learning/lib/learnRhythm";
 import { LOADING_LABEL } from "@/features/learning/lib/loadingLabels";
 import { CANCEL_AFTER_SECONDS } from "@/features/learning/lib/loadingProgress";
 
@@ -173,7 +166,14 @@ function LearnSlotView({ slot }: { slot: LearningSlot }) {
       </div>
     );
   } else if (step === 2 && result) {
-    body = <LearnResult result={result} />;
+    body = (
+      <div className="flex flex-col gap-6">
+        {result.passed && slot === "today" && (
+          <p className="text-sm text-muted">{NEW_TOPIC_TOMORROW}</p>
+        )}
+        <LearnResult result={result} />
+      </div>
+    );
     bar = (
       <LearnActionBar>
         <div className="ml-auto flex items-center gap-2">
@@ -184,10 +184,16 @@ function LearnSlotView({ slot }: { slot: LearningSlot }) {
               <ArrowRight size={14} aria-hidden />
             </Link>
           ) : result.passed ? (
-            <button type="button" onClick={nextTopic} className="btn btn-primary gap-1.5">
-              Next topic
-              <ArrowRight size={14} aria-hidden />
-            </button>
+            // The next topic comes tomorrow (#490); "Next topic" is a deliberate extra.
+            <>
+              <button type="button" onClick={nextTopic} className="btn btn-ghost gap-1.5">
+                Next topic
+              </button>
+              <Link href="/dashboard" className="btn btn-primary gap-1.5">
+                Back to dashboard
+                <ArrowRight size={14} aria-hidden />
+              </Link>
+            </>
           ) : (
             <>
               <button
@@ -292,20 +298,19 @@ function LearnSlotView({ slot }: { slot: LearningSlot }) {
             type="button"
             disabled={deepening}
             onClick={startQuiz}
-            className={`btn gap-1.5 ${understoodNew ? "" : "btn-primary"}`}
+            className="btn btn-primary gap-1.5"
           >
             Start quiz
-            {!understoodNew && <ArrowRight size={14} aria-hidden />}
+            <ArrowRight size={14} aria-hidden />
           </button>
           {understoodNew && (
             <button
               type="button"
               disabled={deepening}
               onClick={nextTopic}
-              className="btn btn-primary gap-1.5"
+              className="btn btn-ghost gap-1.5"
             >
               Next topic
-              <ArrowRight size={14} aria-hidden />
             </button>
           )}
         </div>
@@ -322,21 +327,6 @@ function LearnSlotView({ slot }: { slot: LearningSlot }) {
           eyebrow={slot === "review" ? "Learn · review" : "Learn · new"}
           title={topic?.topic ?? (slot === "review" ? "Review topic" : "Today’s topic")}
           meta={meta}
-          actions={
-            // Review never replaces today's topic, so only New has a "New topic".
-            slot === "today" ? (
-              <button
-                type="button"
-                aria-label="New topic"
-                disabled={loading}
-                onClick={nextTopic}
-                className="btn btn-ghost btn-sm gap-1.5"
-              >
-                <Shuffle size={14} aria-hidden />
-                <span className="hidden sm:inline">New topic</span>
-              </button>
-            ) : undefined
-          }
         />
         {phase !== "empty" && <LearnStepper step={step} />}
       </div>

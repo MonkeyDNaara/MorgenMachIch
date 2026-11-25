@@ -173,7 +173,7 @@ describe("LearnView (#467)", () => {
     expect(within(group).getAllByRole("radio")[1].getAttribute("aria-checked")).toBe("true");
   });
 
-  it("sends the answers and shows a passed result with Next topic", async () => {
+  it("a passed result says a new topic comes tomorrow and ends on the dashboard (#490)", async () => {
     route();
     await renderView();
     await toQuiz();
@@ -182,7 +182,12 @@ describe("LearnView (#467)", () => {
     expect(await screen.findByText("Passed")).toBeTruthy();
     expect(screen.getByText("2/3", { exact: false })).toBeTruthy();
     expect(screen.getByText("Your answer:")).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Next topic/ })).toBeTruthy();
+    expect(screen.getByText("A new topic comes tomorrow.")).toBeTruthy();
+    const back = screen.getByRole("link", { name: /Back to dashboard/ });
+    expect(back.className).toContain("btn-primary");
+    expect(screen.getByRole("button", { name: /Next topic/ }).className).not.toContain(
+      "btn-primary",
+    );
     const body = JSON.parse(fetchMock.mock.calls.at(-1)?.[1].body);
     expect(body).toEqual({ id: 7, answers: [0, 0, 0] });
   });
@@ -195,6 +200,7 @@ describe("LearnView (#467)", () => {
     fireEvent.click(screen.getByRole("button", { name: /Submit/ }));
     expect(await screen.findByText("Not passed")).toBeTruthy();
     expect(screen.queryByRole("button", { name: /Next topic/ })).toBeNull();
+    expect(screen.queryByText("A new topic comes tomorrow.")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /Read again/ }));
     expect(screen.getByText("scope")).toBeTruthy();
     expect(currentStep()).toBe("Explanation");
@@ -254,13 +260,14 @@ describe("LearnView (#467)", () => {
 describe("LearnView slots (#481)", () => {
   const urls = () => fetchMock.mock.calls.map(([url]) => String(url));
 
-  it("New slot: eyebrow, New topic in the header, meta from the topic", async () => {
+  it("New slot: eyebrow, no New topic in the header (#490), meta from the topic", async () => {
     route();
     await renderView();
     await screen.findByRole("heading", { level: 1, name: "Closures" });
     expect(screen.getByText("Learn · new")).toBeTruthy();
     expect(screen.getByText("learning · taught 1×")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "New topic" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "New topic" })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Next topic/ })).toBeNull();
     expect(urls()).toEqual(["/api/learning/today"]);
     expect(screen.getByRole("radio", { name: "New" }).getAttribute("aria-checked")).toBe("true");
   });
@@ -360,7 +367,7 @@ describe("LearnView slots (#481)", () => {
     expect(await screen.findByText("understood 20 Nov · taught 2×")).toBeTruthy();
   });
 
-  it("an understood New topic after a reload: Next topic is primary, Start quiz is practice", async () => {
+  it("an understood New topic after a reload: Start quiz is primary, Next topic secondary", async () => {
     route({
       today: () =>
         Response.json({
@@ -370,8 +377,8 @@ describe("LearnView slots (#481)", () => {
     await renderView();
     await screen.findByRole("heading", { level: 1, name: "Closures" });
     expect(screen.getByText("understood · taught 1×")).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Next topic/ }).className).toContain("btn-primary");
-    expect(screen.getByRole("button", { name: /Start quiz/ }).className).not.toContain(
+    expect(screen.getByRole("button", { name: /Start quiz/ }).className).toContain("btn-primary");
+    expect(screen.getByRole("button", { name: /Next topic/ }).className).not.toContain(
       "btn-primary",
     );
   });
