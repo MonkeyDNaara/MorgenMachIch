@@ -96,15 +96,13 @@ describe("LearnTodayRow: the New and Review cards (#480)", () => {
     ]);
   });
 
-  it("New topic belongs to the New card only; Review has no New or Next topic", async () => {
+  it("a not-understood New topic stays: no New or Next topic on either card (#490)", async () => {
     await renderRow();
     await screen.findByText("Promises");
-    expect(screen.getAllByRole("button", { name: /New topic/ })).toHaveLength(1);
+    expect(screen.queryByRole("button", { name: /New topic/ })).toBeNull();
     expect(screen.queryByRole("button", { name: /Next topic/ })).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: /New topic/ }));
-    await waitFor(() =>
-      expect(fetchMock.mock.calls.some(([url]) => String(url).endsWith("/next"))).toBe(true),
-    );
+    expect(screen.queryByText("A new topic comes tomorrow.")).toBeNull();
+    expect(screen.getByText("Explanation and a 3-question quiz · pass with 2")).toBeTruthy();
   });
 
   it("meta: New learning, Review with the day it was understood", async () => {
@@ -117,8 +115,15 @@ describe("LearnTodayRow: the New and Review cards (#480)", () => {
     answerByUrl({ today: { ...TOPIC, status: "understood", understood_at: REVIEW.understood_at } });
     await renderRow();
     expect(await screen.findByText("understood · taught 1×")).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Next topic/ })).toBeTruthy();
+    expect(screen.getByText("A new topic comes tomorrow.")).toBeTruthy();
     expect(screen.getByRole("link", { name: "Read again" }).getAttribute("href")).toBe("/learn");
+    // "Next topic" is a deliberate extra, not the primary action (#490).
+    const next = screen.getByRole("button", { name: /Next topic/ });
+    expect(next.className).not.toContain("btn-primary");
+    fireEvent.click(next);
+    await waitFor(() =>
+      expect(fetchMock.mock.calls.some(([url]) => String(url).endsWith("/next"))).toBe(true),
+    );
   });
 
   it("a passed quiz in this session makes the New topic understood without a reload", async () => {
@@ -131,6 +136,7 @@ describe("LearnTodayRow: the New and Review cards (#480)", () => {
     });
     expect(await screen.findByText("understood · taught 1×")).toBeTruthy();
     expect(screen.getByRole("button", { name: /Next topic/ })).toBeTruthy();
+    expect(screen.getByText("A new topic comes tomorrow.")).toBeTruthy();
   });
 
   it("a failed review quiz sets the Review topic back to learning", async () => {
