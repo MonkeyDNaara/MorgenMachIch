@@ -185,7 +185,9 @@ So it is a `GET` with one side effect per day.
 The page `/learn` (#467, #481) runs the whole flow for both slots — explanation, quiz, result.
 `/learn?slot=review` opens the review; the New | Review switch changes the slot without a reload
 (unsent quiz picks are lost on a switch). A passed review ends with "Back to dashboard", never
-with "Next topic". It checks the owner on the server (`isLearningOwner()` in `server/learning/`) and shows the normal not-found page to
+with "Next topic". A topic stays until it is understood: there is no "New topic" on the card or on
+`/learn`, and once it is understood both say "A new topic comes tomorrow." — the agent switches the
+topic the next day. It checks the owner on the server (`isLearningOwner()` in `server/learning/`) and shows the normal not-found page to
 everyone else, before anything renders and without a request to n8n.
 The menu item "Learn" (under Stats, and in the command palette) uses the same check: the app layout
 calls `isLearningOwner()` and passes the result to the navigation, which never asks the proxy.
@@ -221,7 +223,7 @@ Built epic by epic — every decision is recorded in [PLANNING.md](./docs/PLANNI
 - **Design:** own look ("Dawn Tactile" dark / "Dawn Paper" light, System / Light / Dark), keyboard-correct controls, custom date field
 - **PWA:** installable, own logo, offline app shell, update toast
 - **Landing page** with a live quick-add demo, generated screenshots, Open Graph image, Impressum and privacy notice
-- **Quality:** 900+ Vitest tests in four time zones, Prettier, ESLint layer rules, CI on every pull request
+- **Quality:** 1100+ Vitest tests in four time zones, Prettier, ESLint layer rules, CI on every pull request
 - **Accounts:** sign-up with an emailed code, sign-in, password reset, account in the navigation — Neon Auth, rate-limited; the login gate for the app pages is ready but off until sync arrives
 - **Server layer** (not wired to the UI yet): Neon Postgres in Frankfurt, Drizzle schema and migrations, a user-scoped service layer with server-side recurrence, tested against PGlite
 - **Hosting:** Render in Frankfurt on [morgenmachich.de](https://morgenmachich.de)
